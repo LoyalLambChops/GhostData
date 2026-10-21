@@ -11,7 +11,7 @@ namespace GhostData.Sensor
 {
     internal static class Program
     {
-        private const string SensorVersion = "1.2.0";
+        private const string SensorVersion = "1.2.1";
         private const string Provider = "ghostdata_sensor_unityspy";
 
         private static int Main(string[] args)
@@ -84,35 +84,14 @@ namespace GhostData.Sensor
                 return Failure("UNAVAILABLE", false, "Hearthstone is not running.", "");
             }
 
-            long cachedDeckId;
-            var hasCachedDeckId = TryArgumentLong(args, "--deck-id", out cachedDeckId);
             try
             {
-                using (var vision = new MindVision(inputProcessId: process.Id))
+                using (var reader = new CurrentDeckReader(process.Id))
                 {
-                    long? selectedDeckId = null;
-                    try
-                    {
-                        selectedDeckId = vision.GetSelectedDeckId();
-                    }
-                    catch
-                    {
-                        // Deck picker selection can disappear once matchmaking/game
-                        // transitions begin. The Python provider passes the last
-                        // verified deck id back to us for that reason.
-                    }
-
-                    long? requestedDeckId = selectedDeckId ?? (hasCachedDeckId ? (long?)cachedDeckId : null);
-                    var deck = vision.GetActiveDeck(requestedDeckId);
+                    var deck = reader.Read();
                     if (deck == null)
-                    {
-                        var reason = requestedDeckId.HasValue
-                            ? "Selected deck composition was not available from Hearthstone client state."
-                            : "No selected deck ID is currently visible. Open/select a Constructed deck once and retry.";
-                        return Failure("UNAVAILABLE", true, reason, TryFileVersion(process), requestedDeckId);
-                    }
-
-                    var deckId = selectedDeckId ?? (deck.DeckId != 0 ? (long?)deck.DeckId : requestedDeckId);
+                        return Failure("UNAVAILABLE", true, "The current client deck could not be verified.", TryFileVersion(process));
+                    long? deckId = deck.DeckId != 0 ? (long?)deck.DeckId : null;
                     var cardRows = GroupCardIds(deck.DeckList);
                     // GetActiveDeck is intentionally typed as IDeck. Constructed decks
                     // currently materialize as the concrete Deck type, which carries
@@ -195,8 +174,7 @@ namespace GhostData.Sensor
                     "INCOMPATIBLE",
                     true,
                     ex.GetType().Name + ": " + ex.Message,
-                    TryFileVersion(process),
-                    hasCachedDeckId ? (long?)cachedDeckId : null
+                    TryFileVersion(process)
                 );
             }
         }

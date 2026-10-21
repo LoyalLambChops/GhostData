@@ -78,6 +78,7 @@ class PlayerState:
     entity_id: Optional[int] = None
     name: Optional[str] = None
     player_class: Optional[str] = None
+    starting_class: Optional[str] = None
     hero_entity_id: Optional[int] = None
     hero_power_entity_id: Optional[int] = None
     resources: int = 0

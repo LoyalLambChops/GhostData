@@ -169,6 +169,8 @@ def run_tracker_stream(
     pending_line = b""
     sensor_worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="selected-deck")
     sensor_result = None
+    sensor_context = None
+    source_epoch = 0
     last_sensor_snapshot = None
     metadata_result = None
     metadata_refresh = False
@@ -187,14 +189,16 @@ def run_tracker_stream(
             tail = LogTail()
             pending_line = b""
             parser.reset_for_new_source()
-            tracker.reset_runtime(preserve_selected_deck=True)
+            tracker.reset_runtime(preserve_selected_deck=False)
+            source_epoch += 1
+            last_sensor_snapshot = None
             last_revision = -1
             last_secret_signature = ()
 
         if sensor_result is not None and sensor_result.done():
             try:
                 snapshot = sensor_result.result()
-                if snapshot is not None:
+                if snapshot is not None and sensor_context == (source_epoch, parser.state.game_number):
                     last_sensor_snapshot = snapshot
                     converted = _tracker_snapshot(snapshot, card_db)
                     if converted is not None:
@@ -204,6 +208,7 @@ def run_tracker_stream(
             sensor_result = None
         if sensor_result is None and now - last_sensor_poll >= 3.0:
             last_sensor_poll = now
+            sensor_context = (source_epoch, parser.state.game_number)
             sensor_result = sensor_worker.submit(read_selected_deck, project_root, data_dir=data_dir)
 
         if current_source is not None:
@@ -212,11 +217,18 @@ def run_tracker_stream(
                 if reset:
                     pending_line = b""
                     parser.reset_for_new_source()
-                    tracker.reset_runtime(preserve_selected_deck=True)
+                    tracker.reset_runtime(preserve_selected_deck=False)
+                    source_epoch += 1
+                    last_sensor_snapshot = None
                     last_revision = -1
                     last_secret_signature = ()
                 if chunk:
+                    previous_game = parser.state.game_number
                     pending_line = ingest_tracker_chunk(parser, tracker, pending_line, chunk)
+                    if parser.state.game_number != previous_game:
+                        tracker.clear_selected_deck(parser.state)
+                        last_sensor_snapshot = None
+                        last_sensor_poll = 0.0
             except (OSError, ValueError) as exc:
                 print(f"tracker source warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
 

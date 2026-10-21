@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Version 1.2.0 - Updated October 21, 2026
+Version 1.2.1 - Updated October 21, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -352,7 +352,7 @@ Do not run two copies against different assumptions about which folder is active
 | No new matches | Keep the dashboard open, finish a supported Standard match, reset filters, then refresh. Check that current Power logs exist and are growing. Inspect `ghostdata.log`. Opening the application starts a recording epoch; it does not promise automatic import of all older games. |
 | Custom Hearthstone location | Automatic GUI discovery searches the two Program Files roots above. Python commands accept `--power-log`; the GUI does not currently expose or forward a custom log-path setting. |
 | Rails absent | Enable DECK RAILS, foreground Hearthstone, restore it from minimization and enter an active supported match. Check that the tracker backend started and logs are available. Closing/reopening GhostData restarts the backend. |
-| Wrong/unavailable selected deck | Select the intended deck in Hearthstone and allow a sensor poll. Start GhostData before the next match. A game patch may require a sensor update. Cached selected-deck information is a fallback, not proof of a fresh sensor read. |
+| Wrong/unavailable selected deck | Select the intended deck in Hearthstone and allow a sensor poll. Start GhostData before the next match. A game patch may require a sensor update. The disk cache is never used as proof of the current deck. Until a live read succeeds, only observed cards are shown and exact-deck accounting stays unavailable. |
 | PARTIAL counts or missing odds | Preserve the log and note the card interaction, turn and game build. Missing baseline or unsupported interactions can prevent reconciliation. Restart at a clean match boundary; do not interpret missing odds as zero. |
 | No full-card image | This candidate intentionally uses text previews. Local full-card artwork extraction is not implemented. |
 | Empty deck types | The current sensor does not classify archetypes. Unclassified is the expected fallback. |

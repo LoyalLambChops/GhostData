@@ -87,6 +87,7 @@ class DeckTrackerEngine:
         self._event_cursor = 0
         self._game_number = 0
         self._last_local_player_pid: int | None = None
+        self._initial_player_class = ""
         self._revision = 0
         self._last_state: Optional[DeckTrackerState] = None
         self._warnings: deque[str] = deque(maxlen=8)
@@ -115,6 +116,10 @@ class DeckTrackerEngine:
             return False
         class_id = str(snapshot.class_id or "").upper()
         if class_id not in self.supported_player_classes:
+            return False
+
+        initial_class = self._starting_class(game)
+        if initial_class and initial_class != class_id:
             return False
 
         if snapshot == self._selected and not refresh_metadata:
@@ -149,6 +154,27 @@ class DeckTrackerEngine:
         self._refresh_state(game)
         return True
 
+    def _starting_class(self, game):
+        if game is None or game.local_player_pid is None:
+            return ""
+        if game.game_number == self._game_number and self._initial_player_class:
+            return self._initial_player_class
+        player = game.players.get(game.local_player_pid)
+        return str(player.starting_class or player.player_class or "").upper() if player else ""
+
+    def clear_selected_deck(self, game=None):
+        """Drop only the starting-deck assumption, retaining observed match facts."""
+        self._selected = None
+        self._baseline.clear()
+        self._baseline_meta.clear()
+        for mem in self._entities.values():
+            mem.original_dbf = None
+            mem.original_card_id = ""
+            if game and (entity := game.entities.get(mem.entity_id)) is not None:
+                mem.provenance = self._derive_nonoriginal_provenance(game, entity, mem)
+        if game is not None:
+            self._refresh_state(game)
+
     def _reconcile_existing_entities(self, game: GameState) -> None:
         for eid, mem in list(self._entities.items()):
             entity = game.entities.get(eid)
@@ -179,6 +205,7 @@ class DeckTrackerEngine:
         self._event_cursor = 0
         self._game_number = 0
         self._last_local_player_pid = None
+        self._initial_player_class = ""
         self._warnings.clear()
         self._predicted_pools.clear()
         self._mixed_pools.clear()
@@ -204,6 +231,11 @@ class DeckTrackerEngine:
         # This is a bounded reconciliation checkpoint, not recurring full-state
         # polling, and fixes the real Gate-7 field ordering without weakening the
         # provenance gate or rescanning history on every line.
+        if not self._initial_player_class:
+            self._initial_player_class = self._starting_class(game)
+        if self._selected and self._initial_player_class and self._selected.class_id.upper() != self._initial_player_class:
+            self.clear_selected_deck(game)
+
         current_local_pid = game.local_player_pid
         if current_local_pid is not None and current_local_pid != self._last_local_player_pid:
             self._last_local_player_pid = current_local_pid
@@ -237,6 +269,7 @@ class DeckTrackerEngine:
         self._event_cursor = 0
         self._game_number = int(game_number or 0)
         self._last_local_player_pid = None
+        self._initial_player_class = ""
         self._warnings.clear()
 
     def _consume_event(self, game: GameState, event: SemanticEvent) -> None:
@@ -1054,7 +1087,7 @@ class DeckTrackerEngine:
             source_status=source_status,
             player_deck_hash=selected.deck_hash if selected else "",
             player_deck_name=selected.deck_name if selected else "",
-            player_class=str(selected.class_id or "").upper() if selected else "",
+            player_class=str(selected.class_id or "").upper() if selected else self._starting_class(game),
             starting_cards=baseline_total,
             original_cards_remaining=original_remaining,
             player_hand_count=player_hand_count,

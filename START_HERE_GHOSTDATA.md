@@ -1,4 +1,4 @@
-# START HERE — GhostData 1.2.0 baseline
+# START HERE — GhostData 1.2.1
 
 GhostData is one local-first Windows application combining a factual Hearthstone
 match-history dashboard with deterministic in-match deck-tracker rails.

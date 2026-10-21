@@ -72,6 +72,11 @@ When the opponent plays a Secret naturally:
 8. Exercise real reconnects and an application restart during a Standard match;
    check counts, public state, focus, Secrets and placement after recovery.
 9. Close GhostData; recorder/tracker children and all rail windows must terminate.
+10. Play one deck, close GhostData, switch Hearthstone sessions and start a match
+    with a different deck before launching GhostData. The old name/cards must
+    never populate the new rail. Repeat with two decks of the same class. Before
+    a verified current-deck read, expect observed cards and unavailable exact
+    accounting; after it succeeds, confirm counts match the current deck.
 
 ## Dashboard, offline operation and local storage
 

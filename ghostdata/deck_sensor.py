@@ -86,16 +86,13 @@ def _snapshot_from_payload(payload: dict[str, Any]) -> DeckSnapshot | None:
 def read_selected_deck(project_root: Path, *, data_dir: Path | None = None, timeout: float = 4.0) -> DeckSnapshot | None:
     exe = sensor_executable(project_root)
     if not exe.exists():
-        return load_cached_deck(data_dir=data_dir)
+        return None
 
     args = [str(exe), "selected-deck", "--json"]
-    cached = load_cached_deck(data_dir=data_dir)
-    if cached and cached.selected_deck_id:
-        args.extend(["--deck-id", cached.selected_deck_id])
     try:
         proc = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
         if proc.returncode != 0:
-            return cached
+            return None
         payload = json.loads(proc.stdout.strip() or "{}")
         snapshot = _snapshot_from_payload(payload)
         if snapshot:
@@ -103,7 +100,7 @@ def read_selected_deck(project_root: Path, *, data_dir: Path | None = None, time
             return snapshot
     except (OSError, subprocess.SubprocessError, json.JSONDecodeError):
         pass
-    return cached
+    return None
 
 
 def save_cached_deck(snapshot: DeckSnapshot, *, data_dir: Path | None = None) -> None:

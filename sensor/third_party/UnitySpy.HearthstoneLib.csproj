@@ -12,6 +12,7 @@
     <NoWarn>$(NoWarn);CS0168;CS0169;CS0219;CS0414;CS0649;CS0659</NoWarn>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GhostData.CurrentDeckReader.cs" />
     <Compile Include="..\vendor\unityspy\src\UnitySpy.HearthstoneLib\**\*.cs"
              Exclude="..\vendor\unityspy\src\UnitySpy.HearthstoneLib\Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,8 +1,8 @@
-# GhostData 1.2.0
+# GhostData 1.2.1
 
 GhostData is a local Windows dashboard and deterministic deck tracker for Hearthstone Standard.
 
-This repository is the GhostData 1.2.0 source baseline. It includes the current app,
+This repository starts from the GhostData 1.2.0 source baseline. Version 1.2.1 corrects stale selected-deck handling on late starts and session changes. It includes the current app,
 sensor, build tooling, manuals and synthetic tests. Personal match history,
 captured logs, caches, backup archives and obsolete version snapshots are excluded.
 

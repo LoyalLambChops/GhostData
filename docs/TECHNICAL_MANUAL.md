@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Version 1.2.0 - Updated October 21, 2026
+Version 1.2.1 - Updated October 21, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -171,11 +171,22 @@ MIT-licensed `Zero-to-Heroes/unity-spy-.net4.5` source pinned to
 and records provenance in a vendor manifest. The downloaded vendor directory is
 ignored by Git. Build-time download is distinct from gameplay networking.
 
-Python invokes `GhostData.Sensor.exe selected-deck --json`, optionally passing
-the cached selected deck ID. The normal executable location is `sensor/bin`.
+Python invokes `GhostData.Sensor.exe selected-deck --json` without a cached ID.
+The normal executable location is `sensor/bin`.
 The wrapper accepts `ok`, `exact` and `partial` payloads with useful deck data.
 It retains deck name, selected ID, heroes, main cards, sideboards, format/build
-and sensor status. A failed read can return the cached deck snapshot.
+and sensor status. A failed read returns unavailable; the on-disk snapshot is
+never promoted to a live match selection. The UnitySpy extension reads the current
+deck picker or, during gameplay, GameMgr's local last-played deck ID. It requires
+a live game entity and stable scene/deck ID across the composition read. It does
+not inspect hidden opponent cards.
+
+Sensor results are bound to the log-source generation and game number. Source
+replacement, truncation and a new game clear the prior baseline and pending
+metadata snapshot; delayed results from another context are discarded. The
+engine also rejects a deck whose class conflicts with the starting hero class.
+That initial class is retained across legitimate hero changes. A later valid
+selection reconciles all observed events without double-counting cards.
 
 Deck composition fingerprints are uppercase SHA-256 over canonical JSON containing
 sorted main `(card_id, count)` and sideboard `(owner_card_id, card_id, count)` tuples.
@@ -186,8 +197,7 @@ The bridge resolves card IDs/DBF IDs through card metadata. It does not seed an
 exact main-deck baseline from a partially unmapped main list. Sensor status must
 be EXACT for an exact seed. Every sideboard card, owner and positive count must
 also map successfully; otherwise the new seed is withheld rather than silently
-shortening a source pool. Sensor fallback
-does not prove freshness, and the current capture path does not assign archetypes.
+shortening a source pool. The current capture path does not assign archetypes.
 
 ## Tracker model and reconciliation
 

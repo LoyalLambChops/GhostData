@@ -833,7 +833,10 @@ class PowerLogParser:
         elif tag == "CLASS":
             e.card_class = value
             if e.card_type == "HERO" and e.controller:
-                self.state.player(e.controller).player_class = value
+                player = self.state.player(e.controller)
+                player.player_class = value
+                if not player.starting_class:
+                    player.starting_class = value
             if str(e.zone or "").upper() == "SECRET" and e.entity_id not in self.state.secrets:
                 # Repair a late class tag after provisional registration.
                 self.secret_tracker.on_zone_change(self.state, e, e.zone, e.zone)

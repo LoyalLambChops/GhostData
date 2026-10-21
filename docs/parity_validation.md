@@ -1,6 +1,24 @@
 # Standard tracking validation ledger
 
-## October 21 candidate
+## Version 1.2.1 late-start correction
+
+The reported Mage opening was at 14:47:27 in the October 21 14:45:42 log session.
+The prior wrapper supplied a disk-cached deck ID when the picker disappeared,
+and treated that collection lookup as the current deck. A replay with the prior
+engine reproduced the wrong Priest/Ghost baseline with a 26-card deck and
+five-card hand. The corrected engine rejects the class conflict, retains actual
+observations and reproduces fresh-start accounting when Usher arrives later.
+
+The patch passes 182 Python regressions on both development and bundled runtimes,
+36 UI checks, and a zero-warning sensor build. Seven new regressions cover
+cached-read failures, fresh replacement, late local
+identity, class changes, same-class replacement, and delayed reads across both
+source and game boundaries. The new client LastDeckId lookup compiles against
+the pinned UnitySpy implementation; in-game sensor acceptance still requires a
+live field run because Hearthstone was closed during the repair. No personal
+logs or match records were added to the repository.
+
+## October 21 baseline validation
 
 The installed expansion client is 37.0.0.255130. The read-only importer successfully
 read 36,390 public definitions in approximately seven seconds end to end, with
