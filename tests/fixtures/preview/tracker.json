@@ -1,0 +1,349 @@
+{
+  "schema_version": 2,
+  "active": true,
+  "player_deck_name": "Dalaran",
+  "player_class": "MAGE",
+  "opponent_class": "PRIEST",
+  "player_hand_count": 6,
+  "player_deck_count": 24,
+  "player_accounting_status": "EXACT",
+  "opponent_hand_count": 4,
+  "opponent_deck_count": 22,
+  "player_display_rows": [
+    {
+      "card_id": "CS2_027",
+      "name": "Mirror Image",
+      "cost": 1,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "EX1_012",
+      "name": "Bloodmage Thalnos",
+      "cost": 2,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "CS2_024",
+      "name": "Frostbolt",
+      "cost": 2,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "CS2_023",
+      "name": "Arcane Intellect",
+      "cost": 3,
+      "count": 0,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "BURNED 1",
+      "exhausted": true,
+      "draw_chance": 0
+    },
+    {
+      "card_id": "EX1_287",
+      "name": "Counterspell",
+      "cost": 3,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "EX1_289",
+      "name": "Ice Barrier",
+      "cost": 3,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "CS2_029",
+      "name": "Fireball",
+      "cost": 4,
+      "count": 0,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 1,
+      "state": "HAND 1",
+      "exhausted": true,
+      "draw_chance": 0
+    },
+    {
+      "card_id": "CS2_022",
+      "name": "Polymorph",
+      "cost": 4,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "CS2_033",
+      "name": "Water Elemental",
+      "cost": 4,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "EX1_116",
+      "name": "Leeroy Jenkins",
+      "cost": 5,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "EX1_559",
+      "name": "Archmage Antonidas",
+      "cost": 7,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "CS2_032",
+      "name": "Flamestrike",
+      "cost": 7,
+      "count": 2,
+      "zone": "DECK",
+      "provenance": "ORIGINAL_DECK",
+      "in_hand": 0,
+      "state": "",
+      "exhausted": false,
+      "draw_chance": 8.3
+    },
+    {
+      "card_id": "GAME_005",
+      "name": "The Coin",
+      "cost": 0,
+      "count": 1,
+      "zone": "HAND",
+      "provenance": "GENERATED",
+      "in_hand": 1,
+      "state": "HAND"
+    }
+  ],
+  "opponent_display_rows": [
+    {
+      "card_id": "CS2_023",
+      "name": "Arcane Intellect",
+      "cost": 3,
+      "count": 1,
+      "zone": "PLAY",
+      "state": "PLAY",
+      "provenance": "UNKNOWN",
+      "in_hand": 0
+    },
+    {
+      "card_id": "CS2_029",
+      "name": "Fireball",
+      "cost": 4,
+      "count": 1,
+      "zone": "GRAVEYARD",
+      "state": "GRAVEYARD",
+      "provenance": "GENERATED",
+      "in_hand": 0
+    },
+    {
+      "card_id": "CS2_024",
+      "name": "Frostbolt",
+      "cost": 2,
+      "count": 1,
+      "zone": "HAND",
+      "state": "HAND",
+      "provenance": "STOLEN",
+      "in_hand": 1
+    },
+    {
+      "card_id": "EX1_287",
+      "name": "Counterspell",
+      "cost": 3,
+      "count": 1,
+      "zone": "DECK",
+      "state": "DECK",
+      "provenance": "COPIED",
+      "in_hand": 0
+    },
+    {
+      "card_id": "EX1_289",
+      "name": "Ice Barrier",
+      "cost": 3,
+      "count": 1,
+      "zone": "GRAVEYARD",
+      "state": "GRAVEYARD",
+      "provenance": "UNKNOWN",
+      "in_hand": 0
+    }
+  ],
+  "player_hero_zone_effects": [
+    {
+      "kind": "QUEST",
+      "name": "The Forbidden Sequence",
+      "known": true,
+      "progress": 3,
+      "progress_total": 8,
+      "card_id": "TLC_460",
+      "text": "[x]<b>Quest:</b> <b>Discover</b> 8 cards.\n<b>Reward:</b> The Origin Stone."
+    },
+    {
+      "kind": "SECRET",
+      "name": "Counterspell",
+      "known": true,
+      "card_id": "CORE_EX1_287",
+      "text": "<b>Secret:</b> When your opponent casts a spell, <b>Counter</b> it."
+    }
+  ],
+  "opponent_hero_zone_effects": [
+    {
+      "kind": "QUESTLINE",
+      "name": "Sample Questline",
+      "known": true,
+      "progress": 1,
+      "progress_total": 3
+    }
+  ],
+  "secret_reads": [
+    {
+      "entity_id": 100,
+      "secret_class": "MAGE",
+      "candidate_count": 5,
+      "candidate_names": [
+        "Explosive Runes",
+        "Flames of Infinity",
+        "Ice Barrier",
+        "Mystic Misdirection",
+        "Oasis Ally"
+      ],
+      "inference_status": "NARROWED",
+      "eliminated_names": [
+        "Counterspell"
+      ],
+      "eliminated_count": 1,
+      "candidate_cards": [
+        {
+          "card_id": "CORE_LOOT_101",
+          "name": "Explosive Runes",
+          "text": "<b>Secret:</b> After your opponent plays a minion, deal $6 damage to it and any excess to their hero."
+        },
+        {
+          "card_id": "END_024",
+          "name": "Flames of Infinity",
+          "text": "<b>Secret:</b> When your enemy's turn ends, deal INFINITE damage to their highest Health minion."
+        },
+        {
+          "card_id": "CORE_EX1_289",
+          "name": "Ice Barrier",
+          "text": "<b>Secret:</b> When your\nhero is attacked,\ngain 8 Armor."
+        },
+        {
+          "card_id": "JAIL_315",
+          "name": "Mystic Misdirection",
+          "text": "[x]<b>Secret:</b> When an enemy\nminion attacks, transform\nit into a 1/1 Sheep."
+        },
+        {
+          "card_id": "CORE_BAR_812",
+          "name": "Oasis Ally",
+          "text": "[x]<b>Secret:</b> When a\nfriendly minion is\nattacked, summon a\n3/6 Water Elemental."
+        }
+      ],
+      "eliminated_cards": [
+        {
+          "card_id": "CORE_EX1_287",
+          "name": "Counterspell",
+          "text": "<b>Secret:</b> When your opponent casts a spell, <b>Counter</b> it."
+        }
+      ]
+    }
+  ],
+  "opponent_hand": [
+    {
+      "position": 1,
+      "turn": 2,
+      "name": "Unknown card",
+      "origin": "DRAWN"
+    },
+    {
+      "position": 2,
+      "turn": 4,
+      "name": "Unknown card",
+      "origin": "DRAWN"
+    },
+    {
+      "position": 3,
+      "turn": 6,
+      "name": "Unknown card",
+      "origin": "DRAWN"
+    },
+    {
+      "position": 4,
+      "turn": 8,
+      "name": "Unknown card",
+      "origin": "DRAWN"
+    }
+  ],
+  "player_sideboard_rows": [],
+  "player_overdraw_rows": [
+    {
+      "card_id": "JAIL_509",
+      "name": "Godfrey the Betrayer",
+      "cost": 3,
+      "count": 1,
+      "zone": "OVERDRAW",
+      "state": "AWAITING SPACE",
+      "text": "An overdrawn card waiting for hand space."
+    }
+  ],
+  "opponent_overdraw_rows": [
+    {
+      "card_id": "CS2_029",
+      "name": "Fireball",
+      "cost": 3,
+      "count": 1,
+      "zone": "OVERDRAW",
+      "state": "MAY BE IN HAND",
+      "text": "Deal 6 damage."
+    }
+  ]
+}

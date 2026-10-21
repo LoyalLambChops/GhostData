@@ -1,0 +1,55 @@
+# Python caches and local environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# .NET build outputs and local SDK
+bin/
+obj/
+.dotnet/
+.vs/
+*.user
+*.suo
+/GhostData-Verify-Build-Launch.exe
+
+# Published validation builds
+/app/frame-validation*/
+/app/rollback-validation/
+/app/theme-validation/
+
+# Downloaded dependency (restored by sensor/Prepare-UnitySpy.ps1)
+/sensor/vendor/
+
+# Local credentials
+.env
+.env.*
+!.env.example
+
+# Offline UI preview renders
+/tests/fixtures/preview/*.png
+/tests/fixtures/preview/validation.json
+
+# Personal runtime data, logs, archives and obsolete local copies
+GhostDataData/
+card_cache/
+card_art/
+card_renders/
+matches.json
+selected_deck.json
+history_epoch.json
+source_index.json
+image-settings.json
+recorder.lock
+*.log
+*.zip
+*.bak
+*.bundle
+*.nettrace
+*.etlx
+/old/
+/recovery/
+/backups/
+/test-temp/
+/dist/

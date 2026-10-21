@@ -1,0 +1,49 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- Clean deck-rail palette: dark slate with readable cyan accents. -->
+  <Styles.Resources>
+    <ResourceDictionary>
+      <SolidColorBrush x:Key="GcWindow">#070D15</SolidColorBrush>
+      <SolidColorBrush x:Key="GcSurface">#0B1520</SolidColorBrush>
+      <SolidColorBrush x:Key="GcSurfaceRaised">#102331</SolidColorBrush>
+      <SolidColorBrush x:Key="GcParchment">#F2F7FA</SolidColorBrush>
+      <SolidColorBrush x:Key="GcMuted">#8FA9B7</SolidColorBrush>
+      <SolidColorBrush x:Key="GcMoss">#4B8FA4</SolidColorBrush>
+      <SolidColorBrush x:Key="GcSage">#74D7E8</SolidColorBrush>
+      <SolidColorBrush x:Key="GcHalo">#42E2FF</SolidColorBrush>
+      <SolidColorBrush x:Key="GcHaloSoft">#17485A</SolidColorBrush>
+      <SolidColorBrush x:Key="GcSpectral">#B9F4FF</SolidColorBrush>
+      <SolidColorBrush x:Key="GcBorder">#2A6073</SolidColorBrush>
+      <SolidColorBrush x:Key="GcDanger">#E69AAE</SolidColorBrush>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <Style Selector="TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource GcParchment}" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+
+  <Style Selector="Button.hud">
+    <Setter Property="Background" Value="#112633" />
+    <Setter Property="Foreground" Value="{DynamicResource GcParchment}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource GcBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+
+  <Style Selector="Button.hud:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#17394A" />
+  </Style>
+
+  <Style Selector="Button.chrome">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource GcMuted}" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="5,3" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+</Styles>
+

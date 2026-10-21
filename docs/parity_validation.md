@@ -1,0 +1,94 @@
+# Standard tracking validation ledger
+
+## October 21 candidate
+
+The installed expansion client is 37.0.0.255130. The read-only importer successfully
+read 36,390 public definitions in approximately seven seconds end to end, with
+current Standard membership derived from active client event tables. Its ordinary
+Secret pool contained 11 collectible cards across Mage and Hunter. The Unity
+executable version was deliberately excluded from game-build identification.
+The client embeds log build 254477 in its logging method; the importer verifies
+that pairing directly from the installed assembly rather than weakening build checks.
+
+Changes in this candidate:
+
+- Compact text rails retain 15-DIP names, 11-DIP details, 16-DIP Deck/Hand totals,
+  180–220-DIP width, capped height, lower-quarter clearance and scrolling.
+- Public definitions are imported locally; there are no artwork or card-database
+  downloads. Missing/expired/build-mismatched legality fails closed.
+- A separate recoverable-overdraw section models Atlas burns, returns, discounts,
+  duplicate streams and ambiguous opponent possibilities.
+- The explicit Update button refreshes local definitions and checks stable
+  project releases. Hash/inventory-verified packages stage for installation on exit.
+- A portable package includes Python and .NET; no end-user SDK installation.
+  Measured portable output is 56.4 MiB ZIP / 123.2 MiB unpacked, including runtimes.
+- Assemble rows and hover text use public body/rules components and current stats;
+  distinct outcomes do not merge and hidden opponent components remain withheld.
+- Existing dashboard statistics, filters, quests, Secrets and UnitySpy remain.
+
+## Automated coverage
+
+175 Python tests pass, including local import, current rotation, overdraw and
+release-validation cases. The C# harness covers 24 dashboard/rail/hover contracts,
+nine geometry/text checks and three separate-overdraw UI checks.
+Geometry cases cover 720p, 1080p and 1440p, 100/125/150% scaling, a negative
+monitor origin and an offset game window. These are coordinate checks, not a
+claim of live multi-monitor acceptance.
+
+| Area | Regression evidence |
+| --- | --- |
+| Original/depleted/held/generated/transformed cards | `test_live_deck_tracker.py`, `test_tracking_contracts.py` |
+| Opponent public history, hand concealment and sideboards | `test_tracking_contracts.py`, `test_public_effects.py` |
+| Draw, return, burn, discard and quest/Secret zones | `test_live_deck_tracker.py`, `test_tracking_contracts.py`, `test_powerlog.py` |
+| Placement, generation, replacement and Rewind | `test_public_effects.py`, `test_reward_pools.py`, `test_rewind.py` |
+| Secret trigger and interruption conditions | `test_secret_rails.py`, `test_generated_secret_rules.py`, `test_tracking_contracts.py` |
+| Deck/version statistics, ties, filters and charts | `test_dashboard.py`, `test_tracking_contracts.py`, C# harness |
+| Log continuity, replacement and UTF-8 chunks | `test_multisession.py`, `test_recorder.py`, `test_tracking_contracts.py` |
+| Offline definitions and failed-load identity | `test_local_card_database.py` |
+| Compact geometry, text hover and hidden identity guards | C# harness; sample preview renderer |
+
+Fixtures contain synthetic data. `tests/synthetic_match.py` generates parser and
+recorder streams; `tests/fixtures/preview` supplies UI examples. Generated
+screenshots, personal history, game logs and reference source are not shipped.
+
+The Windows candidate publishes with zero warnings and errors. Sample renders
+verify 30-row scrolling, unchanged name font size, known-card hit testing,
+16-DIP totals and absence of row images. The narrowest 180-DIP and maximum
+220-DIP rails were visually inspected. The running installed instance was not
+replaced during verification; this candidate is staged separately.
+
+## Installer and remaining acceptance
+
+The external installer was exercised in isolated package directories with
+controlled startup executables. Successful startup replaced the package and
+removed its temporary predecessor. Failed startup restored the original
+executable byte-for-byte. This tests the actual PowerShell transaction, separately
+from Python archive/path/hash validation. It does not certify a power-loss case
+or a download-and-upgrade from a publicly hosted release that does not yet exist.
+
+The portable Python 3.14 runtime also passed all 175 regressions. A fresh local
+log snapshot of 226,592 lines across 11 games passed through the production
+chunk-ingestion path in 4.31 seconds, exposing four public Assemble variants.
+This is a parser smoke check, not a complete interaction or runtime comparison.
+The final packaged sensor correctly reported unavailable after Hearthstone closed;
+the earlier successful live import remains the positive import evidence.
+
+Rendered preview checks confirmed readable names, vertical overflow, known-card
+hover hit testing, 16-DIP totals and text-only rows with the new overdraw section.
+The preview is synthetic; it is not evidence of every live interaction.
+
+Remaining acceptance:
+
+1. Broader expansion-specific interaction transcripts. Public Assemble tags now
+   drive composed rows and previews, with three focused regressions; unsupported
+   hidden outcomes are not guessed. Sun's Reckoning has a bounded
+   deterministic creation rule based on its installed-client definition.
+2. Live recoverable-overdraw interaction with multiple opponent returns, plus
+   complete reconnect/restart and asynchronous multi-Secret timelines.
+3. Live minimize/focus and mixed-monitor DPI transitions.
+4. A matched whole-process-tree CPU/RAM comparison. Package size alone does not
+   prove lower runtime overhead. No such performance superiority is claimed.
+5. Optional locally extracted full-card artwork remains unimplemented. Text-only
+   hover is the supported behavior, with no external-image fallback.
+
+Replay, cloud statistics and non-Standard modes remain outside scope.

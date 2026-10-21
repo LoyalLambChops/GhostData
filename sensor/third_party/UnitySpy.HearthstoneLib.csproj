@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <PlatformTarget>x64</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <AssemblyName>UnitySpy.HearthstoneLib</AssemblyName>
+    <RootNamespace>HackF5.UnitySpy.HearthstoneLib</RootNamespace>
+    <!-- These diagnostics are confined to pinned legacy UnitySpy members and
+         equality implementations retained for upstream API compatibility. -->
+    <NoWarn>$(NoWarn);CS0168;CS0169;CS0219;CS0414;CS0649;CS0659</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\vendor\unityspy\src\UnitySpy.HearthstoneLib\**\*.cs"
+             Exclude="..\vendor\unityspy\src\UnitySpy.HearthstoneLib\Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="UnitySpy.Core.csproj" />
+    <Reference Include="Microsoft.CSharp" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="JetBrains.Annotations" Version="2019.1.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
+  </ItemGroup>
+</Project>

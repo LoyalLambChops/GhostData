@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup>
+    <!-- Builds are intentionally offline-capable; vulnerability auditing belongs
+         in the release pipeline where nuget.org is guaranteed reachable. -->
+    <NuGetAudit>false</NuGetAudit>
+  </PropertyGroup>
+</Project>

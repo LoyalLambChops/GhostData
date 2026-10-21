@@ -1,0 +1,31 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <SolidColorBrush x:Key="GdWindow">#070D15</SolidColorBrush>
+      <SolidColorBrush x:Key="GdSurface">#0B1520</SolidColorBrush>
+      <SolidColorBrush x:Key="GdParchment">#F2F7FA</SolidColorBrush>
+      <SolidColorBrush x:Key="GdMuted">#8FA9B7</SolidColorBrush>
+      <SolidColorBrush x:Key="GdSage">#74D7E8</SolidColorBrush>
+      <SolidColorBrush x:Key="GdHalo">#42E2FF</SolidColorBrush>
+      <SolidColorBrush x:Key="GdBorder">#28596C</SolidColorBrush>
+    </ResourceDictionary>
+  </Styles.Resources>
+  <Style Selector="TextBlock">
+    <Setter Property="Foreground" Value="{DynamicResource GdParchment}" />
+    <Setter Property="FontSize" Value="14" />
+  </Style>
+  <Style Selector="Button.action">
+    <Setter Property="Background" Value="#112633" />
+    <Setter Property="Foreground" Value="{DynamicResource GdParchment}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource GdBorder}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="10" />
+    <Setter Property="Padding" Value="12,7" />
+    <Setter Property="FontSize" Value="11" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="Button.action:pointerover /template/ ContentPresenter">
+    <Setter Property="Background" Value="#17394A" />
+  </Style>
+</Styles>

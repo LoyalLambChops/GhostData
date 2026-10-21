@@ -1,0 +1,76 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="GhostData.App.OpponentDeckWindow" Width="220" Height="780" MinWidth="180" MaxWidth="220" Title="GhostData · OPPONENT" Topmost="True" CanResize="False" WindowDecorations="None" Background="{DynamicResource GcSurface}" ShowInTaskbar="False" ShowActivated="False" Focusable="False" WindowStartupLocation="Manual">
+  <Border CornerRadius="12" BorderBrush="{DynamicResource GcBorder}" BorderThickness="1" Padding="9">
+    <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
+      <StackPanel>
+        <TextBlock Text="OPPONENT" FontSize="9" FontWeight="Bold" LetterSpacing="1.5" Foreground="{DynamicResource GcHalo}"/>
+        <TextBlock Text="{Binding ClassLine}" FontSize="16" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+      </StackPanel>
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Spacing="3">
+          <ItemsControl ItemsSource="{Binding HeroZoneEffects}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Background="#102F3A" CornerRadius="6" Padding="7" Margin="0,0,0,5">
+                  <StackPanel>
+                    <TextBlock Text="{Binding Kind}" Foreground="{DynamicResource GcSage}" FontSize="8"/>
+                    <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Detail}" FontSize="10" Foreground="{DynamicResource GcHalo}"/>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <StackPanel IsVisible="{Binding HasOverdraw}" Margin="0,8,0,4">
+            <TextBlock Text="RECOVERABLE OVERDRAW" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource GcSage}" Margin="0,0,0,5"/>
+          <ItemsControl ItemsSource="{Binding Overdraw}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Margin="0,0,0,3" CornerRadius="5" ClipToBounds="True" Background="#102330" BorderBrush="{Binding Accent}" BorderThickness="1" Opacity="{Binding Opacity}">
+                  <Grid Height="39" ColumnDefinitions="25,*,25">
+                    <TextBlock Text="{Binding Cost}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding Accent}"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                      <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="{Binding Accent}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          </StackPanel>
+          <ItemsControl ItemsSource="{Binding DisplayCards}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Border Margin="0,0,0,3" CornerRadius="5" ClipToBounds="True" Background="#102330" BorderBrush="{Binding Accent}" BorderThickness="1" Opacity="{Binding Opacity}">
+                  <Grid Height="39" ColumnDefinitions="25,*,25">
+                    <TextBlock Text="{Binding Cost}" FontSize="16" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{Binding Accent}"/>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="1">
+                      <TextBlock Text="{Binding Name}" FontSize="15" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding Detail}" FontSize="11" Foreground="{Binding Accent}" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="2" Text="{Binding Count}" FontSize="15" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <TextBlock Text="HAND · POSITION / TURN / ORIGIN" FontSize="10" Margin="0,6,0,3" Foreground="{DynamicResource GcSage}"/>
+          <ItemsControl ItemsSource="{Binding Hand}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Label}" FontSize="11" Foreground="{DynamicResource GcMuted}" Margin="0,1" TextTrimming="CharacterEllipsis"/>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+      <Border Grid.Row="2" Padding="5" CornerRadius="6" Background="#102A38">
+        <StackPanel Spacing="3">
+          <TextBlock Text="{Binding CountLine}" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" Foreground="{DynamicResource GcSage}"/>
+          <TextBlock Text="{Binding FatigueLine}" FontSize="9" HorizontalAlignment="Center" Foreground="#EF9B9B"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Border>
+</Window>

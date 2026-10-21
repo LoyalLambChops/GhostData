@@ -1,0 +1,447 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="using:GhostData.App.Controls" x:Class="GhostData.App.DashboardWindow" Width="1400" Height="900" MinWidth="1180" MinHeight="700" Title="GhostData — Standard Statistics" Background="{DynamicResource GdWindow}" WindowStartupLocation="CenterScreen">
+  <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20" RowSpacing="14">
+    <Grid ColumnDefinitions="*,Auto">
+      <StackPanel>
+        <TextBlock Text="GHOSTDATA / STANDARD" FontSize="12" FontWeight="Bold" LetterSpacing="1.7" Foreground="{DynamicResource GdHalo}"/>
+        <TextBlock Text="Deck statistics" FontSize="28" FontWeight="SemiBold"/>
+      </StackPanel>
+      <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <CheckBox Content="DECK RAILS" IsChecked="True" IsCheckedChanged="OnDeckRailsChanged"/>
+        <TextBlock Text="{Binding BuildLabel}" VerticalAlignment="Center"/>
+        <Button Content="CLEAR HISTORY" Click="OnClearHistoryClicked"/>
+        <Button Content="REFRESH" Click="OnRefreshClicked"/>
+        <Button Content="UPDATE" Click="OnUpdateClicked"/>
+      </StackPanel>
+    </Grid>
+    <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*,*" ColumnSpacing="10">
+      <Border Grid.Column="0" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="GAMES" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding Games}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="1" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="RECORD" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding Record}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="2" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="WIN RATE" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding WinRate}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="3" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="AVG TIME" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding AverageDuration}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="4" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="AVG TURNS" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding AverageTurns}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="5" Background="{DynamicResource GdSurface}" CornerRadius="9" Padding="12">
+        <StackPanel>
+          <TextBlock Text="TIME PLAYED" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+          <TextBlock Text="{Binding TotalTime}" FontSize="22" Margin="0,5,0,0"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+    <Grid Grid.Row="2" ColumnDefinitions="190,*" ColumnSpacing="15">
+      <Border Background="{DynamicResource GdSurface}" CornerRadius="10" Padding="12">
+        <ScrollViewer>
+          <StackPanel>
+            <TextBlock Text="FILTERS" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+            <TextBlock Text="DECK" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding DeckFilterOptions}" SelectedItem="{Binding SelectedDeckFilter}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="VERSION" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding VersionFilterOptions}" SelectedItem="{Binding SelectedVersionFilter}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="DECK TYPE" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding TypeFilterOptions}" SelectedItem="{Binding SelectedType}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="CLASS" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding ClassFilterOptions}" SelectedItem="{Binding SelectedClass}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="TIME" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding PeriodFilterOptions}" SelectedItem="{Binding SelectedPeriod}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="MODE" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding ModeFilterOptions}" SelectedItem="{Binding SelectedModeFilter}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="OPPONENT" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding OpponentFilterOptions}" SelectedItem="{Binding SelectedOpponentFilter}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="RESULT" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding ResultFilterOptions}" SelectedItem="{Binding SelectedResultFilter}" HorizontalAlignment="Stretch"/>
+            <TextBlock Text="INITIATIVE" FontSize="8" Margin="0,9,0,3" Foreground="{DynamicResource GdMuted}"/>
+            <ComboBox ItemsSource="{Binding OrderFilterOptions}" SelectedItem="{Binding SelectedOrderFilter}" HorizontalAlignment="Stretch"/>
+          </StackPanel>
+        </ScrollViewer>
+      </Border>
+      <Border Grid.Column="1" Background="{DynamicResource GdSurface}" CornerRadius="10" Padding="8">
+        <TabControl Name="StatisticsTabs">
+          <TabItem Header="SUMMARY">
+            <ScrollViewer>
+              <StackPanel Margin="12" Spacing="6">
+                <TextBlock Text="WIN RATE · CLASSES PLAYED · OPPONENTS" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="25">
+                  <StackPanel Grid.Column="0" Spacing="7">
+                    <TextBlock Text="WIN RATE" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <Grid Width="150" Height="150" HorizontalAlignment="Center">
+                      <controls:StatisticsDonut Items="{Binding Results}"/>
+                      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding WinRate}" FontSize="24" HorizontalAlignment="Center"/>
+                        <TextBlock Text="WIN RATE" FontSize="9" HorizontalAlignment="Center" Foreground="{DynamicResource GdMuted}"/>
+                      </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding Results}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Grid ColumnDefinitions="12,*,Auto" Margin="0,3">
+                            <Border Width="7" Height="7" Background="{Binding Color}" CornerRadius="3"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="10"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="7">
+                    <TextBlock Text="CLASSES PLAYED" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <Grid Width="150" Height="150" HorizontalAlignment="Center">
+                      <controls:StatisticsDonut Items="{Binding PlayedClasses}"/>
+                      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Games}" FontSize="24" HorizontalAlignment="Center"/>
+                        <TextBlock Text="GAMES" FontSize="9" HorizontalAlignment="Center" Foreground="{DynamicResource GdMuted}"/>
+                      </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding PlayedClasses}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Grid ColumnDefinitions="12,*,Auto" Margin="0,3">
+                            <Border Width="7" Height="7" Background="{Binding Color}" CornerRadius="3"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="10"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                  <StackPanel Grid.Column="2" Spacing="7">
+                    <TextBlock Text="OPPONENTS" FontSize="11" FontWeight="Bold" HorizontalAlignment="Center"/>
+                    <Grid Width="150" Height="150" HorizontalAlignment="Center">
+                      <controls:StatisticsDonut Items="{Binding OpponentClasses}"/>
+                      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding Games}" FontSize="24" HorizontalAlignment="Center"/>
+                        <TextBlock Text="GAMES" FontSize="9" HorizontalAlignment="Center" Foreground="{DynamicResource GdMuted}"/>
+                      </StackPanel>
+                    </Grid>
+                    <ItemsControl ItemsSource="{Binding OpponentClasses}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Grid ColumnDefinitions="12,*,Auto" Margin="0,3">
+                            <Border Width="7" Height="7" Background="{Binding Color}" CornerRadius="3"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Label}" FontSize="10"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Grid>
+                <TextBlock Text="DECK HIGHLIGHTS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <ItemsControl ItemsSource="{Binding Highlights}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <UniformGrid Columns="5"/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Background="#0F202C" CornerRadius="6" Padding="9" Margin="0,0,6,0">
+                        <StackPanel Spacing="5">
+                          <TextBlock Text="{Binding Title}" FontSize="9" Foreground="{DynamicResource GdHalo}"/>
+                          <TextBlock Text="{Binding Stats.Name}" FontSize="12" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Text="{Binding Stats.Record, StringFormat='Record: {0}'}" FontSize="10"/>
+                          <TextBlock Text="{Binding Stats.WinRate, StringFormat='Win rate: {0}'}" FontSize="10"/>
+                          <TextBlock Text="{Binding Stats.TotalTime, StringFormat='Played: {0}'}" FontSize="10"/>
+                          <TextBlock Text="{Binding Stats.AverageDuration, StringFormat='Average: {0}'}" FontSize="10"/>
+                          <TextBlock Text="{Binding Stats.AverageTurns, StringFormat='Turns: {0}'}" FontSize="10"/>
+                          <TextBlock Text="BEST MATCHUP" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                          <TextBlock Text="{Binding Stats.BestMatchup}" FontSize="10" TextWrapping="Wrap"/>
+                          <TextBlock Text="WORST MATCHUP" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                          <TextBlock Text="{Binding Stats.WorstMatchup}" FontSize="10" TextWrapping="Wrap"/>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="DECK DETAILS" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <Grid ColumnDefinitions="2*,1.1*,1.2*,65,65,75,70,60,75">
+                  <TextBlock Grid.Column="0" Text="DECK / VERSION" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="1" Text="CLASS" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="2" Text="DECK TYPE" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="3" Text="GAMES" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="4" Text="RECORD" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="5" Text="WIN RATE" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="6" Text="AVG TIME" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="7" Text="TURNS" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                  <TextBlock Grid.Column="8" Text="TOTAL TIME" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding DeckStatistics}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Border Background="#0F202C" Padding="7" Margin="0,3" CornerRadius="5">
+                        <Grid ColumnDefinitions="2*,1.1*,1.2*,65,65,75,70,60,75">
+                          <StackPanel>
+                            <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding Version}" FontSize="8" Foreground="{DynamicResource GdMuted}"/>
+                          </StackPanel>
+                          <TextBlock Grid.Column="1" Text="{Binding Class}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="2" Text="{Binding Type}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="3" Text="{Binding Games}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="4" Text="{Binding Record}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="5" Text="{Binding WinRate}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="6" Text="{Binding AverageDuration}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="7" Text="{Binding AverageTurns}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                          <TextBlock Grid.Column="8" Text="{Binding TotalTime}" FontSize="10" TextTrimming="CharacterEllipsis" Margin="0,0,6,0"/>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="DECK MATCHUPS · RECORD / WIN RATE" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <Grid ColumnDefinitions="120,*,*,*,*,*,*,*,*,*,*,*">
+                  <TextBlock Grid.Column="1" Text="DK" FontSize="8"/>
+                  <TextBlock Grid.Column="2" Text="DH" FontSize="8"/>
+                  <TextBlock Grid.Column="3" Text="DRU" FontSize="8"/>
+                  <TextBlock Grid.Column="4" Text="HUN" FontSize="8"/>
+                  <TextBlock Grid.Column="5" Text="MAG" FontSize="8"/>
+                  <TextBlock Grid.Column="6" Text="PAL" FontSize="8"/>
+                  <TextBlock Grid.Column="7" Text="PRI" FontSize="8"/>
+                  <TextBlock Grid.Column="8" Text="ROG" FontSize="8"/>
+                  <TextBlock Grid.Column="9" Text="SHA" FontSize="8"/>
+                  <TextBlock Grid.Column="10" Text="WARL" FontSize="8"/>
+                  <TextBlock Grid.Column="11" Text="WARR" FontSize="8"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding DeckMatchups}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="120,*" Margin="0,5">
+                        <TextBlock Text="{Binding Class}" FontSize="9"/>
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Cells}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <UniformGrid Columns="11"/>
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding}" FontSize="9" Foreground="{DynamicResource GdSage}"/>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="CLASS MATCHUPS · RECORD / WIN RATE" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <Grid ColumnDefinitions="120,*,*,*,*,*,*,*,*,*,*,*">
+                  <TextBlock Grid.Column="1" Text="DK" FontSize="8"/>
+                  <TextBlock Grid.Column="2" Text="DH" FontSize="8"/>
+                  <TextBlock Grid.Column="3" Text="DRU" FontSize="8"/>
+                  <TextBlock Grid.Column="4" Text="HUN" FontSize="8"/>
+                  <TextBlock Grid.Column="5" Text="MAG" FontSize="8"/>
+                  <TextBlock Grid.Column="6" Text="PAL" FontSize="8"/>
+                  <TextBlock Grid.Column="7" Text="PRI" FontSize="8"/>
+                  <TextBlock Grid.Column="8" Text="ROG" FontSize="8"/>
+                  <TextBlock Grid.Column="9" Text="SHA" FontSize="8"/>
+                  <TextBlock Grid.Column="10" Text="WARL" FontSize="8"/>
+                  <TextBlock Grid.Column="11" Text="WARR" FontSize="8"/>
+                </Grid>
+                <ItemsControl ItemsSource="{Binding MatchupMatrix}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="120,*" Margin="0,5">
+                        <TextBlock Text="{Binding Class}" FontSize="9"/>
+                        <ItemsControl Grid.Column="1" ItemsSource="{Binding Cells}">
+                          <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <UniformGrid Columns="11"/>
+                            </ItemsPanelTemplate>
+                          </ItemsControl.ItemsPanel>
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding}" FontSize="9" Foreground="{DynamicResource GdSage}"/>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="INITIATIVE" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <ItemsControl ItemsSource="{Binding Initiatives}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="120,100,100" Margin="0,4">
+                        <TextBlock Text="{Binding Label}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding Record}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding WinRate}"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+          <TabItem Header="MATCHES">
+            <Grid RowDefinitions="Auto,*,Auto" Margin="8" RowSpacing="8">
+              <Grid Grid.Row="0" ColumnDefinitions="55,110,*,160,90,108,50,40,65" Margin="9,0,9,0">
+                <TextBlock Grid.Column="0" Text="RESULT" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="1" Text="RECORDED" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="2" Text="DECK NAME" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="3" Text="ARCHETYPE" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="4" Text="OPPONENT" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="5" Text="MODE" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="6" Text="ORDER" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="7" Text="TURNS" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+                <TextBlock Grid.Column="8" Text="TIME" FontSize="7.5" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdMuted}"/>
+              </Grid>
+              <ListBox Grid.Row="1" Name="MatchList" ItemsSource="{Binding Matches}" SelectedItem="{Binding SelectedMatch}" Background="Transparent" BorderThickness="0" SelectionChanged="OnMatchSelectionChanged">
+                <ListBox.Styles>
+                  <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="0"/>
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                  </Style>
+                </ListBox.Styles>
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <Border Padding="8,8" Margin="0,0,0,3" CornerRadius="6" Background="#0F202C" BorderBrush="#1E4352" BorderThickness="1">
+                      <Grid ColumnDefinitions="55,110,*,160,90,108,50,40,65">
+                        <TextBlock Grid.Column="0" Text="{Binding ResultLabel}" FontSize="11" FontWeight="SemiBold"/>
+                        <TextBlock Grid.Column="1" Text="{Binding RecordedAt}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                        <TextBlock Grid.Column="2" Text="{Binding DisplayDeckName}" FontSize="10.5" FontWeight="SemiBold" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/>
+                        <TextBlock Grid.Column="3" Text="{Binding DisplayArchetype}" FontSize="9.5" TextTrimming="CharacterEllipsis" Margin="0,0,10,0"/>
+                        <TextBlock Grid.Column="4" Text="{Binding OpponentLabel}" FontSize="10"/>
+                        <Border Grid.Column="5" Padding="5,2" Margin="0,0,6,0" CornerRadius="4" Background="#123446">
+                          <TextBlock Text="{Binding Mode}" FontSize="8.5" FontWeight="SemiBold" Foreground="{DynamicResource GdSage}" TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                        <TextBlock Grid.Column="6" Text="{Binding Initiative}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                        <TextBlock Grid.Column="7" Text="{Binding TurnLabel}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                        <TextBlock Grid.Column="8" Text="{Binding Duration}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+              <Border Grid.Row="2" Padding="11" CornerRadius="8" Background="#0A1823" BorderBrush="#28596C" BorderThickness="1" MaxHeight="190">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                  <Grid ColumnDefinitions="1.05*,1.05*,1.4*" ColumnSpacing="16">
+                    <StackPanel Spacing="4">
+                      <TextBlock Text="SELECTED MATCH" FontSize="8.5" FontWeight="Bold" LetterSpacing="1.15" Foreground="{DynamicResource GdSage}"/>
+                      <TextBlock Text="{Binding SelectedMatch.DisplayDeckName}" FontSize="15" FontWeight="SemiBold"/>
+                      <TextBlock Text="{Binding SelectedMatch.DisplayArchetype}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
+                      <TextBlock Text="{Binding SelectedMatch.VersionLabel, StringFormat='Deck version: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                      <TextBlock Text="{Binding SelectedMatch.Build, StringFormat='Build: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                      <TextBlock Text="{Binding SelectedMatch.DataQuality, StringFormat='Capture: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Spacing="4">
+                      <TextBlock Text="MULLIGAN" FontSize="8.5" FontWeight="Bold" LetterSpacing="1.15" Foreground="{DynamicResource GdHalo}"/>
+                      <TextBlock Text="{Binding SelectedMatch.MulliganOffered, StringFormat='Offered: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SelectedMatch.MulliganKept, StringFormat='Kept: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SelectedMatch.MulliganReplaced, StringFormat='Replaced: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="2" Spacing="4">
+                      <TextBlock Text="CARD HISTORY" FontSize="8.5" FontWeight="Bold" LetterSpacing="1.15" Foreground="{DynamicResource GdHalo}"/>
+                      <TextBlock Text="{Binding SelectedMatch.CardsDrawn, StringFormat='Drawn: {0}'}" FontSize="9.2" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SelectedMatch.CardsPlayed, StringFormat='Played: {0}'}" FontSize="9.2" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SelectedMatch.OpponentObserved, StringFormat='Opponent observed: {0}'}" FontSize="9.2" Foreground="{DynamicResource GdMuted}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                  </Grid>
+                </ScrollViewer>
+              </Border>
+            </Grid>
+          </TabItem>
+          <TabItem Header="CHARTS">
+            <ScrollViewer>
+              <StackPanel Margin="14">
+                <StackPanel>
+                  <TextBlock Text="WIN RATE · COIN" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                  <ItemsControl ItemsSource="{Binding WinrateByCoin}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate>
+                        <Grid ColumnDefinitions="105,*,100" Margin="0,5">
+                          <TextBlock Text="{Binding Label}" FontSize="10"/>
+                          <ProgressBar Grid.Column="1" Value="{Binding Percent}" Maximum="100" Height="9" VerticalAlignment="Center" Foreground="{Binding Color}"/>
+                          <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9" HorizontalAlignment="Right"/>
+                        </Grid>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="24">
+                  <StackPanel>
+                    <TextBlock Text="WIN RATE AS CLASS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                    <ItemsControl ItemsSource="{Binding WinrateAsClass}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Grid ColumnDefinitions="105,*,100" Margin="0,5">
+                            <TextBlock Text="{Binding Label}" FontSize="10"/>
+                            <ProgressBar Grid.Column="1" Value="{Binding Percent}" Maximum="100" Height="9" VerticalAlignment="Center" Foreground="{Binding Color}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9" HorizontalAlignment="Right"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                  <StackPanel Grid.Column="1">
+                    <TextBlock Text="WIN RATE AGAINST CLASS" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                    <ItemsControl ItemsSource="{Binding WinrateAgainstClass}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                          <Grid ColumnDefinitions="105,*,100" Margin="0,5">
+                            <TextBlock Text="{Binding Label}" FontSize="10"/>
+                            <ProgressBar Grid.Column="1" Value="{Binding Percent}" Maximum="100" Height="9" VerticalAlignment="Center" Foreground="{Binding Color}"/>
+                            <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9" HorizontalAlignment="Right"/>
+                          </Grid>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </StackPanel>
+                </Grid>
+                <TextBlock Text="DAILY WIN RATE" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <ItemsControl ItemsSource="{Binding WinrateHistory}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="105,*,100" Margin="0,5">
+                        <TextBlock Text="{Binding Label}" FontSize="10"/>
+                        <ProgressBar Grid.Column="1" Value="{Binding Percent}" Maximum="100" Height="9" VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="2" Text="{Binding Detail}" FontSize="9" HorizontalAlignment="Right"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                <TextBlock Text="MULLIGAN HISTORY" FontSize="11" FontWeight="Bold" LetterSpacing="1" Foreground="{DynamicResource GdHalo}" Margin="0,12,0,7"/>
+                <ItemsControl ItemsSource="{Binding Mulligans}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                      <Grid ColumnDefinitions="*,*,*" Margin="0,5">
+                        <TextBlock Text="{Binding CardName}" FontSize="11"/>
+                        <TextBlock Grid.Column="1" Text="{Binding ChoiceText}" FontSize="10"/>
+                        <TextBlock Grid.Column="2" Text="{Binding ResultText}" FontSize="10" Foreground="{DynamicResource GdSage}"/>
+                      </Grid>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </StackPanel>
+            </ScrollViewer>
+          </TabItem>
+        </TabControl>
+      </Border>
+    </Grid>
+    <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
+      <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
+      <TextBlock Grid.Column="1" Text="{Binding DataQuality}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
+    </Grid>
+  </Grid>
+</Window>
