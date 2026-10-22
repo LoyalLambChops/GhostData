@@ -5,8 +5,12 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>Assets\GhostData.ico</ApplicationIcon>
+    <Product>GhostData</Product>
+    <Company>LoyalLambChops</Company>
+    <Authors>LoyalLambChops</Authors>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <AssemblyName>GhostData.App</AssemblyName>
     <RootNamespace>GhostData.App</RootNamespace>
   </PropertyGroup>

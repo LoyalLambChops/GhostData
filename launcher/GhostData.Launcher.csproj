@@ -5,6 +5,9 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
+    <ApplicationIcon>..\app\GhostData.App\Assets\GhostData.ico</ApplicationIcon>
+    <Product>GhostData</Product>
+    <Company>LoyalLambChops</Company>
     <AssemblyName>GhostData-Verify-Build-Launch</AssemblyName>
     <RootNamespace>GhostData.Launcher</RootNamespace>
   </PropertyGroup>

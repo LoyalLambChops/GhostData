@@ -11,7 +11,7 @@ namespace GhostData.Sensor
 {
     internal static class Program
     {
-        private const string SensorVersion = "1.2.1";
+        private const string SensorVersion = "1.2.2";
         private const string Provider = "ghostdata_sensor_unityspy";
 
         private static int Main(string[] args)

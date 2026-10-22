@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Version 1.2.1 - Updated October 21, 2026
+Version 1.2.2 - Updated October 22, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -402,3 +402,9 @@ includes complete expansion interaction coverage, live reconnect/mixed-DPI tests
 and matched resource measurements. Assemble previews combine publicly visible
 components and current stats; hidden choices remain unknown. Full lower-memory/CPU
 claims remain unverified.
+
+## Application branding
+
+Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
+The dashboard includes the GhostData mark and a selectable contact address.
+The original icon is embedded in the application for the window, taskbar and Windows shortcuts; it requires no network access.

@@ -1,9 +1,12 @@
-<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="using:GhostData.App.Controls" x:Class="GhostData.App.DashboardWindow" Width="1400" Height="900" MinWidth="1180" MinHeight="700" Title="GhostData — Standard Statistics" Background="{DynamicResource GdWindow}" WindowStartupLocation="CenterScreen">
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:controls="using:GhostData.App.Controls" x:Class="GhostData.App.DashboardWindow" Width="1400" Height="900" MinWidth="1180" MinHeight="700" Title="GhostData — Standard Statistics" Icon="avares://GhostData.App/Assets/GhostData.ico" Background="{DynamicResource GdWindow}" WindowStartupLocation="CenterScreen">
   <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="20" RowSpacing="14">
     <Grid ColumnDefinitions="*,Auto">
-      <StackPanel>
+      <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+        <Image Source="avares://GhostData.App/Assets/GhostData.png" Width="48" Height="48" AutomationProperties.Name="GhostData logo"/>
+        <StackPanel>
         <TextBlock Text="GHOSTDATA / STANDARD" FontSize="12" FontWeight="Bold" LetterSpacing="1.7" Foreground="{DynamicResource GdHalo}"/>
         <TextBlock Text="Deck statistics" FontSize="28" FontWeight="SemiBold"/>
+        </StackPanel>
       </StackPanel>
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
         <CheckBox Content="DECK RAILS" IsChecked="True" IsCheckedChanged="OnDeckRailsChanged"/>
@@ -439,9 +442,17 @@
         </TabControl>
       </Border>
     </Grid>
-    <Grid Grid.Row="3" ColumnDefinitions="*,Auto">
-      <TextBlock Text="{Binding Status}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
-      <TextBlock Grid.Column="1" Text="{Binding DataQuality}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
-    </Grid>
+    <StackPanel Grid.Row="3" Spacing="8">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <TextBlock Text="{Binding Status}" FontSize="10" TextWrapping="Wrap" Foreground="{DynamicResource GdMuted}"/>
+        <TextBlock Grid.Column="1" Text="{Binding DataQuality}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
+      </Grid>
+      <Border BorderBrush="{DynamicResource GdBorder}" BorderThickness="0,1,0,0" Padding="0,8,0,0">
+        <StackPanel Orientation="Horizontal" Spacing="14" HorizontalAlignment="Right">
+          <TextBlock Text="Developed by LoyalLambChops" FontSize="12" Foreground="{DynamicResource GdMuted}"/>
+          <SelectableTextBlock Text="LoyalLambChops@gmail.com" FontSize="12" Foreground="{DynamicResource GdSage}"/>
+        </StackPanel>
+      </Border>
+    </StackPanel>
   </Grid>
 </Window>

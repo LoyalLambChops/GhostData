@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Version 1.2.1 - Updated October 21, 2026
+Version 1.2.2 - Updated October 22, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -570,3 +570,11 @@ Application-file size alone does not establish low CPU/RAM under equivalent
 gameplay. Removing artwork downloads, cache workers and decoded images reduces
 work, but matched live resource measurement remains an acceptance gate. Include
 bundled runtimes in the portable package size report (about 123.2 MiB unpacked).
+
+## Application branding
+
+Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
+The dashboard includes the GhostData mark and a selectable contact address.
+The original icon is embedded in the application for the window, taskbar and Windows shortcuts; it requires no network access.
+
+`tools/Build-BrandAssets.ps1` regenerates the committed PNG and nine-resolution ICO (16–256 pixels) from original vector geometry using Windows System.Drawing. Assets are embedded as Avalonia resources; the ICO is also the Windows executable icon. The generator is a development tool, adds no runtime dependency and is not shipped in the portable package.
