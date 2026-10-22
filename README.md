@@ -1,5 +1,7 @@
 # GhostData 1.2.2
 
+![GhostData](.github/assets/ghostdata-banner.png)
+
 GhostData is a local Windows dashboard and deterministic deck tracker for Hearthstone Standard.
 
 Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
@@ -17,6 +19,29 @@ membership, a portable Windows package and an explicit release Update button.
 The installed 37.0.0.255130 client supplied 36,390 public definitions during
 validation. Full interaction/reconnect and matched resource acceptance remain
 open; see the [validation ledger](docs/parity_validation.md).
+
+## See GhostData
+
+The screenshots below show the actual **GhostData 1.2.2** interface with **synthetic sample data**, not personal match history or measured performance. Preview mode runs without attaching to Hearthstone, so the game build is shown as unavailable.
+
+### Statistics dashboard
+
+![GhostData statistics dashboard — sample data](.github/assets/dashboard-summary.png)
+
+<details>
+<summary>Match history and charts</summary>
+
+![GhostData match history — sample data](.github/assets/dashboard-matches.png)
+
+![GhostData charts — sample data](.github/assets/dashboard-charts.png)
+
+</details>
+
+### Deck rails and Secret tracker
+
+| Player rail | Opponent rail | Secret tracker |
+| --- | --- | --- |
+| ![Player rail — sample data](.github/assets/player-rail.png) | ![Opponent rail — sample data](.github/assets/opponent-rail.png) | ![Secret tracker — sample data](.github/assets/secret-tracker.png) |
 
 ## Product surface
 
