@@ -53,3 +53,6 @@ recorder.lock
 /backups/
 /test-temp/
 /dist/
+
+# Promotional media is maintained privately outside this source repository
+/media/
