@@ -28,14 +28,14 @@ The screenshots below show the actual **GhostData 1.2.2** interface with **synth
 
 ![GhostData statistics dashboard — sample data](.github/assets/dashboard-summary.png)
 
-<details>
-<summary>Match history and charts</summary>
+### Matches tab
 
 ![GhostData match history — sample data](.github/assets/dashboard-matches.png)
 
+### Charts tab
+
 ![GhostData charts — sample data](.github/assets/dashboard-charts.png)
 
-</details>
 
 ### Deck rails and Secret tracker
 
