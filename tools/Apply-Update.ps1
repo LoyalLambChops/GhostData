@@ -13,6 +13,19 @@ try {
         if ([IO.Path]::GetDirectoryName($candidate) -ne $parentRoot -or $candidate -eq $installRoot) { throw 'Invalid update boundary.' }
     }
     if ((Split-Path -Leaf $stagedRoot) -notlike '.ghostdata-update-*' -or (Test-Path -LiteralPath (Join-Path $installRoot '.git'))) { throw 'Source checkouts cannot be replaced.' }
+    $installerKey = $null
+    $descriptor = Join-Path $parentRoot 'ghostdata-install.json'
+    if ((Split-Path -Leaf $installRoot) -eq 'app' -and (Test-Path -LiteralPath $descriptor)) {
+        $context = Get-Content -LiteralPath $descriptor -Raw | ConvertFrom-Json
+        if ($context.product -ne 'GhostData' -or $context.schema_version -ne 1 -or $context.payload -ne 'app' -or $context.app_id -notmatch '^\{[0-9a-fA-F-]{36}\}$') { throw 'Invalid installer identity.' }
+        $identityGuid = [Guid]::Parse($context.app_id)
+        $candidateKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\{' + $identityGuid.ToString().ToUpperInvariant() + '}_is1'
+        if (Test-Path -LiteralPath $candidateKey) {
+            $registration = Get-ItemProperty -LiteralPath $candidateKey
+            if ([IO.Path]::GetFullPath($registration.InstallLocation).TrimEnd('\') -ne $parentRoot) { throw 'Installer registration points elsewhere.' }
+            $installerKey = $candidateKey
+        }
+    }
     foreach ($candidate in @($installRoot,$stagedRoot)) {
         if ((Get-Item -LiteralPath $candidate).Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Linked installations cannot be replaced.' }
         $identity = Get-Content -LiteralPath (Join-Path $candidate 'ghostdata-release.json') -Raw | ConvertFrom-Json
@@ -45,6 +58,11 @@ try {
     }
     if ([IO.Path]::GetDirectoryName($previousRoot) -eq $parentRoot -and (Split-Path -Leaf $previousRoot) -like '.ghostdata-previous-*') {
         Remove-Item -LiteralPath $previousRoot -Recurse -Force
+    }
+    if ($installerKey) {
+        $installedIdentity = Get-Content -LiteralPath (Join-Path $installRoot 'ghostdata-release.json') -Raw | ConvertFrom-Json
+        try { Set-ItemProperty -LiteralPath $installerKey -Name DisplayVersion -Value $installedIdentity.version }
+        catch { ('App updated; Windows version label could not be refreshed: ' + $_.Exception.Message) | Set-Content -LiteralPath $logPath; exit 0 }
     }
     'Update installed successfully.' | Set-Content -LiteralPath $logPath
 } catch {

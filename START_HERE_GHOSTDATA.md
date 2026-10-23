@@ -61,7 +61,7 @@ both gates succeed. Progress and actionable failures appear in its own window.
 ## Manual build and validate
 
 Builds require a .NET 10 SDK so Avalonia 12.1.2 analyzers run against a compatible
-Roslyn compiler. The produced desktop application continues to target `net8.0`.
+Roslyn compiler. The produced desktop application continues to target `net10.0`.
 
 ```powershell
 .\Build-GhostData.cmd

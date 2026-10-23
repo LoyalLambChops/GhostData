@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Version 1.2.2 - Updated October 22, 2026
+Version 1.3.0 packaging candidate - Updated October 22, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -298,10 +298,9 @@ range from 180 to 220 DIPs; heights cap at 780 DIPs while reserving the bottom
 quarter of the game. Long lists scroll without shrinking text. Native behavior has sample pointer/wheel coverage and layout contract
 tests, but combined live reconnect/mixed-DPI/focus transitions remain open gates.
 
-The app targets `net8.0` and uses Avalonia/desktop/Fluent packages at 12.1.2.
+The app targets `net10.0` and uses Avalonia/desktop/Fluent packages at 12.1.2.
 Statistics charts are local controls; no browser dashboard or extra chart package
-is part of the implementation. The .NET 10 SDK is required for the current build
-tooling/analyzers even though the application's runtime target remains .NET 8.
+is part of the implementation. The .NET 10 SDK builds the application and harness, which both target .NET 10.
 
 ## History and statistics
 
@@ -442,7 +441,7 @@ attempts rollback. Successful UI acknowledgement removes the temporary previous
 folder. Interrupted installs retain recovery directories and an install log under
 `%TEMP%/ghostdata-install-*`; do not claim power-loss-atomic installation.
 
-`tools/Build-Portable.ps1` tests, publishes self-contained .NET 8 Windows x64,
+`tools/Build-Portable.ps1` tests, publishes self-contained .NET 10 Windows x64,
 builds the .NET Framework sensor, preserves UnitySpy's license, downloads a pinned
 official embeddable Python 3.14.8 archive with its published SHA-256, and creates
 `GhostData-win-x64.zip`. It contains no game definitions/artwork. The embedded
@@ -451,6 +450,22 @@ Python bytecode writes are disabled during normal entry-point startup. Maintaine
 builds need networking for dependencies; end users do not need a Python/.NET SDK.
 New card mechanics still require reviewed engine changes and regression evidence;
 Blizzard patch notes cannot supply executable GhostData updates.
+
+### Windows installer and payload ownership
+
+`packaging/GhostData.iss` defines a per-user Inno Setup installer. Its stable production AppId is `{1C35DA89-E657-4DD0-AEAA-EE63E6745D23}`. Windows 11 x64 is the supported target. Setup creates a Start Menu shortcut, offers an optional Desktop shortcut, and offers launch on completion. Both shortcuts use the executable's embedded GhostData icon.
+
+The default installation is `%LOCALAPPDATA%\Programs\GhostData`:
+
+- `app/`: the complete, strictly verified portable payload.
+- `maintenance/`: Windows uninstall executable and registration data.
+- `ghostdata-install.json`: installation identity and payload location.
+
+The in-app updater swaps only `app/`. It validates the marker, preserves the uninstaller, and updates the matching per-user uninstall version label after successful startup. Portable installations keep their existing ZIP contract. Unknown or modified payload files still block replacement; no broad integrity exceptions were added for Setup.
+
+Setup upgrades verify and move the previous payload aside before copying the new one, removing obsolete files on success. Failure recovery attempts to restore the previous payload. An interrupted `.previous-package` requires recovery before another setup. Uninstall removes a fully verified payload, including files introduced by in-app updates; it preserves unknown extra files and always leaves the external data directory alone. Power-loss recovery is not certified.
+
+`SingleInstance` uses a Windows session-local named mutex and activation event. A second normal launch signals the primary dashboard and exits; the UI restores and activates its existing window. Synthetic preview runs bypass this restriction. No resident background service is installed.
 
 ## Storage and configuration
 
@@ -494,21 +509,38 @@ python -m unittest discover -s tests -q
 
 # Dashboard/rail/hover and compact geometry contracts.
 dotnet build tests/GhostData.ParityHarness/GhostData.ParityHarness.csproj -c Release -m:1 -p:UseSharedCompilation=false
-dotnet tests/GhostData.ParityHarness/bin/Release/net8.0/GhostData.ParityHarness.dll
+dotnet tests/GhostData.ParityHarness/bin/Release/net10.0/GhostData.ParityHarness.dll
 
 # Dashboard-only publication.
 dotnet publish app/GhostData.App/GhostData.App.csproj -c Release -r win-x64 --self-contained false -o app/GhostData.App/bin/Release/win-x64 -m:1 -p:UseSharedCompilation=false
 
-# Normal application startup.
+# Normal source-build startup.
 .\Run-GhostData.cmd
+
+# Self-contained end-user ZIP, then Windows Setup (Inno Setup required).
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Portable.ps1
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1
+
+# Separate dependency audits; compilation alone is not an audit.
+dotnet list app/GhostData.App/GhostData.App.csproj package --vulnerable --include-transitive
+dotnet list sensor/GhostData.Sensor/GhostData.Sensor.csproj package --vulnerable --include-transitive
 ```
 
-The publish is framework-dependent: .NET 8 is not bundled. Windows native assets
+The dashboard-only/source publish above is framework-dependent: .NET 10 is not bundled. The separate portable builder bundles runtime 10.0.13, and Setup embeds that verified payload. Windows native assets
 are included; debug symbols and other platforms' native assets are excluded.
 The sensor remains a separate component. `Build-GhostData.cmd` currently disables
 NuGet auditing for its commands; successful compilation is not a dependency
 vulnerability audit. The launcher is a verifier/build runner, not an installer,
 code-signing service or automatic updater.
+
+Installer integration tests use a separate application identity, shortcut names, and isolated data directory. Build the test installer with the exact overrides below; never pass the production installer to the test harness:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.0-x64.exe
+```
+
+The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
 
 Use an isolated data directory for tests that can write history or card definitions.
 Parser/recorder regressions generate fictitious Power streams through

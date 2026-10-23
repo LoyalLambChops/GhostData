@@ -110,3 +110,11 @@ Remaining acceptance:
    hover is the supported behavior, with no external-image fallback.
 
 Replay, cloud statistics and non-Standard modes remain outside scope.
+
+## Version 1.3.0 packaging/runtime evidence — October 22, 2026
+
+The .NET 10 application and harness built successfully. The self-contained UI uses runtime 10.0.13; the sensor remains on Windows .NET Framework 4.8. The Python regression suite passed 184 checks and the C# harness passed 40 checks, including single-instance ownership, activation signaling and release of the instance identity. NuGet vulnerability queries for the app and sensor, including transitive packages, reported no known vulnerabilities at validation time. This does not certify the absence of all vulnerabilities.
+
+An actual Inno Setup installer was compiled with an isolated test AppId and installed into a path containing spaces. Start Menu and Desktop shortcut targets/icons were checked. The installed .NET 10 app rendered its synthetic dashboard and rails successfully. A reinstall removed an obsolete-file fixture. The actual update helper completed a successful payload replacement, and a deliberately failing startup restored the previous executable byte-for-byte; uninstall metadata remained unchanged in both cases. Windows uninstall removed the test payload, registration and shortcuts while preserving an external history sentinel.
+
+These checks ran on the development machine. They do not establish clean-VM operation without developer prerequisites, interactive wizard accessibility, non-ASCII paths, power-loss recovery, downloaded-artifact reputation, signing, or public-release update acceptance. The user's existing installation and data were not replaced. No public release was created.

@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
 import zipfile
-from ghostdata.updates import stage_release, validate_members, validate_package, version
+from ghostdata.updates import stage_release, validate_members, validate_package, version, installation_context
 
 
 class UpdateTests(unittest.TestCase):
@@ -53,3 +53,29 @@ class UpdateTests(unittest.TestCase):
     def test_no_release_is_not_reported_as_up_to_date(self):
         with patch("ghostdata.updates.fetch",side_effect=HTTPError("url",404,"missing",{},None)):
             self.assertEqual(stage_release(self.root)["status"],"UNAVAILABLE")
+
+
+class InstalledLayoutTests(unittest.TestCase):
+    def test_installer_metadata_stays_outside_verified_payload(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp); root = base / "app"; root.mkdir()
+            files = {}
+            for name in ("GhostData.App.exe", "ghostdata.py", "python/python.exe", "sensor/bin/GhostData.Sensor.exe"):
+                target = root / name; target.parent.mkdir(parents=True, exist_ok=True); target.write_bytes(b"test")
+                files[name] = hashlib.sha256(b"test").hexdigest()
+            (root / "ghostdata-release.json").write_text(json.dumps(dict(product="GhostData", version="1.3.0", files=files)))
+            (base / "maintenance").mkdir(); (base / "maintenance/unins000.exe").write_bytes(b"uninstaller")
+            marker = base / "ghostdata-install.json"
+            marker.write_text(json.dumps(dict(product="GhostData", schema_version=1, payload="app", app_id="{1C35DA89-E657-4DD0-AEAA-EE63E6745D23}")))
+            self.assertEqual(installation_context(root)["root"], str(base.resolve()))
+            validate_package(root, "1.3.0")
+            (root / "unknown-user-file.txt").write_text("preserve")
+            with self.assertRaises(ValueError): validate_package(root, "1.3.0")
+            marker.write_text(json.dumps(dict(product="GhostData", schema_version=1, payload="../outside", app_id="bad")))
+            with self.assertRaises(ValueError): installation_context(root)
+
+    def test_portable_layout_does_not_inherit_another_installer(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp); root=base / "portable"; root.mkdir()
+            (base / "ghostdata-install.json").write_text("invalid")
+            self.assertIsNone(installation_context(root))

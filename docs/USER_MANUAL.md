@@ -1,12 +1,12 @@
 # GhostData user manual
 
-Version 1.2.2 - Updated October 22, 2026
+Version 1.3.0 packaging candidate - Updated October 22, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
 use Avalonia. No GhostData account is required. Match history stays on your
 computer. Rails are text-only, and card metadata is imported from your installed Blizzard client and cached locally.
-This candidate includes the local-data importer, portable package and release-update button.
+This candidate includes the Windows installer, bundled .NET 10 runtime, local-data importer, portable package and release-update button. Public downloads are not yet published.
 The validation ledger records remaining live acceptance work.
 
 This manual describes the current implementation. The [validation ledger](parity_validation.md)
@@ -31,9 +31,21 @@ separates verified behavior from remaining live acceptance work. The
 
 ## Install and start
 
+### Windows installer (recommended)
+
+1. Run `GhostData-Setup-1.3.0-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
+2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
+3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
+4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
+5. Start Hearthstone and reach its main menu so local card definitions can be imported. Enable Power.log logging before field testing, as described below.
+
+Setup bundles Python and .NET 10. No SDK, separate runtime download, build command or launch script is needed. This candidate is unsigned; publisher signing remains a public-release task.
+
+Use Windows **Settings > Apps > Installed apps > GhostData > Uninstall** to remove the program and shortcuts. Your `%USERPROFILE%\GhostDataData` history is retained. Updating or reinstalling uses that same history. Do not put personal files inside the app payload. If moving from a portable copy, close it and install to a separate folder; Setup deliberately refuses to overwrite a portable folder.
+
 ### Portable installation
 
-1. Download the GhostData Windows x64 ZIP from this project's published releases.
+1. Obtain the GhostData Windows x64 ZIP candidate. After public release, use this project's GitHub Releases.
 2. Extract the whole ZIP into a writable folder, such as `Documents\GhostData`.
 3. Open `GhostData.App.exe`. Python and the .NET runtime are included; no separate runtime setup is needed.
 4. Start Hearthstone and reach its main menu. GhostData reads its public card tables locally, normally in several seconds, and retries if the game is not ready.
@@ -269,7 +281,7 @@ valid file; stale legality is not used to invent Secret candidates.
 only a newer stable Windows GhostData package, checks its SHA-256 digest and file
 inventory, and stages it beside the installation. Close GhostData normally to
 apply it and restart. Your match history stays in its separate data folder. If
-the new UI fails to start, the installer attempts to restore the previous
+the new UI fails to start, the update helper attempts to restore the previous
 installation. Temporary rollback files are removed after successful startup.
 Source checkouts only report release availability and are never replaced.
 

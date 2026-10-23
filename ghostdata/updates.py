@@ -79,9 +79,24 @@ def validate_package(root, expected_version):
     return manifest
 
 
+def installation_context(root: Path):
+    """Installer metadata lives outside the hash-verified application payload."""
+    root = Path(root).resolve()
+    marker = root.parent / "ghostdata-install.json"
+    if root.name.casefold() != "app" or not marker.is_file():
+        return None
+    context = json.loads(marker.read_text(encoding="utf-8-sig"))
+    if (context.get("product") != "GhostData" or context.get("schema_version") != 1
+            or context.get("payload") != "app"
+            or not re.fullmatch(r"\{[0-9A-Fa-f]{8}(?:-[0-9A-Fa-f]{4}){3}-[0-9A-Fa-f]{12}\}", str(context.get("app_id", "")))):
+        raise ValueError("Installation identity is invalid; repair with the GhostData installer.")
+    return {"root": str(root.parent), "app_id": context["app_id"]}
+
+
 def stage_release(root: Path):
     """A source checkout can check availability but can never replace itself."""
     root = root.resolve()
+    installation_context(root)
     with tempfile.TemporaryDirectory(prefix="ghostdata-release-") as temp:
         temp = Path(temp); metadata = temp / "release.json"
         try:

@@ -1,0 +1,10 @@
+GhostData - local Hearthstone Standard tracking
+Developed by LoyalLambChops | LoyalLambChops@gmail.com
+
+Setup installs GhostData for your Windows account, with a Start Menu shortcut and an optional Desktop shortcut. Python and .NET are included. No build commands or developer tools are needed.
+
+Your match history stays in your existing GhostDataData folder. Installation, updates and uninstall do not erase that data. Normal tracking does not upload match history; the UPDATE button can contact GitHub for releases.
+
+Start Hearthstone and reach its main menu to import local card definitions. Power.log logging is required; the included user manual explains setup.
+
+This is an unsigned packaging candidate. Public licensing, signing and remaining field acceptance are separate release steps.

@@ -1,15 +1,15 @@
 # Public release readiness
 
-Assessment: October 22, 2026. These are planned release tasks, not shipped installer features.
+Assessment: October 22, 2026. Version 1.3.0 is a locally validated packaging candidate. This checklist separates completed engineering from public-release gates.
 
 ## Current state
 
 - The self-contained Windows x64 package already bundles Python and .NET. End users can run `GhostData.App.exe` directly; build scripts are for contributors.
-- Current package size is approximately 56 MiB compressed and 123 MiB installed. This is a package-size measurement, not a CPU/RAM performance claim.
+- The .NET 10 candidate payload is approximately 129 MiB unpacked. This is a package-size measurement, not a CPU/RAM performance claim.
 - GitHub has no release assets published. The repository is private.
 - There is no root project LICENSE. Third-party notices do not license GhostData's own code.
-- The installed application is unsigned. No installer definition or release CI workflow is present.
-- The Update button supports verified portable release ZIPs, staging, install-on-exit and startup rollback. Public download/update acceptance is outstanding.
+- An unsigned installer candidate is implemented and tested locally. A release CI workflow and publisher signing remain outstanding.
+- The Update button supports verified release ZIPs in portable and installed layouts, staging, install-on-exit and startup rollback; uninstall metadata stays outside the swapped payload. Public download/update acceptance is outstanding.
 - App screenshots in the README are synthetic-data renders.
 
 ## Recommended user experience
@@ -25,16 +25,16 @@ Inno Setup is a suitable lightweight installer builder: it supports a single set
 
 ## Required engineering work
 
-- [ ] Add a versioned installer definition with stable application identity, branded wizard/icon, installation checks, shortcut options, launch checkbox and uninstall entry.
-- [ ] Resolve installer/update ownership before shipping. Current `validate_package` rejects extra files and `Apply-Update.ps1` swaps the installation directory. Installer uninstall files must not be lost or treated as tampering. Choose and test either installer-managed updates for installed mode or a separately managed payload directory. Do not broadly disable integrity checks.
-- [ ] Keep the existing portable ZIP update contract separate from installed-mode updates. Preserve the expected `GhostData-win-x64.zip` release asset until the portable updater is deliberately migrated.
-- [ ] Keep user data outside program files and preserve existing `%USERPROFILE%\GhostDataData` histories. Any data-path migration must be explicit, verified and reversible.
-- [ ] Handle a second launch by focusing the existing dashboard instead of starting duplicate windows or recorders.
+- [x] Versioned Inno Setup definition with stable identity, embedded branded icon, installation checks, shortcut options, launch checkbox and uninstall entry.
+- [x] Separate verified `app/` payload from `maintenance/` uninstall files and installation identity. Actual successful and failed-start updates preserve uninstall support without relaxing payload verification.
+- [x] Keep `GhostData-win-x64.zip` as the verified payload contract for both layouts; Setup embeds the same payload.
+- [x] Keep user data outside program files. Setup, updates and uninstall preserve the external data directory; no data-path migration was introduced.
+- [x] Handle a second launch with a named mutex/activation event, restoring and activating the existing dashboard. Ownership/signaling regression checks pass.
 - [ ] Provide clear first-run, missing-game, missing-logs, sensor-unavailable and unsupported-game-build states. Avoid silently presenting incomplete accounting as exact.
-- [ ] Migrate the UI/runtime target from .NET 8 to a supported LTS runtime, preferably .NET 10 after compatibility validation. .NET 8 support ends November 10, 2026.
-- [ ] Audit and patch dependencies. `NuGetAudit=false` in packaging is not a security review; add a separate checked dependency audit.
+- [x] Migrate UI and harness to .NET 10, bundle runtime 10.0.13, and validate installed UI plus the regression suites.
+- [x] Run separate app/sensor dependency vulnerability scans, including transitive packages. No known vulnerabilities were reported at this validation; repeat during release CI.
 - [ ] Keep release builds free of personal logs, data, credentials and private promotional material. Review tracked game-definition/reference files and preserve required third-party licenses.
-- [ ] Fix packaged documentation links: repository-relative screenshot assets are intentionally outside the runtime package; packaged README links should resolve to hosted documentation or an offline guide rather than missing `.github/assets` files.
+- [x] Ship a dedicated offline package README referencing the included manuals; repository screenshot links remain in the repository README.
 
 ## License and signing decisions
 
@@ -54,7 +54,7 @@ Evaluate SignPath Foundation eligibility for open-source signing, or a trusted c
 - [ ] Build from a clean tagged checkout in a reproducible, documented Windows CI workflow; run Python and UI regression checks and dependency scans.
 - [ ] Sign artifacts, then produce manifests/checksums; create installer and portable assets from the same tested source version.
 - [ ] Test installation and launch on a clean supported Windows VM with no development Python or .NET SDK, using a standard user account and paths containing spaces/non-ASCII characters.
-- [ ] Verify Desktop/Start Menu icons, duplicate launch, upgrades, failed/interrupted updates, uninstall and reinstall while preserving match history.
+- [ ] Repeat Desktop/Start Menu, duplicate-launch, upgrade, failed/interrupted-update and uninstall/reinstall acceptance on a clean VM. Local isolated install, shortcut, reinstall, update-success, startup-rollback and uninstall/data-preservation checks already pass; power-loss and interruption scenarios remain open.
 - [ ] Exercise a real downloaded release and update path, including Windows download-origin/security behavior. Do not treat locally copied unsigned builds as equivalent evidence.
 - [ ] Complete documented live deck-switch/late-start, reconnect, quest, Secret, overdraw and mixed-DPI/focus tests. See FIELD_TEST_CHECKLIST.md and parity_validation.md.
 - [ ] Measure whole-process-tree CPU, RAM and idle behavior before claiming comparative lightweight performance.

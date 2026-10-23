@@ -66,3 +66,20 @@ Check(RailHoverPreview.CardFor(rail.Overdraw.Single()).Id=="EXAMPLE", "Recoverab
 state.PlayerOverdrawRows.Clear();rail.Apply(state);
 Check(!rail.HasOverdraw, "Empty overdraw section disappears");
 Console.WriteLine("Passed 3 recoverable-overdraw UI checks.");
+
+if (OperatingSystem.IsWindows())
+{
+    var id = Guid.NewGuid().ToString("N");
+    using (var primary = new SingleInstance("Local\\GhostData.Test." + id, "Local\\GhostData.Test.Activate." + id))
+    {
+        Check(primary.IsPrimary, "First instance owns the session");
+        using var activated = new ManualResetEventSlim();
+        primary.OnActivate(() => activated.Set());
+        using var duplicate = new SingleInstance("Local\\GhostData.Test." + id, "Local\\GhostData.Test.Activate." + id);
+        Check(!duplicate.IsPrimary, "Second instance cannot start a recorder");
+        Check(activated.Wait(TimeSpan.FromSeconds(3)), "Second launch signals the primary window");
+    }
+    using var restarted = new SingleInstance("Local\\GhostData.Test." + id, "Local\\GhostData.Test.Activate." + id);
+    Check(restarted.IsPrimary, "Closed instance releases ownership");
+    Console.WriteLine("Passed 4 single-instance lifecycle checks.");
+}

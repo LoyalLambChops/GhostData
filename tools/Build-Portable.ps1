@@ -11,9 +11,9 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Python regression tests failed.' }
     dotnet build tests/GhostData.ParityHarness/GhostData.ParityHarness.csproj -c Release -m:1 -p:UseSharedCompilation=false
     if ($LASTEXITCODE -ne 0) { throw 'UI regression build failed.' }
-    dotnet tests/GhostData.ParityHarness/bin/Release/net8.0/GhostData.ParityHarness.dll
+    dotnet tests/GhostData.ParityHarness/bin/Release/net10.0/GhostData.ParityHarness.dll
     if ($LASTEXITCODE -ne 0) { throw 'UI regression checks failed.' }
-    dotnet publish app/GhostData.App/GhostData.App.csproj -c Release -r win-x64 --self-contained true -o $outputRoot -m:1 -p:UseSharedCompilation=false -p:NuGetAudit=false
+    dotnet publish app/GhostData.App/GhostData.App.csproj -c Release -r win-x64 --self-contained true -o $outputRoot -m:1 -p:UseSharedCompilation=false -p:NuGetAudit=false -p:RuntimeFrameworkVersion=10.0.13
     if ($LASTEXITCODE -ne 0) { throw 'Application publish failed.' }
     & (Join-Path $projectRoot 'sensor\Prepare-UnitySpy.ps1')
     if ($LASTEXITCODE -ne 0) { throw 'UnitySpy preparation failed.' }
@@ -40,7 +40,7 @@ try {
     New-Item -ItemType Directory -Path (Join-Path $outputRoot 'tools') | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'Apply-Update.ps1') -Destination (Join-Path $outputRoot 'tools')
     Copy-Item -LiteralPath (Join-Path $projectRoot 'docs') -Destination $outputRoot -Recurse
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'README.md') -Destination $outputRoot
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'packaging\PORTABLE_README.md') -Destination (Join-Path $outputRoot 'README.md')
     Copy-Item -LiteralPath (Join-Path $projectRoot 'THIRD_PARTY_NOTICES.md') -Destination $outputRoot
     & $BuildPython -B (Join-Path $PSScriptRoot 'package_notices.py') $projectRoot $outputRoot
     if ($LASTEXITCODE -ne 0) { throw 'Dependency notices could not be collected.' }

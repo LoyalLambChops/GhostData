@@ -112,7 +112,7 @@ Set-Location "$env:USERPROFILE\GhostDataSource"
 .\Build-GhostData.cmd
 python -m unittest discover -s tests -p "test_*.py" -q
 dotnet build tests/GhostData.ParityHarness/GhostData.ParityHarness.csproj -c Release -m:1 -p:UseSharedCompilation=false
-dotnet tests/GhostData.ParityHarness/bin/Release/net8.0/GhostData.ParityHarness.dll
+dotnet tests/GhostData.ParityHarness/bin/Release/net10.0/GhostData.ParityHarness.dll
 ```
 
 Require zero build errors and all tests passing before validating a changed
