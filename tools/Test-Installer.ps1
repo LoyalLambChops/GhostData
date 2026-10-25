@@ -22,6 +22,9 @@ New-Item -ItemType Directory -Path $testRoot,$data -Force | Out-Null
 $sentinel = Join-Path $data 'history-preservation.txt'
 Set-Content -LiteralPath $sentinel -Value 'Keep my match history' -Encoding ASCII
 $sentinelHash = (Get-FileHash -LiteralPath $sentinel).Hash
+# Upgrade/recovery tests model a user who completed first-run setup.
+# First-run UI is validated separately; do not leave a modal blocking shutdown.
+@{schema_version=1;game_directory='';setup_seen=$true} | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $data 'settings.json') -Encoding UTF8
 $previousData = $env:GHOSTDATA_DATA_DIR
 $env:GHOSTDATA_DATA_DIR = $data
 function Run-Checked([string]$File, [string[]]$Arguments) {
