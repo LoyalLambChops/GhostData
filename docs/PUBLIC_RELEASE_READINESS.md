@@ -8,7 +8,7 @@ Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.2) is the current rel
 - The .NET 10 candidate payload is approximately 129 MiB unpacked. This is a package-size measurement, not a CPU/RAM performance claim.
 - GitHub has no release assets published. The repository is private.
 - MIT was selected by the copyright holder on October 25. LICENSE covers original software, is embedded in the UI and included in both package formats. Third-party components retain their own notices.
-- An unsigned installer candidate is implemented and tested locally. A candidate CI workflow is implemented; record its actual run before claiming CI validation. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
+- An unsigned installer candidate is implemented and tested locally. The candidate CI workflow passed on a fresh Windows runner; see the recorded evidence below. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
 - The Update button supports verified release ZIPs in portable and installed layouts, staging, install-on-exit and startup rollback; uninstall metadata stays outside the swapped payload. Public download/update acceptance is outstanding.
 - App screenshots in the README are synthetic-data renders.
 
@@ -47,8 +47,8 @@ Signing can be reconsidered later if installation friction warrants it. No certi
 
 ## Release and acceptance gates
 
-- [ ] Build from a clean tagged checkout in a reproducible, documented Windows CI workflow; run Python and UI regression checks and dependency scans.
-- [ ] Produce the unsigned installer and portable assets from the same tested source version, then publish manifests/checksums with a clear unsigned-build notice.
+- [x] Build a candidate from a clean Windows CI checkout with dependency audits and Python/UI checks. Manual dispatch has passed; matching numeric tag triggering is implemented, but the first tagged public release remains pending.
+- [x] Produce the unsigned installer and portable assets from the same tested source with manifest, checksums, build provenance and an unsigned notice, available as private CI artifacts. Public release publication remains a separate gate below.
 - [ ] Test installation and launch on a clean supported Windows VM with no development Python or .NET SDK, using a standard user account and paths containing spaces/non-ASCII characters.
 - [ ] Repeat Desktop/Start Menu, duplicate-launch, upgrade, failed/interrupted-update and uninstall/reinstall acceptance on a clean VM. Local isolated install, shortcut, reinstall, update-success, startup-rollback and uninstall/data-preservation checks already pass; power-loss and interruption scenarios remain open.
 - [ ] Exercise a real downloaded release and update path, including Windows download-origin/security behavior. Do not treat locally copied unsigned builds as equivalent evidence.
@@ -72,3 +72,16 @@ Do not change repository visibility, buy a certificate or accept signing-service
 - .NET support: https://dotnet.microsoft.com/en-us/platform/support/policy
 - SignPath eligibility: https://signpath.org/terms
 - GitHub history/cache limitations: https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/removing-sensitive-data-from-a-repository
+
+## Candidate validation — October 25, 2026
+
+Phantom · Beta 1, build **1.3.2**, source `9cf8bdb5cd90c4d702b593b86b40ae05bac5f0aa` passed [Windows candidate CI run 40237513928](https://github.com/LoyalLambChops/GhostData/actions/runs/40237513928).
+
+- 200 Python regressions and 40 dashboard/rail/lifecycle checks passed.
+- Dependency restores with auditing enabled and warnings treated as errors passed.
+- Installer creation, shortcut verification, rendered installed UI, reinstall replacement, failed-start rollback, successful update and uninstall/data preservation passed on the runner. The corrected upgrade fixture explicitly models completed onboarding.
+- Local native UI inspection confirmed first-run setup reports unavailable game/card states and Save and Close persists settings in an isolated data folder and returns to the dashboard. Synthetic Setup renders were also inspected.
+- The exact CI artifacts were downloaded and their checksums/source provenance verified for the maintainer's separate-PC test. No repository visibility or public-release change was made.
+- A bounded tracked-text credential-pattern scan found no matches; locally reachable history contained no private-media/data folders. This is not proof that GitHub's remote cached/unreachable commits are purged.
+
+The maintainer has a separate Windows 11 PC for the remaining clean-install test. Its results, live-game acceptance and real public download/update behavior are not yet recorded. Windows Server CI is not a substitute for that player-machine evidence.
