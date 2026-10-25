@@ -14,7 +14,7 @@ from ghostdata.cli import main
 
 class SetupTests(unittest.TestCase):
     def setUp(self):
-        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name)
+        temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);self.root=Path(temp.name).resolve()
         self.data=self.root/'user data';self.game=self.root/'Hearthstone test é';self.game.mkdir()
         (self.game/'Hearthstone.exe').write_bytes(b'test')
         self.config=self.root/'Blizzard/Hearthstone/log.config'
