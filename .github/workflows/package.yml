@@ -16,10 +16,10 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
-      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.12.10'
       - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
@@ -35,7 +35,7 @@ jobs:
         run: |
           ./sensor/Prepare-UnitySpy.ps1
           foreach ($project in @('app/GhostData.App/GhostData.App.csproj','sensor/GhostData.Sensor/GhostData.Sensor.csproj')) {
-            dotnet restore $project --force -p:NuGetAudit=true -p:NuGetAuditMode=all '-p:WarningsAsErrors=NU1900;NU1901;NU1902;NU1903;NU1904'
+            dotnet restore $project --force -p:NuGetAudit=true -p:NuGetAuditMode=all -p:TreatWarningsAsErrors=true
             if ($LASTEXITCODE -ne 0) { throw "Dependency audit failed: $project" }
           }
       - name: Build and test bundled package
@@ -56,7 +56,7 @@ jobs:
           @{ version=$version; source_commit=$env:GITHUB_SHA; workflow_run=$env:GITHUB_RUN_ID; unsigned=$true; runner=$env:RUNNER_OS } | ConvertTo-Json | Set-Content dist/BUILD_INFO.json -Encoding utf8
           Copy-Item docs/RELEASE_NOTES.md dist/RELEASE_NOTES.md
           Copy-Item LICENSE dist/LICENSE
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      - uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: GhostData-Windows-${{ github.sha }}
           if-no-files-found: error
