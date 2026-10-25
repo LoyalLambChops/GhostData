@@ -1,0 +1,70 @@
+name: Build Windows release candidate
+on:
+  workflow_dispatch:
+  push:
+    tags: ['v*']
+permissions:
+  contents: read
+concurrency:
+  group: package-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  package:
+    runs-on: windows-2025
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12.10'
+      - uses: actions/setup-dotnet@26b0ec14cb23fa6904739307f278c14f94c95bf1 # v5
+        with:
+          dotnet-version: '10.0.401'
+      - name: Check release identity
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          if ($env:GITHUB_REF -like 'refs/tags/*' -and $env:GITHUB_REF -ne "refs/tags/v$version") { throw 'Tag must match VERSION.' }
+          python tools/check_release_source.py
+          if ($LASTEXITCODE -ne 0) { throw 'Source review checks failed.' }
+      - name: Prepare sensor and audit dependencies
+        run: |
+          ./sensor/Prepare-UnitySpy.ps1
+          foreach ($project in @('app/GhostData.App/GhostData.App.csproj','sensor/GhostData.Sensor/GhostData.Sensor.csproj')) {
+            dotnet restore $project --force -p:NuGetAudit=true -p:NuGetAuditMode=all '-p:WarningsAsErrors=NU1900;NU1901;NU1902;NU1903;NU1904'
+            if ($LASTEXITCODE -ne 0) { throw "Dependency audit failed: $project" }
+          }
+      - name: Build and test bundled package
+        run: ./tools/Build-Portable.ps1
+      - name: Build installers
+        run: |
+          ./tools/Build-Installer.ps1
+          ./tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName 'GhostData Packaging Test'
+      - name: Exercise isolated installer lifecycle
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          ./tools/Test-Installer.ps1 -Installer "dist/installer-test/GhostData-Setup-$version-x64.exe"
+      - name: Record provenance and checksums
+        run: |
+          $version = (Get-Content VERSION -Raw).Trim()
+          $files = @("dist/GhostData-Setup-$version-x64.exe", 'dist/GhostData-win-x64.zip')
+          $files | ForEach-Object { $item = Get-Item $_; '{0}  {1}' -f (Get-FileHash $item.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $item.Name } | Set-Content dist/SHA256SUMS.txt -Encoding ascii
+          @{ version=$version; source_commit=$env:GITHUB_SHA; workflow_run=$env:GITHUB_RUN_ID; unsigned=$true; runner=$env:RUNNER_OS } | ConvertTo-Json | Set-Content dist/BUILD_INFO.json -Encoding utf8
+          Copy-Item docs/RELEASE_NOTES.md dist/RELEASE_NOTES.md
+          Copy-Item LICENSE dist/LICENSE
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: GhostData-Windows-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/GhostData-Setup-*-x64.exe
+            dist/GhostData-win-x64.zip
+            dist/SHA256SUMS.txt
+            dist/BUILD_INFO.json
+            dist/RELEASE_NOTES.md
+            dist/LICENSE

@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.1) - Updated October 25, 2026
+Phantom · Beta 1 (build 1.3.2) - Updated October 25, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -33,13 +33,13 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.1-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.2-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
 5. Start Hearthstone and reach its main menu so local card definitions can be imported. Enable Power.log logging before field testing, as described below.
 
-Setup bundles Python and .NET 10. No SDK, separate runtime download, build command or launch script is needed. This candidate is unsigned; publisher signing remains a public-release task.
+Setup bundles Python and .NET 10. No SDK, separate runtime download, build command or launch script is needed. The initial beta is unsigned by choice. Windows may warn or block it under your security policy; signing is not a release requirement.
 
 Use Windows **Settings > Apps > Installed apps > GhostData > Uninstall** to remove the program and shortcuts. Your `%USERPROFILE%\GhostDataData` history is retained. Updating or reinstalling uses that same history. Do not put personal files inside the app payload. If moving from a portable copy, close it and install to a separate folder; Setup deliberately refuses to overwrite a portable folder.
 
@@ -80,12 +80,19 @@ offers a verification/build/launch workflow. Normal daily startup is
 `Run-GhostData.cmd`. The launcher runs Python tests and builds components;
 the separate C# parity harness is a developer check.
 
-GhostData expects Hearthstone to produce Power logs. It does not currently
-provide a logging-configuration wizard. Automatically searched locations are
-`C:\Program Files (x86)\Hearthstone\Logs` and
-`C:\Program Files\Hearthstone\Logs`, including dated session subfolders.
-For a custom installation, see the command-line options below and the
-troubleshooting limitation concerning GUI log paths.
+### First-run SETUP
+
+SETUP opens automatically until you save and close it. You can reopen it from the dashboard at any time. You may close it and still browse existing history if Hearthstone is unavailable.
+
+1. Start Hearthstone and reach the main menu. Setup looks for standard installs and can detect the running game path. For a custom install, **BROWSE** to the folder containing `Hearthstone.exe`, then **SAVE FOLDER**. Restart GhostData if changing the path after tracking has started.
+2. If Power logging is missing, click **ENABLE POWER LOGGING**. This changes `LogLevel` and `FilePrinting` in the Power section of `%LOCALAPPDATA%\Blizzard\Hearthstone\log.config`. Unrelated sections are preserved; an existing file is backed up beside it. A malformed file is left untouched with an error. Fully close and restart Hearthstone afterward.
+3. Enter a game so Hearthstone creates a Power.log. **CHECK AGAIN** reports discovered logs; finding historical logs alone does not prove a current game is being tracked.
+4. At Hearthstone's main menu, **REFRESH LOCAL CARDS** imports public definitions locally. No external card data is downloaded. If import fails after a patch, exact card accounting cannot be assumed; check for a tested app update or contact support.
+5. **SAVE AND CLOSE** remembers that you have seen Setup, even if checks still need attention. The dashboard readiness line keeps outstanding checks visible. Current definitions do not certify every game mechanic; live accounting continues to label partial/unknown information.
+
+Settings live in `GhostDataData/settings.json`, outside app files. Clearing the folder field and saving restores automatic discovery. Both recorder and live tracker use the saved install's `Logs` directory after restart; CLI `--power-log` overrides it. Default discovery scans both Program Files Hearthstone Logs roots and their dated session folders.
+
+Setup runs only local checks and makes no network requests. UPDATE is the separate explicit release check.
 
 ## Daily use and controls
 
@@ -362,7 +369,7 @@ Do not run two copies against different assumptions about which folder is active
 | --- | --- |
 | Dashboard will not start | For the portable build, extract the complete ZIP into a writable folder and open `GhostData.App.exe`. For a source build, verify Python/.NET and retain the build error output. Set `GHOSTDATA_PYTHON` to an absolute interpreter path if source-build detection fails. |
 | No new matches | Keep the dashboard open, finish a supported Standard match, reset filters, then refresh. Check that current Power logs exist and are growing. Inspect `ghostdata.log`. Opening the application starts a recording epoch; it does not promise automatic import of all older games. |
-| Custom Hearthstone location | Automatic GUI discovery searches the two Program Files roots above. Python commands accept `--power-log`; the GUI does not currently expose or forward a custom log-path setting. |
+| Custom Hearthstone location | Open SETUP, select the folder containing Hearthstone.exe, SAVE FOLDER, then restart GhostData. CLI `--power-log` overrides the saved path. |
 | Rails absent | Enable DECK RAILS, foreground Hearthstone, restore it from minimization and enter an active supported match. Check that the tracker backend started and logs are available. Closing/reopening GhostData restarts the backend. |
 | Wrong/unavailable selected deck | Select the intended deck in Hearthstone and allow a sensor poll. Start GhostData before the next match. A game patch may require a sensor update. The disk cache is never used as proof of the current deck. Until a live read succeeds, only observed cards are shown and exact-deck accounting stays unavailable. |
 | PARTIAL counts or missing odds | Preserve the log and note the card interaction, turn and game build. Missing baseline or unsupported interactions can prevent reconciliation. Restart at a clean match boundary; do not interpret missing odds as zero. |
@@ -423,7 +430,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Community, feedback and license
 
-The dashboard footer identifies **Phantom · Beta 1**, build **1.3.1**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.2**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
 
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 

@@ -21,6 +21,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
     private bool _playerShown;
     private bool _opponentShown;
     public bool Enabled { get; set; } = true;
+    public event Action<string>? Failed;
 
     public DeckRailCoordinator(Window owner, StartupOptions options)
     {
@@ -39,6 +40,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         _placementTimer.Start();
         _backend = new TrackerBackendProcess(_options);
         _backend.EnvelopeReceived += OnEnvelope;
+        _backend.Failed += message => Dispatcher.UIThread.Post(()=>{lock(_pendingGate)_pending=null;_latest=null;Hide();Failed?.Invoke(message);});
         await _backend.StartAsync();
     }
 

@@ -1,0 +1,37 @@
+{
+  "game_directory": "C:\\Games\\Hearthstone",
+  "setup_seen": false,
+  "ready": false,
+  "checks": [
+    {
+      "name": "Game folder",
+      "status": "FOUND",
+      "detail": "C:\\Games\\Hearthstone"
+    },
+    {
+      "name": "Power logging",
+      "status": "ACTION NEEDED",
+      "detail": "Click ENABLE POWER LOGGING, then fully restart Hearthstone."
+    },
+    {
+      "name": "Game logs",
+      "status": "WAITING",
+      "detail": "No Power.log found. After enabling logging, restart Hearthstone and enter a game."
+    },
+    {
+      "name": "Sensor",
+      "status": "AVAILABLE",
+      "detail": "Local reader launches. Current-deck certainty is checked separately during play."
+    },
+    {
+      "name": "Card definitions",
+      "status": "WAITING",
+      "detail": "Reach the main menu and click REFRESH LOCAL CARDS. This reads public definitions from the installed Blizzard client."
+    },
+    {
+      "name": "Your data",
+      "status": "LOCAL",
+      "detail": "Your GhostDataData folder. Updating or uninstalling preserves your history."
+    }
+  ]
+}

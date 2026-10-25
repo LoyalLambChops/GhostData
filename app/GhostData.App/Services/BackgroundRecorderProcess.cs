@@ -11,7 +11,7 @@ public sealed class BackgroundRecorderProcess : IDisposable
     {
         if(_process is { HasExited:false }) return;
         var script=Path.Combine(_options.ProjectRoot,"ghostdata.py");
-        if(!File.Exists(script)) return;
+        if(!File.Exists(script))throw new FileNotFoundException("GhostData recorder is missing. Repair the app with Setup.",script);
         var start=new ProcessStartInfo{FileName=_options.PythonExecutable,WorkingDirectory=_options.ProjectRoot,UseShellExecute=false,CreateNoWindow=true,RedirectStandardOutput=true,RedirectStandardError=true};
         start.ArgumentList.Add(script);start.ArgumentList.Add("--record-continuously");
         _process=new Process{StartInfo=start};_process.Start();

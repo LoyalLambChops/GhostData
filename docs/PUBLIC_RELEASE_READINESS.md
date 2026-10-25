@@ -1,6 +1,6 @@
 # Public release readiness
 
-Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.1) is the current release candidate. This checklist separates completed engineering from public-release gates.
+Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.2) is the current release candidate. This checklist separates completed engineering from public-release gates.
 
 ## Current state
 
@@ -8,7 +8,7 @@ Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.1) is the current rel
 - The .NET 10 candidate payload is approximately 129 MiB unpacked. This is a package-size measurement, not a CPU/RAM performance claim.
 - GitHub has no release assets published. The repository is private.
 - MIT was selected by the copyright holder on October 25. LICENSE covers original software, is embedded in the UI and included in both package formats. Third-party components retain their own notices.
-- An unsigned installer candidate is implemented and tested locally. A release CI workflow remains outstanding. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
+- An unsigned installer candidate is implemented and tested locally. A candidate CI workflow is implemented; record its actual run before claiming CI validation. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
 - The Update button supports verified release ZIPs in portable and installed layouts, staging, install-on-exit and startup rollback; uninstall metadata stays outside the swapped payload. Public download/update acceptance is outstanding.
 - App screenshots in the README are synthetic-data renders.
 
@@ -30,7 +30,7 @@ Inno Setup is a suitable lightweight installer builder: it supports a single set
 - [x] Keep `GhostData-win-x64.zip` as the verified payload contract for both layouts; Setup embeds the same payload.
 - [x] Keep user data outside program files. Setup, updates and uninstall preserve the external data directory; no data-path migration was introduced.
 - [x] Handle a second launch with a named mutex/activation event, restoring and activating the existing dashboard. Ownership/signaling regression checks pass.
-- [ ] Provide clear first-run, missing-game, missing-logs, sensor-unavailable and unsupported-game-build states. Avoid silently presenting incomplete accounting as exact.
+- [x] Add first-run SETUP with custom game paths, explicit safe logging edits, sensor availability and missing/expired/mismatched definition checks. Live unsupported mechanics remain partial/unknown; current metadata does not certify complete mechanics support.
 - [x] Migrate UI and harness to .NET 10, bundle runtime 10.0.13, and validate installed UI plus the regression suites.
 - [x] Run separate app/sensor dependency vulnerability scans, including transitive packages. No known vulnerabilities were reported at this validation; repeat during release CI.
 - [x] Extend the exact-package notice collector to include shipped sensor dependencies (JetBrains.Annotations, Newtonsoft.Json and System.ValueTuple), excluding build-only reference assemblies.
@@ -55,12 +55,12 @@ Signing can be reconsidered later if installation friction warrants it. No certi
 - [ ] Complete documented live deck-switch/late-start, reconnect, quest, Secret, overdraw and mixed-DPI/focus tests. See FIELD_TEST_CHECKLIST.md and parity_validation.md.
 - [ ] Measure whole-process-tree CPU, RAM and idle behavior before claiming comparative lightweight performance.
 - [ ] Confirm normal tracking does not transmit match history; document what UPDATE contacts and what stays local. Diagnostics should be local and any sharing user initiated.
-- [ ] Add concise privacy, support, contribution and security-reporting documentation plus issue templates. Separate end-user installation from contributor build instructions.
+- [x] Add PRIVACY.md, SUPPORT.md, CONTRIBUTING.md, SECURITY.md and a bug-report template, plus the release runbook. End-user installation is separate from contributor build instructions.
 - [ ] Publish a clearly labeled beta first if live acceptance remains incomplete. Text-only card hover is the current supported feature; locally extracted full-card artwork remains unfinished and must not be advertised as shipped.
 - [ ] Resolve the previously removed promotional commit's remaining GitHub cached access before treating those excluded files as local-only in a public repository. Clean branch history alone is not a purge of cached commits.
 - [ ] Publish GitHub Release assets with release notes, supported Windows architecture, known limitations, checksums and matching source tag; verify unauthenticated downloads and updater behavior when access is opened.
 
-Do not change repository visibility, buy a certificate, accept signing-service terms, as an incidental packaging operation.
+Do not change repository visibility, buy a certificate or accept signing-service terms as an incidental packaging operation.
 
 ## References
 

@@ -46,8 +46,8 @@ def _derive_class(hero_card_ids: list[str]) -> str:
 def sensor_executable(project_root: Path) -> Path:
     candidates = [
         project_root / "sensor" / "bin" / "GhostData.Sensor.exe",
-        project_root / "sensor" / "GhostData.Sensor" / "bin" / "Release" / "net8.0" / "GhostData.Sensor.exe",
-        project_root / "sensor" / "GhostData.Sensor" / "bin" / "Debug" / "net8.0" / "GhostData.Sensor.exe",
+        project_root / "sensor" / "GhostData.Sensor" / "bin" / "Release" / "net48" / "GhostData.Sensor.exe",
+        project_root / "sensor" / "GhostData.Sensor" / "bin" / "Debug" / "net48" / "GhostData.Sensor.exe",
     ]
     for candidate in candidates:
         if candidate.exists():

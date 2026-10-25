@@ -1,4 +1,4 @@
-# GhostData — Phantom · Beta 1 (build 1.3.1)
+# GhostData — Phantom · Beta 1 (build 1.3.2)
 
 Developed by LoyalLambChops · LoyalLambChops@gmail.com
 

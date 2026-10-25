@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.1) - Updated October 25, 2026
+Phantom · Beta 1 (build 1.3.2) - Updated October 25, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -115,7 +115,7 @@ Do not document it as a Windows service or crash-resilient supervisor.
 Default discovery scans both Program Files Hearthstone `Logs` roots for
 `Power*.log`, resolves/deduplicates paths, and orders dated sessions
 deterministically. CLI `--power-log` accepts a specific file or directory tree.
-The GUI currently passes neither a custom path nor a custom discovery setting.
+SETUP stores `game_directory` in the external data directory settings.json. CLI startup resolves it to that install’s Logs directory for both recorder and tracker; explicit `--power-log` takes precedence. Empty configuration retains automatic discovery. Invalid settings fail closed and Setup can repair them with a backup.
 
 The recorder considers all changed sessions. The live tracker follows the
 latest discovered source. These are different requirements: historical recovery
@@ -537,7 +537,7 @@ Installer integration tests use a separate application identity, shortcut names,
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.1-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.2-x64.exe
 ```
 
 The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
@@ -613,8 +613,16 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Phantom beta release identity and support
 
-Public display name: Phantom - Beta 1. Numeric version: 1.3.1, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
+Public display name: Phantom - Beta 1. Numeric version: 1.3.2, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
 
 The explicit updater requests the repository's latest 100 releases, rejects drafts and non-numeric tags, and selects the highest numeric eligible version. Beta installations accept GitHub prereleases and stable builds; stable installations exclude prereleases. Tags stay vMAJOR.MINOR.PATCH, including betas; use the GitHub prerelease flag and release title for the beta identity. Existing URL, digest, inventory and startup rollback verification remains in force. Older stable installations retain their existing stable-only behavior.
 
 LICENSE is copied into the portable payload (and therefore Setup), and embedded in the UI assembly for offline viewing. Third-party notices remain separate. Contact links invoke the default Windows handler only after a button click. The email draft contains a version and blank report fields, never automatic diagnostics or history uploads.
+
+## Setup and release automation
+
+`ghostdata/setup.py` owns local checks, schema-versioned settings and explicit logging edits. `--setup-status` reports availability without changing Blizzard configuration. `--save-game-directory` validates Hearthstone.exe before atomically saving; `--acknowledge-setup` records that onboarding was seen. `--enable-power-logging` parses log.config strictly, preserves unrelated text/BOM/newlines, backs up an existing file and writes atomically. Tests use isolated temporary directories; they never modify the real game config.
+
+Avalonia SetupWindow invokes these commands asynchronously with cancellation and bounded timeouts. Missing/expired/mismatched definitions remain unready. Sensor health proves the executable launches, not that every layout/mechanic is supported. First-run presentation is skipped in synthetic previews and update-ack startup so recovery is not blocked by a modal dialog. User-selected folder changes require an app restart. A failed tracker clears stale rails and leaves a persistent message.
+
+The read-only-permission package workflow runs on manual dispatch or numeric tags, audits dependencies, builds both package formats, exercises isolated installer lifecycle and uploads candidate artifacts. It never changes repository visibility or publishes a release. See RELEASE_RUNBOOK.md for the public-release procedure and clean-Windows/live checks that CI cannot replace.

@@ -11,6 +11,7 @@
       <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
         <CheckBox Content="DECK RAILS" IsChecked="True" IsCheckedChanged="OnDeckRailsChanged"/>
         <TextBlock Text="{Binding BuildLabel}" VerticalAlignment="Center"/>
+        <Button Content="SETUP" Click="OnSetupClicked"/>
         <Button Content="CLEAR HISTORY" Click="OnClearHistoryClicked"/>
         <Button Content="REFRESH" Click="OnRefreshClicked"/>
         <Button Content="UPDATE" Click="OnUpdateClicked"/>
@@ -443,6 +444,7 @@
       </Border>
     </Grid>
     <StackPanel Grid.Row="3" Spacing="8">
+      <TextBlock Name="SetupStatus" Text="Open SETUP to check tracking readiness." FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource GdSage}"/>
       <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
         <TextBlock Text="{Binding Status}" FontSize="10" TextWrapping="Wrap" Foreground="{DynamicResource GdMuted}"/>
         <TextBlock Grid.Column="1" Text="{Binding DataQuality}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>

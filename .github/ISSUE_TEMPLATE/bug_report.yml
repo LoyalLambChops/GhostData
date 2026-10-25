@@ -1,0 +1,25 @@
+name: Bug report
+description: Report a reproducible GhostData problem.
+body:
+  - type: markdown
+    attributes:
+      value: "Please check SETUP first. Review screenshots/logs for personal information. Never post credentials or your full data folder. Security issues: LoyalLambChops@gmail.com."
+  - type: textarea
+    id: environment
+    attributes:
+      label: Versions and display
+      description: GhostData build, Hearthstone build, Windows version; resolution/scaling for rail issues.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected result and actual result
+      description: Include whether GhostData started before or during the match, and what SETUP reports.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Optional reviewed evidence
+      description: Only relevant screenshots or log excerpts with personal information removed.

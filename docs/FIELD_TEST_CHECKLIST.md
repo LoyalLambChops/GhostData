@@ -7,22 +7,11 @@ an implied pass. Keep captured game logs outside the repository.
 
 ## Start field validation with the installed app
 
-The portable application is already built. Field validation does not require
-build scripts, Python test discovery or the .NET SDK. On this machine the app is
-in `C:\Users\admin\GhostData`; its separate source checkout is in
-`C:\Users\admin\GhostDataSource`.
+Install the current candidate using its Setup EXE and use its Start Menu or Desktop shortcut. Confirm the dashboard footer shows **Phantom · Beta 1 / Build 1.3.2**. Do not use an older portable shortcut for acceptance. Field testing needs no SDK, build commands or separately installed Python.
 
-Open the GhostData Desktop/Start Menu shortcut, or run this from any PowerShell
-working directory:
+On first launch, complete SETUP: verify the game folder, enable logging explicitly if needed, restart Hearthstone, and import local cards at its main menu. Restart GhostData after changing a saved game folder. Preserve personal history; use an isolated data directory for destructive history-clear tests.
 
-```powershell
-& "$env:USERPROFILE\GhostData\GhostData.App.exe"
-```
-
-Start Hearthstone and reach its main menu so GhostData can import local card
-definitions. Select a Standard deck before entering a match. A fresh installation
-starts with empty GhostData history; new completed matches populate the dashboard.
-Record each live check below as passed, failed or not exercised.
+Record the exact source/build, game version, display scale and result for each check. Keep logs locally and share only reviewed relevant intervals.
 
 ## Dashboard and live-match gate
 

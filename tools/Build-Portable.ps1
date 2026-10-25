@@ -43,6 +43,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $projectRoot 'packaging\PORTABLE_README.md') -Destination (Join-Path $outputRoot 'README.md')
     Copy-Item -LiteralPath (Join-Path $projectRoot 'THIRD_PARTY_NOTICES.md') -Destination $outputRoot
     Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $outputRoot
+    foreach ($policy in @('PRIVACY.md','SUPPORT.md','SECURITY.md','CONTRIBUTING.md')) { Copy-Item -LiteralPath (Join-Path $projectRoot $policy) -Destination $outputRoot }
     & $BuildPython -B (Join-Path $PSScriptRoot 'package_notices.py') $projectRoot $outputRoot
     if ($LASTEXITCODE -ne 0) { throw 'Dependency notices could not be collected.' }
     & (Join-Path $pythonRoot 'python.exe') -B (Join-Path $PSScriptRoot 'package_manifest.py') $outputRoot

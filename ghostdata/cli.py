@@ -24,6 +24,10 @@ def parser() -> argparse.ArgumentParser:
     mode.add_argument("--update-card-data", action="store_true")
     mode.add_argument("--update", action="store_true")
     mode.add_argument("--verify-release", type=Path)
+    mode.add_argument("--setup-status", action="store_true")
+    mode.add_argument("--save-game-directory", type=str)
+    mode.add_argument("--enable-power-logging", action="store_true")
+    p.add_argument("--acknowledge-setup", action="store_true")
     p.add_argument("--power-log", type=Path)
     p.add_argument("--data-dir", type=Path)
     p.add_argument("--interval", type=float, default=2.0)
@@ -33,6 +37,15 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     root = Path(__file__).resolve().parents[1]
+    if args.setup_status or args.save_game_directory is not None or args.enable_power_logging:
+        from .setup import setup_status, save_settings, enable_logging
+        try:
+            if args.setup_status: result = setup_status(root, args.data_dir)
+            elif args.enable_power_logging: result = {"message": enable_logging()}
+            else: result = save_settings(args.save_game_directory, args.data_dir, acknowledge=args.acknowledge_setup)
+            print(json.dumps(result, ensure_ascii=False)); return 0
+        except Exception as exc:
+            print(str(exc), file=sys.stderr); return 1
     if args.verify_release:
         from .updates import validate_package
         validate_package(args.verify_release, __version__)
@@ -55,6 +68,9 @@ def main(argv: list[str] | None = None) -> int:
     if args.dashboard_json:
         print(json.dumps(load_dashboard(data_dir=args.data_dir), ensure_ascii=False))
         return 0
+    if args.record_once or args.record_continuously or args.tracker_stream:
+        from .setup import configured_log_path
+        if args.power_log is None: args.power_log = configured_log_path(args.data_dir)
     if args.record_once:
         parsed, added = record_once(root, power_log=args.power_log, data_dir=args.data_dir)
         print(json.dumps({"parsed_completed_games": parsed, "new_matches": added}))

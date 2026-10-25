@@ -37,6 +37,7 @@ public sealed partial class DashboardWindow : Window
         AvaloniaXamlLoader.Load(this);DataContext=_viewModel;_dataService=new DashboardDataService(options);_recorder=new BackgroundRecorderProcess(options);_deckRails=new DeckRailCoordinator(this,options);
         Title=$"GhostData — {ProductInfo.ReleaseName}";
         this.FindControl<TextBlock>("ReleaseLabel")!.Text=$"PHANTOM · BETA 1  /  Build {ProductInfo.Version}";
+        _deckRails.Failed+=message=>this.FindControl<TextBlock>("SetupStatus")!.Text=message+" Open SETUP or restart GhostData.";
         _historyRefreshTimer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(4)};
         _historyRefreshTimer.Tick+=async (_,_)=>await RefreshAsync(silent:true);
         Opened+=OnOpened;Closing+=OnClosing;
@@ -61,11 +62,21 @@ public sealed partial class DashboardWindow : Window
             for(var index=1;index<3;index++) { tabs.SelectedIndex=index; await Task.Delay(150); SavePreview(this, $"dashboard-{index}.png"); }
             tabs.SelectedIndex=0;
             await SavePreviewChecks(player,state);
+            if(File.Exists(Path.Combine(_previewDirectory,"setup.json")))
+            {
+                using var setupJson=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(_previewDirectory,"setup.json")));
+                var setup=new SetupWindow(_dataService,setupJson.RootElement.Clone());setup.Show();
+                await Task.Delay(150);SavePreview(setup,"setup.png");setup.Close();
+            }
             if(_exitAfterPreview)Close();
             return;
         }
-        _recorder.Start();
+        if(_updateAcknowledgement is null && !SetupWindow.HasSeenSetup())
+            await ShowSetupAsync();
+        if(_closing)return;
         string? trackerError=null;
+        try{_recorder.Start();}
+        catch(Exception ex){trackerError="Recorder unavailable: "+ex.Message+". Open SETUP or repair GhostData.";}
         try
         {
             await _deckRails.StartAsync();
@@ -79,6 +90,7 @@ public sealed partial class DashboardWindow : Window
         await RefreshAsync();
         _historyRefreshTimer.Start();
         if(trackerError is not null)_viewModel.Status=trackerError;
+        else if(_updateAcknowledgement is null)await CheckSetupAsync();
     }
     private void SavePreview(Window window, string filename)
     {
@@ -132,6 +144,39 @@ public sealed partial class DashboardWindow : Window
             _closing=false;_closedCleanly=true;return;
         }
         _lifetime.Dispose();_closedCleanly=true;Close();
+    }
+    private bool _setupOpen;
+    private async void OnSetupClicked(object? sender,RoutedEventArgs e)
+    {
+        await ShowSetupAsync();
+    }
+    private async Task ShowSetupAsync()
+    {
+        if(_setupOpen)return;_setupOpen=true;
+        try
+        {
+            System.Text.Json.JsonElement? preview=null;
+            if(_previewDirectory is not null)
+            {
+                using var json=System.Text.Json.JsonDocument.Parse(File.ReadAllText(Path.Combine(_previewDirectory,"setup.json")));
+                preview=json.RootElement.Clone();
+            }
+            var setup=new SetupWindow(_dataService,preview);await setup.ShowDialog(this);
+            this.FindControl<TextBlock>("SetupStatus")!.Text=setup.Summary;
+        }
+        finally{_setupOpen=false;}
+    }
+    private async Task CheckSetupAsync()
+    {
+        using var timeout=CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);timeout.CancelAfter(TimeSpan.FromSeconds(12));
+        try
+        {
+            var response=await _dataService.RunPythonAsync(new[]{"--setup-status"},timeout.Token,true);
+            using var doc=System.Text.Json.JsonDocument.Parse(response.Output);
+            this.FindControl<TextBlock>("SetupStatus")!.Text=SetupWindow.ReadinessSummary(doc.RootElement);
+        }
+        catch(OperationCanceledException){if(!_closing)this.FindControl<TextBlock>("SetupStatus")!.Text="Setup check timed out — open SETUP to retry.";}
+        catch(Exception ex){this.FindControl<TextBlock>("SetupStatus")!.Text="Setup unavailable: "+ex.Message;}
     }
     private async void OnTwitchClicked(object? sender,RoutedEventArgs e) => await OpenContactAsync(ProductInfo.Twitch);
     private async void OnDiscordClicked(object? sender,RoutedEventArgs e) => await OpenContactAsync(ProductInfo.Discord);

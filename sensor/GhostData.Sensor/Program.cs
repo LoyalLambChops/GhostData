@@ -11,7 +11,7 @@ namespace GhostData.Sensor
 {
     internal static class Program
     {
-        private const string SensorVersion = "1.3.1";
+        private const string SensorVersion = "1.3.2";
         private const string Provider = "ghostdata_sensor_unityspy";
 
         private static int Main(string[] args)
@@ -61,6 +61,12 @@ namespace GhostData.Sensor
             }
         }
 
+        private static string TryProcessPath(Process process)
+        {
+            try { return process?.MainModule?.FileName ?? ""; }
+            catch { return ""; }
+        }
+
         private static object HealthPayload()
         {
             var process = HearthstoneProcess();
@@ -73,6 +79,7 @@ namespace GhostData.Sensor
                 reader = "unityspy-selected-deck",
                 source_revision = ReadSourceRevision(),
                 hearthstone_build = TryFileVersion(process),
+                hearthstone_path = TryProcessPath(process),
             };
         }
 
@@ -119,6 +126,7 @@ namespace GhostData.Sensor
                             cards = cardRows,
                             sideboards = sideboardRows,
                             hearthstone_build = TryFileVersion(process),
+                hearthstone_path = TryProcessPath(process),
                             unity_version = "",
                             source_revision = ReadSourceRevision(),
                         };
@@ -141,6 +149,7 @@ namespace GhostData.Sensor
                             cards = cardRows,
                             sideboards = sideboardRows,
                             hearthstone_build = TryFileVersion(process),
+                hearthstone_path = TryProcessPath(process),
                             unity_version = "",
                             source_revision = ReadSourceRevision(),
                         };
@@ -161,6 +170,7 @@ namespace GhostData.Sensor
                         cards = cardRows,
                         sideboards = sideboardRows,
                         hearthstone_build = TryFileVersion(process),
+                hearthstone_path = TryProcessPath(process),
                         unity_version = "",
                         source_revision = ReadSourceRevision(),
                     };
