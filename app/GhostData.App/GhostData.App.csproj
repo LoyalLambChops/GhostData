@@ -10,7 +10,9 @@
     <Company>LoyalLambChops</Company>
     <Authors>LoyalLambChops</Authors>
     <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
-    <Version>1.3.0</Version>
+    <Version>1.3.1</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Description>GhostData Phantom - Beta 1: local Hearthstone Standard tracking.</Description>
     <AssemblyName>GhostData.App</AssemblyName>
     <RootNamespace>GhostData.App</RootNamespace>
   </PropertyGroup>
@@ -21,6 +23,8 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\**" />
+    <EmbeddedResource Include="../../LICENSE" LogicalName="GhostData.LICENSE" />
+    <Content Include="../../LICENSE" Link="LICENSE" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../THIRD_PARTY_NOTICES.md" Link="THIRD_PARTY_NOTICES.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="ExcludePublishedDebugSymbols" AfterTargets="ComputeFilesToPublish">

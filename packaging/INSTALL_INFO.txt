@@ -1,4 +1,5 @@
-GhostData - local Hearthstone Standard tracking
+GhostData Phantom - Beta 1 (build 1.3.1)
+Local Hearthstone Standard tracking
 Developed by LoyalLambChops | LoyalLambChops@gmail.com
 
 Setup installs GhostData for your Windows account, with a Start Menu shortcut and an optional Desktop shortcut. Python and .NET are included. No build commands or developer tools are needed.
@@ -7,4 +8,9 @@ Your match history stays in your existing GhostDataData folder. Installation, up
 
 Start Hearthstone and reach its main menu to import local card definitions. Power.log logging is required; the included user manual explains setup.
 
-This is an unsigned packaging candidate. Public licensing, signing and remaining field acceptance are separate release steps.
+Free software under the MIT License, included with the app. Third-party components keep their own licenses.
+
+This beta is unsigned. Windows may warn or block it under your security policy. Remaining live-game and clean-machine acceptance is documented in the included release checklist.
+
+Twitch: https://www.twitch.tv/loyallambchops
+Discord: https://discord.gg/H3Et7NHavZ

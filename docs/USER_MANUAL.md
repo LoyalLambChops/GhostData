@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Version 1.3.0 packaging candidate - Updated October 22, 2026
+Phantom · Beta 1 (build 1.3.1) - Updated October 25, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -33,7 +33,7 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.0-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.1-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
@@ -420,3 +420,11 @@ claims remain unverified.
 Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
 The dashboard includes the GhostData mark and a selectable contact address.
 The original icon is embedded in the application for the window, taskbar and Windows shortcuts; it requires no network access.
+
+## Community, feedback and license
+
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.1**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+
+MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
+
+UPDATE is explicit: this beta can offer a newer published beta or stable GhostData build. Numeric versions determine upgrade order; the release nickname is for display. It never downgrades to an older build. While the repository is private or has no compatible published release, the updater reports unavailable.

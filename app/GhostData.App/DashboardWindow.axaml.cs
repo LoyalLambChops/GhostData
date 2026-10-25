@@ -35,6 +35,8 @@ public sealed partial class DashboardWindow : Window
         _exitAfterPreview=options.ExitAfterPreview;
         if(_previewDirectory is not null)ShowActivated=false;
         AvaloniaXamlLoader.Load(this);DataContext=_viewModel;_dataService=new DashboardDataService(options);_recorder=new BackgroundRecorderProcess(options);_deckRails=new DeckRailCoordinator(this,options);
+        Title=$"GhostData — {ProductInfo.ReleaseName}";
+        this.FindControl<TextBlock>("ReleaseLabel")!.Text=$"PHANTOM · BETA 1  /  Build {ProductInfo.Version}";
         _historyRefreshTimer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(4)};
         _historyRefreshTimer.Tick+=async (_,_)=>await RefreshAsync(silent:true);
         Opened+=OnOpened;Closing+=OnClosing;
@@ -51,7 +53,7 @@ public sealed partial class DashboardWindow : Window
             var opponent=new OpponentDeckWindow(); opponent.ViewModel.Apply(state); opponent.Position=new Avalonia.PixelPoint(30,100);
             var secrets=new SecretTrackerWindow(); secrets.ViewModel.Apply(state); secrets.Position=new Avalonia.PixelPoint(255,100);
             foreach(var window in new Window[]{player,opponent,secrets}) { _previewWindows.Add(window); window.Show(); }
-            Title="GhostData — Preview (sample data)";
+            Title=$"GhostData — {ProductInfo.ReleaseName} — Preview (sample data)";
             await Task.Delay(500);
             foreach(var pair in _previewWindows.Select((window,index)=>(window,index))) SavePreview(pair.window, $"rail-{pair.index}.png");
             SavePreview(this, "dashboard-summary.png");
@@ -130,6 +132,37 @@ public sealed partial class DashboardWindow : Window
             _closing=false;_closedCleanly=true;return;
         }
         _lifetime.Dispose();_closedCleanly=true;Close();
+    }
+    private async void OnTwitchClicked(object? sender,RoutedEventArgs e) => await OpenContactAsync(ProductInfo.Twitch);
+    private async void OnDiscordClicked(object? sender,RoutedEventArgs e) => await OpenContactAsync(ProductInfo.Discord);
+    private async void OnContactClicked(object? sender,RoutedEventArgs e) => await OpenContactAsync(ProductInfo.BugReportUri);
+    private async Task OpenContactAsync(string uri)
+    {
+        try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(uri){UseShellExecute=true}); }
+        catch
+        {
+            await ShowInformationAsync("Contact GhostData", "Windows could not open the link. Configure a default browser or email app, or copy the address below.\n\n"
+                + (uri.StartsWith("mailto:",StringComparison.Ordinal) ? ProductInfo.Email : uri)
+                + "\n\nGhostData sends no email or diagnostic data automatically.");
+        }
+    }
+    private async void OnLicenseClicked(object? sender,RoutedEventArgs e)
+    {
+        using var stream=typeof(ProductInfo).Assembly.GetManifestResourceStream("GhostData.LICENSE")!;
+        using var reader=new StreamReader(stream);
+        await ShowInformationAsync("GhostData — MIT license",await reader.ReadToEndAsync()
+            + "\nBundled third-party components retain their own licenses. See THIRD_PARTY_NOTICES.md and licenses/ in the application folder. This license does not grant rights to Blizzard game content.");
+    }
+    private async Task ShowInformationAsync(string title,string text)
+    {
+        var dialog=new Window{Title=title,Width=660,Height=540,MinWidth=440,MinHeight=300,WindowStartupLocation=WindowStartupLocation.CenterOwner};
+        var close=new Button{Content="CLOSE",HorizontalAlignment=HorizontalAlignment.Right,Margin=new Thickness(0,12,0,0)};
+        close.Click+=(_,_)=>dialog.Close();
+        var panel=new DockPanel{Margin=new Thickness(24)};
+        DockPanel.SetDock(close,Dock.Bottom); panel.Children.Add(close);
+        panel.Children.Add(new ScrollViewer{Content=new SelectableTextBlock{Text=text,TextWrapping=Avalonia.Media.TextWrapping.Wrap,FontSize=14}});
+        dialog.Content=panel;
+        await dialog.ShowDialog(this);
     }
     private async void OnUpdateClicked(object? sender,RoutedEventArgs e)
     {

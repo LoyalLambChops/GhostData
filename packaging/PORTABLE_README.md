@@ -1,4 +1,4 @@
-# GhostData
+# GhostData — Phantom · Beta 1 (build 1.3.1)
 
 Developed by LoyalLambChops · LoyalLambChops@gmail.com
 
@@ -18,6 +18,14 @@ UPDATE refreshes locally available card definitions and checks the GhostData Git
 
 ## Help
 
-Read docs/USER_MANUAL.md and docs/TECHNICAL_MANUAL.md. Dependency licenses are in licenses/ and THIRD_PARTY_NOTICES.md. This build is a packaging candidate; public licensing/signing and remaining live acceptance are separate release gates.
+Read docs/USER_MANUAL.md and docs/TECHNICAL_MANUAL.md. Dependency licenses are in licenses/ and THIRD_PARTY_NOTICES.md. GhostData is free software under the included MIT LICENSE. This beta is unsigned; Windows may warn or block it under your security policy. Remaining clean-machine and live acceptance is tracked in docs/PUBLIC_RELEASE_READINESS.md.
 
 Project: https://github.com/LoyalLambChops/GhostData
+
+The dashboard includes TWITCH, DISCORD, CONTACT / BUG REPORT and an offline MIT LICENSE viewer. Email opens a draft; nothing is automatically attached or sent.
+
+Twitch: https://www.twitch.tv/loyallambchops
+Discord: https://discord.gg/H3Et7NHavZ
+Website: https://loyallambchops.github.io/ghostdata-site/
+
+This beta checks for newer published beta or stable versions when you click UPDATE.

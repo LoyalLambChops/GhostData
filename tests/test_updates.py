@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import patch
 from urllib.error import HTTPError
 import zipfile
-from ghostdata.updates import stage_release, validate_members, validate_package, version, installation_context
+from ghostdata.updates import stage_release, validate_members, validate_package, version, installation_context, select_release
 
 
 class UpdateTests(unittest.TestCase):
@@ -19,6 +19,25 @@ class UpdateTests(unittest.TestCase):
         self.assertGreater(version("v1.10.0"), version("1.9.0"))
         for value in ("main", "v1.2.3-beta", "../1.2.3", "https://other"):
             with self.assertRaises(ValueError): version(value)
+
+    def test_channels_choose_highest_numeric_published_version(self):
+        releases = [dict(tag_name="v1.9.0"), dict(tag_name="v1.10.0",prerelease=True),
+                    dict(tag_name="v99.0.0",draft=True), dict(tag_name="main"),
+                    dict(tag_name="v1.11.0-beta",prerelease=True)]
+        self.assertEqual(select_release(releases,"beta")["tag_name"],"v1.10.0")
+        self.assertEqual(select_release(releases,"stable")["tag_name"],"v1.9.0")
+        self.assertIsNone(select_release([releases[1]],"stable"))
+        releases.append(dict(tag_name="v2.0.0"))
+        self.assertEqual(select_release(releases,"beta")["tag_name"],"v2.0.0")
+
+    def test_empty_listing_is_unavailable(self):
+        def fetch(url,target,limit): target.write_text("[]")
+        with patch("ghostdata.updates.fetch",side_effect=fetch):
+            self.assertEqual(stage_release(self.root)["status"],"UNAVAILABLE")
+
+    def test_invalid_release_listing_is_rejected(self):
+        with self.assertRaises(ValueError): select_release({},"beta")
+        with self.assertRaises(ValueError): select_release([],"typo")
 
     def test_archive_rejects_traversal_devices_ads_and_duplicates(self):
         for names in (("../outside",), ("/absolute",), ("C:/outside",), ("a\\b",), ("NUL.txt",), ("file:stream",), ("a", "A")):
@@ -44,7 +63,7 @@ class UpdateTests(unittest.TestCase):
 
     def test_source_checkout_can_never_be_replaced(self):
         def fetch(url, target, limit):
-            target.write_text(json.dumps(dict(tag_name="v99.0.0",assets=[])))
+            target.write_text(json.dumps([dict(tag_name="v99.0.0",assets=[],prerelease=True)]))
         with patch("ghostdata.updates.fetch",side_effect=fetch):
             result=stage_release(self.root)
         self.assertEqual(result["status"],"SOURCE_CHECKOUT")

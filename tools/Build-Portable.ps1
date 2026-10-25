@@ -42,6 +42,7 @@ try {
     Copy-Item -LiteralPath (Join-Path $projectRoot 'docs') -Destination $outputRoot -Recurse
     Copy-Item -LiteralPath (Join-Path $projectRoot 'packaging\PORTABLE_README.md') -Destination (Join-Path $outputRoot 'README.md')
     Copy-Item -LiteralPath (Join-Path $projectRoot 'THIRD_PARTY_NOTICES.md') -Destination $outputRoot
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'LICENSE') -Destination $outputRoot
     & $BuildPython -B (Join-Path $PSScriptRoot 'package_notices.py') $projectRoot $outputRoot
     if ($LASTEXITCODE -ne 0) { throw 'Dependency notices could not be collected.' }
     & (Join-Path $pythonRoot 'python.exe') -B (Join-Path $PSScriptRoot 'package_manifest.py') $outputRoot

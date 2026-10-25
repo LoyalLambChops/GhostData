@@ -1,13 +1,13 @@
 # Public release readiness
 
-Assessment: October 25, 2026. Version 1.3.0 is a locally validated packaging candidate. This checklist separates completed engineering from public-release gates.
+Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.1) is the current release candidate. This checklist separates completed engineering from public-release gates.
 
 ## Current state
 
 - The self-contained Windows x64 package already bundles Python and .NET. End users can run `GhostData.App.exe` directly; build scripts are for contributors.
 - The .NET 10 candidate payload is approximately 129 MiB unpacked. This is a package-size measurement, not a CPU/RAM performance claim.
 - GitHub has no release assets published. The repository is private.
-- There is no root project LICENSE. Third-party notices do not license GhostData's own code.
+- MIT was selected by the copyright holder on October 25. LICENSE covers original software, is embedded in the UI and included in both package formats. Third-party components retain their own notices.
 - An unsigned installer candidate is implemented and tested locally. A release CI workflow remains outstanding. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
 - The Update button supports verified release ZIPs in portable and installed layouts, staging, install-on-exit and startup rollback; uninstall metadata stays outside the swapped payload. Public download/update acceptance is outstanding.
 - App screenshots in the README are synthetic-data renders.
@@ -39,12 +39,7 @@ Inno Setup is a suitable lightweight installer builder: it supports a single set
 
 ## License and signing decisions
 
-Select a project license before calling the public repository open-source. Making a repository public alone does not grant general reuse rights.
-
-- **MIT:** simple permissive reuse, including proprietary derivatives; attribution/license notices remain required.
-- **GPL-3.0:** distributed derivative versions must preserve the applicable source-sharing and same-license obligations. Better aligned if the goal is to keep distributed modifications open. Both licenses allow commercial use; free/open does not prohibit resale.
-
-The copyright holder must choose the license. Review contributions and dependency compatibility, then add LICENSE, source/package metadata, About/license links, and include the license in both installer and portable distributions. Keep third-party/game-content rights separate.
+The maintainer selected MIT on October 25. The root LICENSE, C# package metadata, offline dashboard license viewer, portable payload and website reflect this decision. MIT permits modification and commercial reuse with the required notice; no additional anti-modification restrictions are imposed. Third-party and game-content rights remain separate.
 
 The initial release will be unsigned, as chosen by the maintainer on October 25. A code-signing certificate is not a release gate. Clearly label the downloads as unsigned, publish SHA-256 checksums, and test Windows download-origin behavior. Checksums do not authenticate the publisher. SmartScreen may warn, and Smart App Control or managed policies may block execution; do not promise every Windows device can run the unsigned build. Signing identifies a publisher and can help build reputation, but does not guarantee warning-free installation.
 
@@ -65,7 +60,7 @@ Signing can be reconsidered later if installation friction warrants it. No certi
 - [ ] Resolve the previously removed promotional commit's remaining GitHub cached access before treating those excluded files as local-only in a public repository. Clean branch history alone is not a purge of cached commits.
 - [ ] Publish GitHub Release assets with release notes, supported Windows architecture, known limitations, checksums and matching source tag; verify unauthenticated downloads and updater behavior when access is opened.
 
-Do not change repository visibility, buy a certificate, accept signing-service terms, or select a license as an incidental packaging operation.
+Do not change repository visibility, buy a certificate, accept signing-service terms, as an incidental packaging operation.
 
 ## References
 

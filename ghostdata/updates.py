@@ -10,11 +10,11 @@ from urllib.error import HTTPError
 from urllib.parse import urlparse
 from urllib.request import Request, build_opener, HTTPRedirectHandler
 import zipfile
-from . import __version__
+from . import __version__, __release_channel__
 from .local_card_data import import_card_data
 
 REPOSITORY = "LoyalLambChops/GhostData"
-API = f"https://api.github.com/repos/{REPOSITORY}/releases/latest"
+API = f"https://api.github.com/repos/{REPOSITORY}/releases?per_page=100"
 ARCHIVE = "GhostData-win-x64.zip"
 MAX_ARCHIVE = 180 * 1024 * 1024
 MAX_EXPANDED = 600 * 1024 * 1024
@@ -24,6 +24,24 @@ def version(value):
     if not re.fullmatch(r"v?\d+\.\d+\.\d+", str(value)):
         raise ValueError("Unrecognized release version.")
     return tuple(map(int, value.lstrip("v").split(".")))
+
+
+def select_release(releases, channel):
+    """Use numeric tags for upgrade ordering, GitHub's flag for beta status."""
+    if channel not in {"beta", "stable"} or not isinstance(releases, list):
+        raise ValueError("Unrecognized release channel or release listing.")
+    eligible = []
+    for release in releases:
+        if not isinstance(release, dict) or release.get("draft"):
+            continue
+        if release.get("prerelease") and channel != "beta":
+            continue
+        try:
+            number = version(release.get("tag_name", ""))
+        except ValueError:
+            continue
+        eligible.append((number, release))
+    return max(eligible, key=lambda entry: entry[0])[1] if eligible else None
 
 
 class ReleaseRedirects(HTTPRedirectHandler):
@@ -104,8 +122,9 @@ def stage_release(root: Path):
         except HTTPError as exc:
             if exc.code == 404: return {"status":"UNAVAILABLE", "message":"No public GhostData release is available."}
             raise
-        release = json.loads(metadata.read_text(encoding="utf-8"))
-        if release.get("draft") or release.get("prerelease"): raise ValueError("Release is not a stable published build.")
+        release = select_release(json.loads(metadata.read_text(encoding="utf-8")), __release_channel__)
+        if release is None:
+            return {"status":"UNAVAILABLE", "message":"No compatible public GhostData release is available."}
         tag = release.get("tag_name", "")
         if version(tag) <= version(__version__): return {"status":"CURRENT", "message":"GhostData is up to date."}
         marker = root / "ghostdata-release.json"

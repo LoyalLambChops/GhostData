@@ -18,9 +18,10 @@
 AppId={{#AppIdValue}
 AppName={#DisplayName}
 AppVersion={#AppVersion}
+AppVerName={#DisplayName} Phantom - Beta 1 ({#AppVersion})
 AppPublisher=LoyalLambChops
-AppPublisherURL=https://github.com/LoyalLambChops/GhostData
-AppSupportURL=https://github.com/LoyalLambChops/GhostData/issues
+AppPublisherURL=https://loyallambchops.github.io/ghostdata-site/
+AppSupportURL=mailto:LoyalLambChops@gmail.com
 DefaultDirName={localappdata}\Programs\{#DisplayName}
 DefaultGroupName={#DisplayName}
 DisableProgramGroupPage=yes
