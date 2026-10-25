@@ -15,6 +15,19 @@ packages = {key: value['path'] for key, value in assets['libraries'].items()
             if value['type'] == 'package' and key in deps['libraries']}
 packages['Microsoft.NETCore.App.Runtime.win-x64/' + framework['version']] = (
     'microsoft.netcore.app.runtime.win-x64/' + framework['version'])
+# The .NET Framework sensor has no deps.json. Select runtime/native assets
+# actually copied beside its executable; exclude reference-assembly build tools.
+sensor_assets = json.loads((project / 'sensor/GhostData.Sensor/obj/project.assets.json').read_text())
+roots = list(dict.fromkeys(roots + [Path(p) for p in sensor_assets['packageFolders']]))
+for target in sensor_assets['targets'].values():
+    for name, library in target.items():
+        if library.get('type') != 'package':
+            continue
+        shipped = [path for kind in ('runtime', 'native', 'runtimeTargets')
+                   for path in library.get(kind, {})
+                   if (output / 'sensor/bin' / Path(path).name).is_file()]
+        if shipped:
+            packages[name] = sensor_assets['libraries'][name]['path']
 mit = (project / 'sensor/vendor/unityspy/LICENSE').read_text(encoding='utf-8')
 mit = mit[mit.index('Permission is hereby granted'):]
 for name, relative in sorted(packages.items()):
@@ -31,6 +44,12 @@ for name, relative in sorted(packages.items()):
     shutil.copyfile(spec, destination / spec.name)
     metadata = ET.parse(spec).getroot()
     values = {node.tag.rsplit('}', 1)[-1]: node.text or '' for node in metadata.iter()}
+    override = project / 'tools/license_overrides' / name.replace('/', '-')
+    if not notices and override.is_dir() and values.get('license') == 'MIT':
+        for notice in override.iterdir():
+            if notice.is_file():
+                shutil.copyfile(notice, destination / notice.name)
+        notices = list(override.glob('LICENSE*'))
     if not notices:
         if values.get('license') != 'MIT' or not values.get('copyright'):
             raise RuntimeError('Review missing license text/attribution: ' + name)

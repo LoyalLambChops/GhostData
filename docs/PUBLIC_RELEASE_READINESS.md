@@ -1,6 +1,6 @@
 # Public release readiness
 
-Assessment: October 22, 2026. Version 1.3.0 is a locally validated packaging candidate. This checklist separates completed engineering from public-release gates.
+Assessment: October 25, 2026. Version 1.3.0 is a locally validated packaging candidate. This checklist separates completed engineering from public-release gates.
 
 ## Current state
 
@@ -8,7 +8,7 @@ Assessment: October 22, 2026. Version 1.3.0 is a locally validated packaging can
 - The .NET 10 candidate payload is approximately 129 MiB unpacked. This is a package-size measurement, not a CPU/RAM performance claim.
 - GitHub has no release assets published. The repository is private.
 - There is no root project LICENSE. Third-party notices do not license GhostData's own code.
-- An unsigned installer candidate is implemented and tested locally. A release CI workflow and publisher signing remain outstanding.
+- An unsigned installer candidate is implemented and tested locally. A release CI workflow remains outstanding. The maintainer chose an unsigned initial release on October 25; signing is optional future work.
 - The Update button supports verified release ZIPs in portable and installed layouts, staging, install-on-exit and startup rollback; uninstall metadata stays outside the swapped payload. Public download/update acceptance is outstanding.
 - App screenshots in the README are synthetic-data renders.
 
@@ -33,6 +33,7 @@ Inno Setup is a suitable lightweight installer builder: it supports a single set
 - [ ] Provide clear first-run, missing-game, missing-logs, sensor-unavailable and unsupported-game-build states. Avoid silently presenting incomplete accounting as exact.
 - [x] Migrate UI and harness to .NET 10, bundle runtime 10.0.13, and validate installed UI plus the regression suites.
 - [x] Run separate app/sensor dependency vulnerability scans, including transitive packages. No known vulnerabilities were reported at this validation; repeat during release CI.
+- [x] Extend the exact-package notice collector to include shipped sensor dependencies (JetBrains.Annotations, Newtonsoft.Json and System.ValueTuple), excluding build-only reference assemblies.
 - [ ] Keep release builds free of personal logs, data, credentials and private promotional material. Review tracked game-definition/reference files and preserve required third-party licenses.
 - [x] Ship a dedicated offline package README referencing the included manuals; repository screenshot links remain in the repository README.
 
@@ -45,14 +46,14 @@ Select a project license before calling the public repository open-source. Makin
 
 The copyright holder must choose the license. Review contributions and dependency compatibility, then add LICENSE, source/package metadata, About/license links, and include the license in both installer and portable distributions. Keep third-party/game-content rights separate.
 
-An ordinary desktop EXE can be distributed unsigned, but signing identifies the publisher and protects integrity. For a polished release, sign and timestamp the installer and owned Windows executables before computing final package hashes. Verify signatures in the release pipeline. Signing is not a guarantee that SmartScreen will never warn.
+The initial release will be unsigned, as chosen by the maintainer on October 25. A code-signing certificate is not a release gate. Clearly label the downloads as unsigned, publish SHA-256 checksums, and test Windows download-origin behavior. Checksums do not authenticate the publisher. SmartScreen may warn, and Smart App Control or managed policies may block execution; do not promise every Windows device can run the unsigned build. Signing identifies a publisher and can help build reputation, but does not guarantee warning-free installation.
 
-Evaluate SignPath Foundation eligibility for open-source signing, or a trusted commercial signing service/certificate. Approval and identity verification are external prerequisites, not something a build script can manufacture. Do not use a self-signed certificate as the public trust solution.
+Signing can be reconsidered later if installation friction warrants it. No certificate purchase or signing-service enrollment is authorized or required for the initial release.
 
 ## Release and acceptance gates
 
 - [ ] Build from a clean tagged checkout in a reproducible, documented Windows CI workflow; run Python and UI regression checks and dependency scans.
-- [ ] Sign artifacts, then produce manifests/checksums; create installer and portable assets from the same tested source version.
+- [ ] Produce the unsigned installer and portable assets from the same tested source version, then publish manifests/checksums with a clear unsigned-build notice.
 - [ ] Test installation and launch on a clean supported Windows VM with no development Python or .NET SDK, using a standard user account and paths containing spaces/non-ASCII characters.
 - [ ] Repeat Desktop/Start Menu, duplicate-launch, upgrade, failed/interrupted-update and uninstall/reinstall acceptance on a clean VM. Local isolated install, shortcut, reinstall, update-success, startup-rollback and uninstall/data-preservation checks already pass; power-loss and interruption scenarios remain open.
 - [ ] Exercise a real downloaded release and update path, including Windows download-origin/security behavior. Do not treat locally copied unsigned builds as equivalent evidence.

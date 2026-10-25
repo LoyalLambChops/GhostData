@@ -21,6 +21,13 @@ licenses. The build restores these dependencies. Portable packages preserve the 
 restored packages' license text, notices and attribution under `licenses/`. No browser engine, chart
 package or new production dependency was added for text-only rails.
 
+## Sensor dependencies
+
+The packaged sensor also uses JetBrains.Annotations, Newtonsoft.Json and
+System.ValueTuple. Their own license and attribution files are collected from
+the exact restored NuGet packages under `licenses/`, separately from UnitySpy.
+Build-only .NET Framework reference assemblies are not distributed as app runtime files.
+
 ## Bundled runtimes
 
 Portable packages include the official Python embeddable runtime and its
