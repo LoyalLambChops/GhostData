@@ -38,6 +38,8 @@ class HandSlot:
     name: str = "Unknown card"
     origin: str = "DRAWN"
     text: str = ""
+    related_cards: tuple = ()
+    related_label: str = ""
 
 
 @dataclass(frozen=True)
@@ -128,6 +130,7 @@ class DeckTrackerState:
     player_sideboard_rows: Tuple[RailCardRow, ...] = field(default_factory=tuple)
     player_overdraw_rows: Tuple[RailCardRow, ...] = field(default_factory=tuple)
     opponent_overdraw_rows: Tuple[RailCardRow, ...] = field(default_factory=tuple)
+    player_hand: Tuple[HandSlot, ...] = field(default_factory=tuple)
     opponent_hand: Tuple[HandSlot, ...] = field(default_factory=tuple)
     player_fatigue: int = 0
     opponent_fatigue: int = 0

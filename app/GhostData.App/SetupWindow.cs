@@ -59,10 +59,10 @@ public sealed class SetupWindow : Window
         bottom.Children.Add(_result);
         bottom.Children.Add(new StackPanel{Orientation=Orientation.Horizontal,HorizontalAlignment=HorizontalAlignment.Right,Spacing=8,Children={later,_done}});
         var head=new StackPanel{Spacing=10,Margin=new Thickness(0,0,0,14),Children={
-            new TextBlock{Text="Your games. Your data. Let's get ready.",FontSize=23,FontWeight=FontWeight.SemiBold},
+            new TextBlock{Text="Your games. Your data. Local diagnostics.",FontSize=23,FontWeight=FontWeight.SemiBold},
             new TextBlock{Text="Start Hearthstone and reach the main menu. Select its installation folder below if automatic discovery misses it.",TextWrapping=TextWrapping.Wrap},
             pathRow,
-            new TextBlock{Text="ENABLE POWER LOGGING changes only Power LogLevel / FilePrinting in your Blizzard log.config, preserving other settings and backing up an existing file. Restart Hearthstone afterward. Nothing changes until you click it.",TextWrapping=TextWrapping.Wrap,FontSize=12},
+            new TextBlock{Text="Logging is configured automatically when GhostData starts. Card definitions are imported automatically from your running game. These controls are available for troubleshooting; normal play requires no setup buttons.",TextWrapping=TextWrapping.Wrap,FontSize=12},
             _actions}};
         var panel=new DockPanel{Margin=new Thickness(22)};
         DockPanel.SetDock(head,Dock.Top);panel.Children.Add(head);
@@ -101,7 +101,7 @@ public sealed class SetupWindow : Window
     private async Task CheckAsync(bool populate)
     {
         using var json=await RunAsync(new[]{"--setup-status"});ApplyStatus(json.RootElement,populate);
-        _result.Text="Checks stay local. SAVE AND CLOSE remembers setup; it does not assert that every check passed. Folder changes take effect after restarting GhostData.";
+        _result.Text="Checks stay local. Normal startup configures logging and imports cards automatically. Folder changes take effect after restarting GhostData.";
     }
     private void ApplyStatus(JsonElement root,bool populate)
     {
@@ -110,9 +110,18 @@ public sealed class SetupWindow : Window
         Summary=ReadinessSummary(root);
 
     }
-    public static string ReadinessSummary(JsonElement root)=>root.GetProperty("ready").GetBoolean()
-        ? "Local setup checks passed. Live card accounting is verified during play."
-        : "Tracking setup is waiting or needs attention — open SETUP for details.";
+    public static string ReadinessSummary(JsonElement root)
+    {
+        if(root.GetProperty("ready").GetBoolean())return "Ready — tracking and analytics stay on this computer.";
+        foreach(var check in root.GetProperty("checks").EnumerateArray())
+        {
+            var name=check.GetProperty("name").GetString();
+            var status=check.GetProperty("status").GetString();
+            if(status=="UNAVAILABLE" || (status=="ACTION NEEDED" && name!="Game folder"))
+                return $"{name}: {check.GetProperty("detail").GetString()}";
+        }
+        return "Preparing local tracking automatically. Start Hearthstone and reach the main menu. SETUP shows diagnostics.";
+    }
     public static bool HasSeenSetup()
     {
         var folder=Environment.GetEnvironmentVariable("GHOSTDATA_DATA_DIR");

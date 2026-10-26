@@ -1,6 +1,6 @@
 # Public release readiness
 
-Assessment: October 25, 2026. Phantom · Beta 1 (build 1.3.2) is the current release candidate. This checklist separates completed engineering from public-release gates.
+Assessment: October 26, 2026. Build 1.3.2 passed the maintainer’s separate clean Windows 11 install/run check. Build 1.3.3 is the new development candidate for automatic setup and hand previews. Universal related-card mechanic coverage remains incomplete; see HAND_PREVIEWS.md. This checklist separates completed engineering from public-release gates.
 
 ## Current state
 

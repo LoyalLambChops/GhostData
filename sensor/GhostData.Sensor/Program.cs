@@ -11,7 +11,7 @@ namespace GhostData.Sensor
 {
     internal static class Program
     {
-        private const string SensorVersion = "1.3.2";
+        private const string SensorVersion = "1.3.3";
         private const string Provider = "ghostdata_sensor_unityspy";
 
         private static int Main(string[] args)
@@ -22,6 +22,9 @@ namespace GhostData.Sensor
             {
                 switch (command)
                 {
+                    case "hand-stream":
+                        RunHandStream(args);
+                        return 0;
                     case "health":
                         Emit(HealthPayload());
                         return 0;
@@ -75,12 +78,51 @@ namespace GhostData.Sensor
                 status = "READY",
                 provider = Provider,
                 hearthstone_running = process != null,
+                hearthstone_pid = process?.Id ?? 0,
                 sensor_version = SensorVersion,
                 reader = "unityspy-selected-deck",
                 source_revision = ReadSourceRevision(),
                 hearthstone_build = TryFileVersion(process),
                 hearthstone_path = TryProcessPath(process),
             };
+        }
+
+        private static void RunHandStream(string[] args)
+        {
+            HandReader reader=null;
+            Process game=null;
+            Process parent=null;
+            var parentIndex=Array.IndexOf(args,"--parent-pid");
+            if(parentIndex>=0)
+            {
+                if(parentIndex+1>=args.Length || !int.TryParse(args[parentIndex+1],out var pid))return;
+                try{parent=Process.GetProcessById(pid);}catch{return;}
+            }
+            int tick=0;
+            try
+            {
+                while(parent==null || !parent.HasExited)
+                {
+                    try
+                    {
+                        if(game==null || game.HasExited)
+                        {
+                            reader?.Dispose();reader=null;game?.Dispose();game=HearthstoneProcess();
+                            if(game!=null)reader=new HandReader(game.Id);
+                        }
+                        Emit(reader==null ? (object)new {status="WAITING",hover=(object)null,hand=new object[0]} : reader.Read(tick++%10==0));
+                        System.Threading.Thread.Sleep(reader==null ? 1000 : 100);
+                    }
+                    catch(System.IO.IOException){return;} // owner closed the pipe
+                    catch
+                    {
+                        reader?.Dispose();reader=null;game?.Dispose();game=null;
+                        Emit(new {status="UNAVAILABLE",hover=(object)null,hand=new object[0]});
+                        System.Threading.Thread.Sleep(3000);
+                    }
+                }
+            }
+            finally {reader?.Dispose();game?.Dispose();parent?.Dispose();}
         }
 
         private static object ReadSelectedDeck(string[] args)

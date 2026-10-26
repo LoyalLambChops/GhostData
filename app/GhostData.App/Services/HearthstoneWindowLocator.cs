@@ -21,6 +21,13 @@ public sealed class HearthstoneWindowLocator : IGameWindowLocator
     private DateTime _nextLookup;
     private static uint _gamePid;
 
+    public static bool IsGameForeground()
+    {
+        if(!OperatingSystem.IsWindows())return false;
+        GetWindowThreadProcessId(GetForegroundWindow(),out var pid);
+        return _gamePid!=0 && pid==_gamePid;
+    }
+
     public static bool IsRelevantForeground()
     {
         if (!OperatingSystem.IsWindows()) return false;

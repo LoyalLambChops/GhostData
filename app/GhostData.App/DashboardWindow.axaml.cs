@@ -26,6 +26,9 @@ public sealed partial class DashboardWindow : Window
     private readonly ReleaseUpdateService _updates;
     private readonly string? _updateAcknowledgement;
     private bool _closing, _closedCleanly;
+    private string _loggingRestartNotice="";
+    private int _loggingGamePid;
+    private DateTime _lastSetupCheck=DateTime.UtcNow;
     public DashboardWindow():this(StartupOptions.Parse(Array.Empty<string>())){}
     public DashboardWindow(StartupOptions options)
     {
@@ -39,7 +42,7 @@ public sealed partial class DashboardWindow : Window
         this.FindControl<TextBlock>("ReleaseLabel")!.Text=$"PHANTOM · BETA 1  /  Build {ProductInfo.Version}";
         _deckRails.Failed+=message=>this.FindControl<TextBlock>("SetupStatus")!.Text=message+" Open SETUP or restart GhostData.";
         _historyRefreshTimer=new DispatcherTimer{Interval=TimeSpan.FromSeconds(4)};
-        _historyRefreshTimer.Tick+=async (_,_)=>await RefreshAsync(silent:true);
+        _historyRefreshTimer.Tick+=async (_,_)=>{await RefreshAsync(silent:true);if(DateTime.UtcNow-_lastSetupCheck>TimeSpan.FromSeconds(30)){_lastSetupCheck=DateTime.UtcNow;await CheckSetupAsync(prepare:true);}};
         Opened+=OnOpened;Closing+=OnClosing;
     }
     private async void OnOpened(object? sender,EventArgs e)
@@ -71,8 +74,8 @@ public sealed partial class DashboardWindow : Window
             if(_exitAfterPreview)Close();
             return;
         }
-        if(_updateAcknowledgement is null && !SetupWindow.HasSeenSetup())
-            await ShowSetupAsync();
+        this.FindControl<TextBlock>("SetupStatus")!.Text="Preparing local tracking automatically…";
+        await CheckSetupAsync(prepare:true);
         if(_closing)return;
         string? trackerError=null;
         try{_recorder.Start();}
@@ -166,14 +169,21 @@ public sealed partial class DashboardWindow : Window
         }
         finally{_setupOpen=false;}
     }
-    private async Task CheckSetupAsync()
+    private async Task CheckSetupAsync(bool prepare=false)
     {
         using var timeout=CancellationTokenSource.CreateLinkedTokenSource(_lifetime.Token);timeout.CancelAfter(TimeSpan.FromSeconds(12));
         try
         {
-            var response=await _dataService.RunPythonAsync(new[]{"--setup-status"},timeout.Token,true);
+            var response=await _dataService.RunPythonAsync(new[]{prepare ? "--prepare-local-setup" : "--setup-status"},timeout.Token,true);
             using var doc=System.Text.Json.JsonDocument.Parse(response.Output);
-            this.FindControl<TextBlock>("SetupStatus")!.Text=SetupWindow.ReadinessSummary(doc.RootElement);
+            var pid=doc.RootElement.TryGetProperty("hearthstone_pid",out var processId)?processId.GetInt32():0;
+            if(pid!=_loggingGamePid)_loggingRestartNotice="";
+            if(doc.RootElement.TryGetProperty("logging_changed",out var changed) && changed.GetBoolean() && pid>0)
+            {
+                _loggingGamePid=pid;
+                _loggingRestartNotice="Logging enabled automatically — restart Hearthstone once to activate it. ";
+            }
+            this.FindControl<TextBlock>("SetupStatus")!.Text=_loggingRestartNotice+SetupWindow.ReadinessSummary(doc.RootElement);
         }
         catch(OperationCanceledException){if(!_closing)this.FindControl<TextBlock>("SetupStatus")!.Text="Setup check timed out — open SETUP to retry.";}
         catch(Exception ex){this.FindControl<TextBlock>("SetupStatus")!.Text="Setup unavailable: "+ex.Message;}

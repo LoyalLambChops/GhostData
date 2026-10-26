@@ -83,3 +83,15 @@ if (OperatingSystem.IsWindows())
     Check(restarted.IsPrimary, "Closed instance releases ownership");
     Console.WriteLine("Passed 4 single-instance lifecycle checks.");
 }
+
+Check(CardTextFormatter.Format("[x]<b>Battlecry:</b>_Deal $3 damage.&\nRestore #2 Health.")=="Battlecry: Deal 3 damage.\nRestore 2 Health.","Strip layout and numeric markers");
+Check(CardTextFormatter.Format("A &amp; B<br/>C")=="A & B\nC","Preserve literal punctuation and line breaks");
+Check(CardTextFormatter.Format("Destroy a minion.@ <i>({0} left!)</i>")=="Destroy a minion.","Do not concatenate description variants");
+Check(!CardTextFormatter.Format("Cast @ |4(spell,spells)").Contains('@'),"Never expose unresolved template syntax");
+var handState=new TrackerStateDto {Active=true,PlayerHand=new(){new(){EntityId=20,CardId="CAP_805t",Name="Ectoplasm",Text="Resummon minions.",RelatedLabel="Stored minions",RelatedCards=new(){new(){CardId="A",Name="A"},new(){CardId="A",Name="A"}}}}};
+Check(RailHoverPreview.ResolveHand(handState,20,"CAP_805t") is not null && RailHoverPreview.ResolveHand(handState,21,"CAP_805t") is null,"Hover resolves entity not name");
+Check(RailHoverPreview.ResolveHand(handState,20,"WRONG") is null,"Stale transformed card rejected");
+Check(RailHoverPreview.HandDetail(handState.PlayerHand[0],"Deal 7 damage.").Contains("Deal 7 damage."),"Rendered wording wins");
+Check(RailHoverPreview.HandDetail(handState.PlayerHand[0],null).Split("• A").Length==3,"Related duplicates retained");
+handState.Complete=true;Check(RailHoverPreview.ResolveHand(handState,20,"CAP_805t") is null,"Completed match hover cleared");
+Console.WriteLine("Passed 9 card text and hand-preview checks.");

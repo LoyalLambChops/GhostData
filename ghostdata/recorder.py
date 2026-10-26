@@ -117,7 +117,8 @@ def record_once(project_root: Path, *, power_log: Path | None = None, data_dir: 
     logs are parsed automatically.
     """
     with _recording_lock(data_dir):
-        logs = discover_power_logs(power_log)
+        from .setup import configured_log_path
+        logs = discover_power_logs(power_log if power_log is not None else configured_log_path(data_dir))
         if not logs:
             append_log("record_once: no Power.log files found", data_dir=data_dir)
             return 0, 0

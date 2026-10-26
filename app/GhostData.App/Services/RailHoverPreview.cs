@@ -23,6 +23,65 @@ public static class RailHoverPreview
     private static string _cardId = "";
     private static (string Id, string Name, string Detail) _card;
     private static long _entered;
+    private static TrackerStateDto? _handState;
+    private static int _hoveredEntity;
+    private static string _hoveredCard="";
+    private static long _sensorAt;
+    private static long _textAt;
+    private static readonly Dictionary<int,(string CardId,string Text)> HandText=new();
+
+    public static void ApplyHandState(TrackerStateDto state)
+    {
+        if(_handState?.GameNumber!=state.GameNumber || !state.Active || state.Complete)ClearHandSensor();
+        _handState=state;
+    }
+    public static void ClearHandSensor()
+    {
+        _hoveredEntity=0;_hoveredCard="";HandText.Clear();_sensorAt=0;_textAt=0;
+    }
+    public static void ApplyHandSensor(System.Text.Json.JsonElement root)
+    {
+        _sensorAt=Stopwatch.GetTimestamp();_hoveredEntity=0;_hoveredCard="";
+        if(root.TryGetProperty("hand",out var hand) && hand.ValueKind==System.Text.Json.JsonValueKind.Array)
+        {
+            HandText.Clear();_textAt=_sensorAt;
+            foreach(var row in hand.EnumerateArray())
+            {
+                var id=row.GetProperty("entity_id").GetInt32();
+                HandText[id]=(row.GetProperty("card_id").GetString()??"",row.GetProperty("text").GetString()??"");
+            }
+        }
+        if(root.TryGetProperty("hover",out var hover) && hover.ValueKind==System.Text.Json.JsonValueKind.Object)
+        {
+            _hoveredEntity=hover.GetProperty("entity_id").GetInt32();
+            _hoveredCard=hover.GetProperty("card_id").GetString()??"";
+        }
+    }
+    public static HandSlotDto? ResolveHand(TrackerStateDto? state,int entityId,string cardId) =>
+        state is {Active:true,Complete:false} && entityId>0 && cardId.Length>0
+            ? state.PlayerHand.SingleOrDefault(h=>h.EntityId==entityId && h.CardId==cardId) : null;
+    public static string HandDetail(HandSlotDto slot,string? rendered=null)
+    {
+        var text=CardTextFormatter.Format(string.IsNullOrWhiteSpace(rendered)?slot.Text:rendered);
+        if(slot.RelatedLabel.Length>0)text+="\n\n"+slot.RelatedLabel;
+        foreach(var related in slot.RelatedCards)text+="\n• "+related.Name+(related.Count>1?$" ×{related.Count}":"");
+        return text;
+    }
+    private static string HandDetail(HandSlotDto slot)
+    {
+        var rendered=_textAt!=0 && Stopwatch.GetElapsedTime(_textAt).TotalSeconds<2
+            && HandText.TryGetValue(slot.EntityId,out var row) && row.CardId==slot.CardId ? row.Text : null;
+        return HandDetail(slot,rendered);
+    }
+    private static (string Id,string Name,string Detail) Enrich((string Id,string Name,string Detail) card)
+    {
+        var slots=_handState is {Active:true,Complete:false} ? _handState.PlayerHand.Where(h=>h.CardId==card.Id).ToArray() : Array.Empty<HandSlotDto>();
+        if(slots.Length==1)return (card.Id,card.Name,HandDetail(slots[0]));
+        if(slots.Length>1 && slots.Any(h=>h.RelatedLabel.Length>0))
+            return (card.Id,card.Name,string.Join("\n\n",slots.Select(h=>$"Hand position {h.Position}\n{HandDetail(h)}")));
+        return (card.Id,card.Name,CleanText(card.Detail));
+    }
+
     private static bool _requested;
     private static Window? _rail;
 
@@ -80,29 +139,48 @@ public static class RailHoverPreview
             if (rail.InputHitTest(point) is not Visual hit) continue;
             foreach (var control in hit.GetSelfAndVisualAncestors().OfType<Control>())
             {
-                card = CardFor(control.DataContext);
+                card = Enrich(CardFor(control.DataContext));
                 if (string.IsNullOrEmpty(card.Id)) continue;
                 foundRail = rail; foundRow = control; break;
             }
             break;
         }
-        if (foundRail is null || foundRow is null) { Hide(); return; }
+        var inHand=false;
+        if (foundRail is null || foundRow is null)
+        {
+            var slot=_sensorAt!=0 && Stopwatch.GetElapsedTime(_sensorAt).TotalMilliseconds<500
+                ? ResolveHand(_handState,_hoveredEntity,_hoveredCard) : null;
+            if(slot is null || !HearthstoneWindowLocator.IsGameForeground() || !Rails.Any(w=>w.IsVisible)) { Hide(); return; }
+            foundRail=Rails.OfType<PlayerDeckWindow>().FirstOrDefault(w=>w.IsVisible);
+            if(foundRail is null){Hide();return;}
+            card=($"{slot.CardId}:{slot.EntityId}",slot.Name,HandDetail(slot));inHand=true;
+        }
         if (_card != card || _rail != foundRail)
         {
             Hide(); _card = card; _cardId = card.Id; _rail = foundRail; _entered = Stopwatch.GetTimestamp();
         }
         if (Stopwatch.GetElapsedTime(_entered).TotalMilliseconds < 150) return;
         EnsurePopup();
-        PlacePopup(foundRail, foundRow);
+        if(inHand)
+        {
+            var screen=foundRail.Screens.ScreenFromPoint(screenPoint) ?? foundRail.Screens.Primary;
+            if(screen is null){Hide();return;}
+            var scale=screen.Scaling;
+            var area=screen.WorkingArea;
+            var width=(int)(_popup!.Width*scale);var height=(int)(_popup.Height*scale);
+            _popup.Position=new PixelPoint(Math.Clamp(screenPoint.X-width-30,area.X,Math.Max(area.X,area.Right-width)),
+                Math.Clamp(screenPoint.Y-height-45,area.Y,Math.Max(area.Y,area.Bottom-height)));
+        }
+        else PlacePopup(foundRail, foundRow!);
         if (!_requested)
         {
             _requested = true;
-            _fallback!.Text = PreviewText(card.Name, card.Detail);
+            _fallback!.Text = card.Name + "\n\n" + (string.IsNullOrWhiteSpace(card.Detail) ? "Card text unavailable in local data." : card.Detail);
             _popup!.Show();
         }
     }
 
-    private static string CleanText(string value) => System.Text.RegularExpressions.Regex.Replace(value ?? "", "<[^>]*>|\\[x\\]", "").Replace("$", "").Replace("#", "");
+    private static string CleanText(string value) => CardTextFormatter.Format(value);
 
     public static string PreviewText(string name, string detail) => name + "\n\n"
         + (string.IsNullOrWhiteSpace(detail) ? "Card text unavailable in local data." : CleanText(detail));

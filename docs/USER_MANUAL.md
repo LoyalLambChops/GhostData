@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.2) - Updated October 25, 2026
+Phantom · Beta 1 (build 1.3.3) - Updated October 26, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -80,19 +80,15 @@ offers a verification/build/launch workflow. Normal daily startup is
 `Run-GhostData.cmd`. The launcher runs Python tests and builds components;
 the separate C# parity harness is a developer check.
 
-### First-run SETUP
+### Automatic first launch
 
-SETUP opens automatically until you save and close it. You can reopen it from the dashboard at any time. You may close it and still browse existing history if Hearthstone is unavailable.
+Open GhostData, then start Hearthstone. The dashboard opens directly, with no mandatory setup dialog. GhostData enables Power logging automatically and imports public card definitions from your running game as it reaches the main menu. Nothing is downloaded for those steps. Imports retry in the background when the client is still loading and refresh when its build or rotation validity changes.
 
-1. Start Hearthstone and reach the main menu. Setup looks for standard installs and can detect the running game path. For a custom install, **BROWSE** to the folder containing `Hearthstone.exe`, then **SAVE FOLDER**. Restart GhostData if changing the path after tracking has started.
-2. If Power logging is missing, click **ENABLE POWER LOGGING**. This changes `LogLevel` and `FilePrinting` in the Power section of `%LOCALAPPDATA%\Blizzard\Hearthstone\log.config`. Unrelated sections are preserved; an existing file is backed up beside it. A malformed file is left untouched with an error. Fully close and restart Hearthstone afterward.
-3. Enter a game so Hearthstone creates a Power.log. **CHECK AGAIN** reports discovered logs; finding historical logs alone does not prove a current game is being tracked.
-4. At Hearthstone's main menu, **REFRESH LOCAL CARDS** imports public definitions locally. No external card data is downloaded. If import fails after a patch, exact card accounting cannot be assumed; check for a tested app update or contact support.
-5. **SAVE AND CLOSE** remembers that you have seen Setup, even if checks still need attention. The dashboard readiness line keeps outstanding checks visible. Current definitions do not certify every game mechanic; live accounting continues to label partial/unknown information.
+If Hearthstone was already running when logging was first enabled, GhostData asks you to restart **Hearthstone once**. The game reads its logging configuration at startup. GhostData never closes a match for you. Later launches need no logging button or card-definition button.
 
-Settings live in `GhostDataData/settings.json`, outside app files. Clearing the folder field and saving restores automatic discovery. Both recorder and live tracker use the saved install's `Logs` directory after restart; CLI `--power-log` overrides it. Default discovery scans both Program Files Hearthstone Logs roots and their dated session folders.
+Existing log.config settings are preserved, and an existing file is backed up before editing its Power section. Malformed or unwritable configuration is left untouched with an actionable diagnostic. An unusual game installation or a damaged configuration may require troubleshooting; normal setup is automatic.
 
-Setup runs only local checks and makes no network requests. UPDATE is the separate explicit release check.
+**SETUP** is an optional diagnostics/recovery screen. It can select an unusual game folder, retry logging or card import, and show local readiness. It does not gate the dashboard or tracking. Settings remain in the external GhostDataData folder.
 
 ## Daily use and controls
 
@@ -267,7 +263,9 @@ describe the loaded history; they are not a per-card accuracy rating.
 
 Rails and hover previews are text-only. No card images are shipped, downloaded,
 or read from old artwork caches. Hover shows a known card's name and local rules
-text after about 150 ms. Unknown opponent identities have no preview identity.
+text after about 150 ms. For visible cards in your own hand, GhostData reads the game's rendered description, including its current numbers, and uses it in hand and matching rail previews. Local definitions are the fallback. Formatting markup, layout underscores and numeric markers are removed; unresolved templates are never shown as raw symbols or invented values. Unknown opponent identities have no preview identity.
+
+Hovering a card directly in your game hand opens the same text preview. It uses the game's hovered entity, so copies with the same name remain separate. Ectoplasm shows its stored minions in order, including duplicates; separate casts and the two players' boards remain separate. Explicitly linked stored cards are also listed when observed. Board space and later game effects can affect actual resolution. Random outcomes and unobserved relationships are not presented as certain. See [hand-preview coverage](HAND_PREVIEWS.md) for the supported evidence and limits.
 Full-card artwork from installed assets is not implemented; third-party cached
 images are not used as a substitute.
 

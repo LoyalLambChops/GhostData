@@ -7,9 +7,9 @@ an implied pass. Keep captured game logs outside the repository.
 
 ## Start field validation with the installed app
 
-Install the current candidate using its Setup EXE and use its Start Menu or Desktop shortcut. Confirm the dashboard footer shows **Phantom · Beta 1 / Build 1.3.2**. Do not use an older portable shortcut for acceptance. Field testing needs no SDK, build commands or separately installed Python.
+Install the current candidate using its Setup EXE and use its Start Menu or Desktop shortcut. Confirm the dashboard footer shows **Phantom · Beta 1 / Build 1.3.3**. Do not use an older portable shortcut for acceptance. Field testing needs no SDK, build commands or separately installed Python.
 
-On first launch, complete SETUP: verify the game folder, enable logging explicitly if needed, restart Hearthstone, and import local cards at its main menu. Restart GhostData after changing a saved game folder. Preserve personal history; use an isolated data directory for destructive history-clear tests.
+On first launch, verify the dashboard opens without a setup dialog. Logging should be enabled automatically, and local cards should import after Hearthstone reaches its main menu without pressing any setup buttons. If logging was first enabled while Hearthstone was open, restart the game once. Verify hand hovering and rail text in a supported Standard match, including separate Ectoplasm contents when available. Preserve personal history; use isolated data for destructive history-clear tests.
 
 Record the exact source/build, game version, display scale and result for each check. Keep logs locally and share only reviewed relevant intervals.
 

@@ -736,6 +736,12 @@ class PowerLogParser:
 
     def _resolve_creations(self, frame, ts):
         """Resolve only this completed effect's newly created playable cards."""
+        if frame.card_id == "CAP_805" and frame.kind == "POWER":
+            for eid in frame.candidates:
+                token = self.state.entities[eid]
+                if token.card_id == "CAP_805t":
+                    captured = frame.slimed_minions.get(token.controller, {})
+                    self.state.stored_card_pools[eid] = tuple(cid for _, cid in sorted(captured.values(), key=lambda x:x[0]))
         if frame.pool and frame.candidates:
             members = [eid for eid in frame.candidates if self.state.entities[eid].controller == frame.controller
                        and self.state.entities[eid].zone in {"DECK", "HAND", "GRAVEYARD"}]
@@ -926,6 +932,12 @@ class PowerLogParser:
                 )
                 self.secret_tracker.on_provenance_change(self.state, e)
 
+        if tag == "TO_BE_DESTROYED" and value == "1" and e.card_type == "MINION":
+            frames = self._effects if source == "canonical" else self._task_effects
+            slime = next((f for f in reversed(frames) if f.card_id == "CAP_805" and f.kind == "POWER"), None)
+            if slime and e.controller and e.card_id:
+                slime.slimed_minions.setdefault(e.controller, {})[e.entity_id] = (e.zone_position, e.card_id)
+
         # Both Ectoplasm spells have this displayed source. Hidden copies of
         # the destroyed minions only have CREATOR and must stay anonymous.
         displayed = self.state.entities.get(e.displayed_creator or 0)
@@ -933,6 +945,8 @@ class PowerLogParser:
             e.update_card_identity("CAP_805t")
             e.tags["GHOSTDATA_PUBLIC_CREATION"] = "1"
             self._on_identity_change(e, ts)
+        if e.card_id == "CAP_805t" and e.controller and (e.creator or e.displayed_creator):
+            e.tags.setdefault("GHOSTDATA_STORAGE_OWNER", str(e.controller))
 
         # Ursol publicly casts a copy of the spell removed from its hand.
         # Only that explicit source permits reverse propagation to a hidden

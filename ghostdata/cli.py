@@ -25,6 +25,7 @@ def parser() -> argparse.ArgumentParser:
     mode.add_argument("--update", action="store_true")
     mode.add_argument("--verify-release", type=Path)
     mode.add_argument("--setup-status", action="store_true")
+    mode.add_argument("--prepare-local-setup", action="store_true")
     mode.add_argument("--save-game-directory", type=str)
     mode.add_argument("--enable-power-logging", action="store_true")
     p.add_argument("--acknowledge-setup", action="store_true")
@@ -37,10 +38,11 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     root = Path(__file__).resolve().parents[1]
-    if args.setup_status or args.save_game_directory is not None or args.enable_power_logging:
-        from .setup import setup_status, save_settings, enable_logging
+    if args.prepare_local_setup or args.setup_status or args.save_game_directory is not None or args.enable_power_logging:
+        from .setup import setup_status, prepare_local_setup, save_settings, enable_logging
         try:
-            if args.setup_status: result = setup_status(root, args.data_dir)
+            if args.prepare_local_setup: result = prepare_local_setup(root, args.data_dir)
+            elif args.setup_status: result = setup_status(root, args.data_dir)
             elif args.enable_power_logging: result = {"message": enable_logging()}
             else: result = save_settings(args.save_game_directory, args.data_dir, acknowledge=args.acknowledge_setup)
             print(json.dumps(result, ensure_ascii=False)); return 0

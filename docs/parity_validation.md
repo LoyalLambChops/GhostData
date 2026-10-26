@@ -118,3 +118,12 @@ The .NET 10 application and harness built successfully. The self-contained UI us
 An actual Inno Setup installer was compiled with an isolated test AppId and installed into a path containing spaces. Start Menu and Desktop shortcut targets/icons were checked. The installed .NET 10 app rendered its synthetic dashboard and rails successfully. A reinstall removed an obsolete-file fixture. The actual update helper completed a successful payload replacement, and a deliberately failing startup restored the previous executable byte-for-byte; uninstall metadata remained unchanged in both cases. Windows uninstall removed the test payload, registration and shortcuts while preserving an external history sentinel.
 
 These checks ran on the development machine. They do not establish clean-VM operation without developer prerequisites, interactive wizard accessibility, non-ASCII paths, power-loss recovery, downloaded-artifact reputation, signing, or public-release update acceptance. The user's existing installation and data were not replaced. No public release was created.
+
+
+## October 26 automatic startup and hand previews
+
+The maintainer confirmed that build 1.3.2 installed and ran successfully on a separate clean Windows 11 PC. Feedback identified avoidable setup clicks and card-preview gaps; build 1.3.3 addresses those with automatic logging setup, the existing background local card importer, a direct friendly-hand hover sensor and per-Ectoplasm payloads.
+
+The new source passes 211 Python tests and 49 UI/lifecycle checks. A read-only live client check on build 37.0.0.255130 returned the correct hovered entity and rendered Nightblade wording, plus all six visible hand descriptions, with no sensor errors across 41 samples. A local log reconstruction distinguished both Ectoplasm boards and retained duplicate minions. Private logs were not committed. A separate regression checks that Rewind removes an undone cast's stored payload.
+
+This does not certify every related-card mechanic. See HAND_PREVIEWS.md for supported evidence and remaining rule coverage. Actual supported-Standard overlay acceptance and final release checks remain required.

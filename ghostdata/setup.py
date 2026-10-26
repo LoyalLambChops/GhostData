@@ -1,4 +1,4 @@
-"""Explicit local setup. No network requests, game injection or hidden config edits."""
+"""Automatic local setup and diagnostics. No network requests or game injection."""
 from __future__ import annotations
 import configparser
 import json
@@ -86,7 +86,7 @@ def logging_enabled(path):
 
 
 def enable_logging(path=None):
-    """Only call following the user's explicit Enable logging action."""
+    """Idempotently configure logging, preserving and backing up existing settings."""
     path = Path(path) if path is not None else logging_config_path()
     original = path.read_bytes() if path.exists() else b""
     text = original.decode("utf-8-sig")
@@ -152,7 +152,7 @@ def setup_status(project_root, data_dir=None):
     try: enabled = logging_enabled(config)
     except (OSError, ValueError, configparser.Error) as exc:
         enabled = False; add("Logging configuration","ACTION NEEDED",f"Cannot safely read {config}: {exc}. Review the file before enabling logging.")
-    else: add("Power logging", "CONFIGURED" if enabled else "ACTION NEEDED", f"{config}" if enabled else "Click ENABLE POWER LOGGING, then restart Hearthstone.")
+    else: add("Power logging", "CONFIGURED" if enabled else "ACTION NEEDED", f"{config}" if enabled else "Automatic logging setup needs attention. See the configuration details below.")
     logs = discover_power_logs(game/"Logs") if game else []
     add("Game logs", "FOUND" if logs else "WAITING", str(logs[-1]) if logs else "No Power.log found. After enabling logging, restart Hearthstone and enter a game.")
     running = health.get("hearthstone_running") is True
@@ -163,7 +163,31 @@ def setup_status(project_root, data_dir=None):
     build = str(health.get("hearthstone_build","")).split(".")[-1]
     current = cached and db.local_source and db.legality_current and build.isdigit() and db.build_number == int(build)
     if current: add("Card definitions","CURRENT",f"Local client build {db.build_number}; {len(db.cards):,} cards. This does not certify every game mechanic.")
-    else: add("Card definitions","ACTION NEEDED" if running else "WAITING", "Click REFRESH LOCAL CARDS at the main menu. Missing, expired or mismatched definitions cannot provide exact card accounting. If import fails after a patch, use UPDATE for a tested GhostData release or contact support.")
+    else: add("Card definitions","PREPARING" if running else "WAITING", "GhostData imports local card definitions automatically. Start Hearthstone and reach its main menu; GhostData retries while it starts. Missing, expired or mismatched definitions cannot provide exact card accounting. If import fails after a patch, use UPDATE for a tested GhostData release or contact support.")
     add("Your data","LOCAL",str(data_paths(data_dir).root)+". History stays here when the app is updated or uninstalled.")
-    return {"game_directory":str(game or settings.get("game_directory", "")),"setup_seen":settings.get("setup_seen",False),
+    return {"hearthstone_pid":health.get("hearthstone_pid", 0), "game_directory":str(game or settings.get("game_directory", "")),"setup_seen":settings.get("setup_seen",False),
             "checks":checks,"ready":bool(game and enabled and logs and running and current and "settings_error" not in settings)}
+
+
+def prepare_local_setup(project_root, data_dir=None):
+    """Configure logging before starting readers; card imports run on their I/O worker."""
+    error = None
+    changed = False
+    try:
+        config = logging_config_path()
+        changed = not logging_enabled(config)
+        enable_logging(config)
+    except (OSError, ValueError, configparser.Error) as exc:
+        error = str(exc)
+    result = setup_status(project_root, data_dir)
+    settings = read_settings(data_dir)
+    if result["game_directory"] and not settings.get("game_directory") and "settings_error" not in settings:
+        save_settings(result["game_directory"], data_dir)
+    result["logging_changed"] = changed and error is None
+    if error:
+        result["checks"].append({"name": "Automatic logging", "status": "ACTION NEEDED", "detail": error})
+        result["ready"] = False
+    elif changed:
+        result["checks"].append({"name": "Automatic logging", "status": "CONFIGURED",
+            "detail": "Power logging has been enabled. If Hearthstone is already open, restart it once to activate logging."})
+    return result

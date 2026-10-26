@@ -1,3 +1,13 @@
+# Phantom · Beta 1 — build 1.3.3 candidate
+
+- Automatic Power logging and background local card import; the first-run modal is removed.
+- Friendly hand hover uses the game's own hovered entity and rendered text.
+- Cleaner rail text without raw game-formatting markers.
+- Per-Ectoplasm stored-minion previews, with separate boards, casts and duplicates.
+- Observed linked stored-card previews and stale-hover rejection.
+
+This remains a private validation candidate. Universal related-card mechanic coverage is not complete; see HAND_PREVIEWS.md. A clean Windows 11 install/run of build 1.3.2 passed according to the maintainer; the changed startup and hover behavior needs acceptance on this candidate.
+
 # GhostData — Phantom · Beta 1
 
 Candidate build: **1.3.2**. Free software under MIT. Windows 11 x64 / Hearthstone Standard. This candidate is not yet a public release.

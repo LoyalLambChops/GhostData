@@ -276,6 +276,7 @@ class GameState:
     legal_options: LegalOptionSet = field(default_factory=LegalOptionSet)
     secrets: Dict[int, SecretState] = field(default_factory=dict)
     events: List[SemanticEvent] = field(default_factory=list)
+    stored_card_pools: Dict[int, tuple[str, ...]] = field(default_factory=dict)
     play_sequence_counter: int = 0
     raw_counts: Dict[str, int] = field(default_factory=dict)
     recoverable_overdraw: List[dict] = field(default_factory=list)

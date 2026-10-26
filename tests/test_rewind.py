@@ -24,6 +24,19 @@ class RewindTests(unittest.TestCase):
     def feed(self, *rows):
         ingest_tracker_chunk(self.p, self.f.tracker, b"", "".join(rows).encode())
 
+    def test_rewind_removes_stored_card_payload_with_undone_cast(self):
+        self.f._emit_zone(101,1,"PLAY","CARD_2")
+        self.p.state.entity(101).card_type="MINION"
+        self.feed(block("PLAY",100,"CAP_805"),block("POWER",100,"CAP_805"),
+                  line("TAG_CHANGE Entity=101 tag=TO_BE_DESTROYED value=1"),
+                  line("FULL_ENTITY - Creating ID=200 CardID=CAP_805t"),line("tag=CONTROLLER value=1"),
+                  line("tag=CARDTYPE value=SPELL"),line("tag=ZONE value=HAND"),line("tag=CREATOR value=100"),
+                  line("BLOCK_END"),line("BLOCK_END"))
+        self.assertEqual(("CARD_2",),self.p.state.stored_card_pools[200])
+        self.feed(block("POWER",300,"TIME_000tb"))
+        self.assertEqual({},self.p.state.stored_card_pools)
+        self.assertNotIn(200,self.p.state.entities)
+
     def test_rewind_restores_counts_provenance_and_removes_discarded_generation(self):
         self.feed(block("PLAY", 100, "CARD_1"), line("TAG_CHANGE Entity=100 tag=ZONE value=GRAVEYARD"),
                   line("FULL_ENTITY - Creating ID=200 CardID=CARD_2"), line("tag=CONTROLLER value=1"),

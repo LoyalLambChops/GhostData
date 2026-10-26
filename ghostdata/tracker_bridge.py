@@ -182,7 +182,8 @@ def run_tracker_stream(
 
     while True:
         now = time.monotonic()
-        logs = discover_power_logs(power_log)
+        from .setup import configured_log_path
+        logs = discover_power_logs(power_log if power_log is not None else configured_log_path(data_dir))
         source = logs[-1] if logs else None
         if source != current_source:
             current_source = source
@@ -266,7 +267,9 @@ def run_tracker_stream(
                 metadata_stamp = stamp
                 metadata_refresh = False
                 metadata_result = sensor_worker.submit(_load_build_metadata, paths.root / "local_cards", card_db.build_number)
-        if (not startup_imported or not card_db.ready or not card_db.legality_current or (build and build > (card_db.log_build or card_db.build_number or 0))) and metadata_result is None:
+        client_build = str(getattr(last_sensor_snapshot, "hearthstone_build", "")).split(".")[-1] if last_sensor_snapshot else ""
+        client_changed = client_build.isdigit() and int(client_build) != card_db.build_number
+        if (client_changed or not startup_imported or not card_db.ready or not card_db.legality_current or (build and build > (card_db.log_build or card_db.build_number or 0))) and metadata_result is None:
             if build != metadata_attempt[0] or now - metadata_attempt[1] >= 60:
                 metadata_attempt = (build, now)
                 metadata_refresh = True

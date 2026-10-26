@@ -4,6 +4,7 @@ namespace GhostData.App.Models;
 
 public sealed class TrackerStateDto
 {
+    [JsonPropertyName("player_hand")] public List<HandSlotDto> PlayerHand { get; set; } = new();
     [JsonPropertyName("schema_version")]
     public int SchemaVersion { get; set; }
 
@@ -264,6 +265,9 @@ public sealed class RailCardRowDto
 }
 public sealed class HandSlotDto
 {
+    [JsonPropertyName("entity_id")] public int EntityId { get; set; }
+    [JsonPropertyName("related_cards")] public List<RelatedCardDto> RelatedCards { get; set; } = new();
+    [JsonPropertyName("related_label")] public string RelatedLabel { get; set; } = "";
     [JsonPropertyName("card_id")] public string CardId { get; set; } = "";
     [JsonPropertyName("text")] public string Text { get; set; } = "";
     [JsonPropertyName("position")] public int Position { get; set; }
@@ -271,4 +275,12 @@ public sealed class HandSlotDto
     [JsonPropertyName("name")] public string Name { get; set; } = "Unknown card";
     [JsonPropertyName("origin")] public string Origin { get; set; } = "";
     public string Label => $"{Position} · T{(Turn + 1) / 2} · {Origin.ToLowerInvariant()} · {Name}";
+}
+
+public sealed class RelatedCardDto
+{
+    [JsonPropertyName("card_id")] public string CardId { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
+    [JsonPropertyName("text")] public string Text { get; set; } = "";
+    [JsonPropertyName("count")] public int Count { get; set; } = 1;
 }

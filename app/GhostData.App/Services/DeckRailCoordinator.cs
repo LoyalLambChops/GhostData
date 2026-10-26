@@ -16,6 +16,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
     private readonly DispatcherTimer _placementTimer;
     private readonly object _pendingGate = new();
     private TrackerBackendProcess? _backend;
+    private HandHoverSensor? _handSensor;
     private TrackerStateDto? _latest;
     private TrackerStateDto? _pending;
     private bool _playerShown;
@@ -42,6 +43,8 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         _backend.EnvelopeReceived += OnEnvelope;
         _backend.Failed += message => Dispatcher.UIThread.Post(()=>{lock(_pendingGate)_pending=null;_latest=null;Hide();Failed?.Invoke(message);});
         await _backend.StartAsync();
+        _handSensor=new HandHoverSensor(_options.ProjectRoot);
+        try{_handSensor.Start();}catch{_handSensor.Dispose();_handSensor=null;}
     }
 
     private void OnEnvelope(TrackerEnvelope envelope)
@@ -61,6 +64,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         }
         if (state is null) return;
         _latest = state;
+        RailHoverPreview.ApplyHandState(state);
         _secretRail.ViewModel.Apply(state);
         _playerRail.ViewModel.Apply(state);
         _opponentRail.ViewModel.Apply(state);
@@ -127,6 +131,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
     public async ValueTask DisposeAsync()
     {
         _placementTimer.Stop();
+        _handSensor?.Dispose();
         Hide();
         try { _secretRail.Close(); } catch { }
         try { _playerRail.Close(); } catch { }

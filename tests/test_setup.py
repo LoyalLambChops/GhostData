@@ -113,3 +113,25 @@ class SetupTests(unittest.TestCase):
             self.assertFalse(setup_status(self.root,self.data)['ready'])
             cache.build_number=123;cache.legality_current=False
             self.assertFalse(setup_status(self.root,self.data)['ready'])
+
+
+class AutomaticSetupTests(unittest.TestCase):
+    setUp = SetupTests.setUp
+    def test_automatic_setup_configures_logging_without_user_acknowledgement(self):
+        from ghostdata.setup import prepare_local_setup
+        result=prepare_local_setup(self.root,self.data)
+        self.assertTrue(logging_enabled(self.config))
+        self.assertTrue(result['logging_changed'])
+        original=self.config.read_bytes()
+        result=prepare_local_setup(self.root,self.data)
+        self.assertFalse(result['logging_changed'])
+        self.assertEqual(original,self.config.read_bytes())
+        self.assertEqual([],list(self.config.parent.glob('*.bak')))
+
+    def test_automatic_setup_preserves_malformed_config_and_reports_it(self):
+        from ghostdata.setup import prepare_local_setup
+        self.config.parent.mkdir(parents=True);self.config.write_text('invalid config')
+        result=prepare_local_setup(self.root,self.data)
+        self.assertFalse(result['ready']);self.assertFalse(result['logging_changed'])
+        self.assertEqual('invalid config',self.config.read_text())
+        self.assertTrue(any(c['name']=='Automatic logging' and c['status']=='ACTION NEEDED' for c in result['checks']))

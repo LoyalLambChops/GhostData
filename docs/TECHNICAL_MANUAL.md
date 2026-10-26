@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.2) - Updated October 25, 2026
+Phantom · Beta 1 (build 1.3.3) - Updated October 25, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -626,3 +626,14 @@ LICENSE is copied into the portable payload (and therefore Setup), and embedded 
 Avalonia SetupWindow invokes these commands asynchronously with cancellation and bounded timeouts. Missing/expired/mismatched definitions remain unready. Sensor health proves the executable launches, not that every layout/mechanic is supported. First-run presentation is skipped in synthetic previews and update-ack startup so recovery is not blocked by a modal dialog. User-selected folder changes require an app restart. A failed tracker clears stale rails and leaves a persistent message.
 
 The read-only-permission package workflow runs on manual dispatch or numeric tags, audits dependencies, builds both package formats, exercises isolated installer lifecycle and uploads candidate artifacts. It never changes repository visibility or publishes a release. See RELEASE_RUNBOOK.md for the public-release procedure and clean-Windows/live checks that CI cannot replace.
+
+
+## Automatic startup and hand previews (build 1.3.3)
+
+Dashboard startup invokes `--prepare-local-setup` asynchronously before starting its readers. Logging configuration is idempotent, preserves unrelated settings and retains the existing byte-for-byte backup behavior. Setup is no longer a mandatory modal. Card import/retry stays on the tracker's existing single I/O worker; log ingestion continues while import runs. Metadata mismatch includes either direction of build change.
+
+`HandReader` is an original read-only extension compiled with the MIT UnitySpy dependency. A single child sensor holds its memory connection, samples friendly-hand cursor identity at 100 ms and the visible hand text at one second. It reads only zones with friendly side and HAND type, bounds collection sizes and text lengths, releases the connection on client exit, and retries failures. Text comes from the card actor's `m_powersTextMesh.m_Text`, not a recreated rules engine. Closing GhostData terminates this child; it also watches its parent process so a crash cannot leave it sampling indefinitely. No network or disk cache is involved in hand sampling.
+
+`RailHoverPreview` cross-checks sensor entity ID and CardID against the active match's local hand, expires cursor data after 500 ms and description snapshots after two seconds, and hides previews outside the game foreground. It reuses one click-through popup and does not synthesize input. The formatter removes display markup while preserving words and line breaks; unresolvable definition templates have an explicit fallback instead of guessed counters.
+
+The parser snapshots public Slime 'em! destruction targets in its individual effect frame, then attaches immutable ordered card IDs to each generated Ectoplasm entity. This keeps separate casts and both players apart, survives later identity/controller changes and follows the existing rewind/reset lifecycle. Copies use the original token anchor. Other explicit set-aside links can provide observed stored-card lists. This is not a universal effect simulator; supported coverage and remaining limits are listed in HAND_PREVIEWS.md.

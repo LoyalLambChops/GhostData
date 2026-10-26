@@ -1,6 +1,6 @@
 # Help and bug reports
 
-Open SETUP first. It checks the game folder, logging configuration, log discovery, sensor startup and local card definitions. Reach Hearthstone's main menu before refreshing cards. Restart Hearthstone after enabling logging, and restart GhostData after changing the game folder.
+Normal startup enables logging and imports local card definitions automatically. Start Hearthstone and reach its main menu. If logging was newly enabled while the game was open, restart Hearthstone once. Use SETUP only for troubleshooting: it checks discovery, logging, sensor availability and card definitions. Restart GhostData after manually changing the saved game folder.
 
 Use CONTACT / BUG REPORT in the dashboard, email **LoyalLambChops@gmail.com**, or join [Discord](https://discord.gg/H3Et7NHavZ). Include the GhostData build, Windows version, Hearthstone build, Standard deck/class, expected versus actual behavior, and steps to reproduce. For rails, include resolution and display scaling.
 
