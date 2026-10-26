@@ -85,3 +85,8 @@ Phantom · Beta 1, build **1.3.2**, source `9cf8bdb5cd90c4d702b593b86b40ae05bac5
 - A bounded tracked-text credential-pattern scan found no matches; locally reachable history contained no private-media/data folders. This is not proof that GitHub's remote cached/unreachable commits are purged.
 
 The maintainer has a separate Windows 11 PC for the remaining clean-install test. Its results, live-game acceptance and real public download/update behavior are not yet recorded. Windows Server CI is not a substitute for that player-machine evidence.
+
+
+## Build 1.3.3 candidate validation
+
+The private candidate workflow [40371688503](https://github.com/LoyalLambChops/GhostData/actions/runs/40371688503) passed for executable/source commit `f05ff4e0f4aa3fe72782394fd6606ef5e4ca5430`: 211 Python regressions, 49 UI/lifecycle checks, dependency audits, self-contained packaging, installer creation and isolated install/update/rollback/uninstall checks. Exact CI artifacts and checksums were downloaded for maintainer testing. Subsequent commits recording validation evidence change documentation only. Public release remains gated on the remaining HAND_PREVIEWS.md coverage, supported-Standard field acceptance and the existing privacy/history/download checks.
