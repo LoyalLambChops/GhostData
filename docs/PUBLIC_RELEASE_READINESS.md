@@ -103,3 +103,8 @@ Do not publish this candidate solely on those checks. HAND_PREVIEWS.md lists the
 Executable/source commit `8bf0d608057ef189e1c9770c605eb2b6ca6c4335` passed [private Windows candidate workflow 40494601877](https://github.com/LoyalLambChops/GhostData/actions/runs/40494601877). This includes 238 Python regressions, 49 UI/lifecycle checks, dependency auditing, self-contained packaging, installer creation, installed UI rendering and isolated install/update/rollback/uninstall checks. No public release was published and no existing user installation was replaced.
 
 Remaining implementation is broader than live validation: Discover/random generation pool catalogs, filtered deck-tutor previews, generated-card families, and the wider local analytics/utility roadmap remain under review. The definition fingerprint audit and smoke checks do not establish universal mechanic coverage. Keep these implementation gaps separate from live Standard acceptance and public distribution checks.
+
+
+## Live integration correction — build 1.3.5
+
+The October 27 Practice hover check exposed a friendly-hand identity gate incorrectly consulting an opponent-only observation set. Build 1.3.4's passing component/installer checks did not detect this; do not use its candidate as evidence that live friendly-hand previews work. Build 1.3.5 fixes the gate, preserves reveal/hide boundaries, and passes 240 Python regressions plus 49 UI checks. Reprocessing the captured match now publishes all four friendly hand identities and matches the sensor's hovered Annihilation entity. The production overlay remains intentionally inactive in Practice. Supported Standard overlay acceptance and broader mechanic coverage remain open.

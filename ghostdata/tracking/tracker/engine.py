@@ -881,7 +881,11 @@ class DeckTrackerEngine:
             if (ent := game.entities.get(eid)) is not None and ent.controller == pid}
         for index, entity in enumerate(game.hand(pid), 1):
             mem = self._entities.get(entity.entity_id)
-            known = mem is not None and not mem.identity_hidden and (entity.entity_id, entity.card_id) in self._observed_pairs
+            # The observed-pair set is opponent-only. Friendly hand identities
+            # instead require their own reveal boundary, even without a deck seed.
+            known = mem is not None and not mem.identity_hidden and (
+                entity.controller == game.local_player_pid and mem.publicly_revealed
+                or (entity.entity_id, entity.card_id) in self._observed_pairs)
             card = self.card_db.get(entity.card_id) if known else None
             assembled = self._assembled_card(entity) if known else None
             origin = mem.hand_origin if mem else "UNKNOWN"

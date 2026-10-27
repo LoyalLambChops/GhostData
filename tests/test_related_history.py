@@ -211,4 +211,30 @@ class RelatedHistoryTests(unittest.TestCase):
         self.assertEqual("",self.g.stored_card_details[500][0].card_id)
         self.assertEqual("Unknown card",self.g.stored_card_details[500][0].name)
 
+
+    def test_friendly_hand_preview_reaches_tracker_without_selected_deck(self):
+        from ghostdata.tracking.tracker.engine import DeckTrackerEngine
+        tracker=DeckTrackerEngine(card_db=self.db)
+        self.feed("FULL_ENTITY - Creating ID=501 CardID=H", "tag=CONTROLLER value=1",
+                  "tag=CARDTYPE value=SPELL", "tag=ZONE value=HAND")
+        tracker.observe(self.g)
+        slot=next(h for h in tracker.state.player_hand if h.entity_id==501)
+        self.assertEqual("H",slot.card_id)
+        self.assertEqual("Holy Spell",slot.name)
+        self.assertNotIn((501,"H"),tracker._observed_pairs)
+        self.feed("HIDE_ENTITY - Entity=501 tag=ZONE value=HAND")
+        tracker.observe(self.g)
+        self.assertEqual("",next(h for h in tracker.state.player_hand if h.entity_id==501).card_id)
+
+    def test_unrevealed_opponent_hand_identity_stays_hidden(self):
+        from ghostdata.tracking.tracker.engine import DeckTrackerEngine
+        tracker=DeckTrackerEngine(card_db=self.db)
+        self.feed("FULL_ENTITY - Creating ID=502 CardID=", "tag=CONTROLLER value=2",
+                  "tag=CARDTYPE value=SPELL", "tag=ZONE value=HAND")
+        tracker.observe(self.g)
+        self.g.entities[502].card_id="H"  # Internal knowledge is not a reveal event.
+        tracker.observe(self.g)
+        slot=next(h for h in tracker.state.opponent_hand if h.entity_id==502)
+        self.assertEqual("",slot.card_id)
+
 if __name__=="__main__":unittest.main()

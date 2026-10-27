@@ -1,3 +1,11 @@
+# Phantom · Beta 1 — build 1.3.5 development candidate
+
+- Fix friendly hand previews being suppressed by an opponent-only observation check.
+- Preserve reveal/hide boundaries and support friendly hand identification without a selected-deck seed.
+- Found by correlating the live hand sensor with the parser and tracker on client 255790.
+
+Broader preview coverage and supported Standard overlay acceptance remain pending.
+
 # Phantom · Beta 1 — build 1.3.4 development candidate
 
 - Expanded resurrection, replay, Reborn, death/discard and stored-card previews.

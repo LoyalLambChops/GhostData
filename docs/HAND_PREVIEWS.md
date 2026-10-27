@@ -1,6 +1,6 @@
 # Hand preview coverage
 
-Development candidate 1.3.4; installed client 37.0.0.255790, October 26, 2026.
+Development candidate 1.3.5; installed client 37.0.0.255790, October 26, 2026.
 
 ## Implemented behavior
 
@@ -71,7 +71,7 @@ The current implementation resolves entity-reference, entity-power, paired-refer
 
 ## Evidence and limits
 
-- 238 Python regression tests and 49 UI/lifecycle checks passed during this development pass. Tests exercise filters, ties, tribes, repeated deaths/plays, extra turns, returns, hidden identities, duplicated streams, stored references, Assemble payloads and rewind.
+- 240 Python regression tests and 49 UI/lifecycle checks passed during this development pass. Tests exercise filters, ties, tribes, repeated deaths/plays, extra turns, returns, hidden identities, duplicated streams, stored references, Assemble payloads and rewind.
 - The updated client imported 36,390 definitions successfully, including 572 records with multiple tribe values. The local hand stream returned READY for all 12 sampled main-menu readings.
 - Discover/random generation pools, filtered deck-tutor previews and additional generated-card families still require implementation/review. Full live Standard acceptance across the mechanic families remains a release gate. The new source work is not itself a published or approved installer.
 - Lists distinguish stored contents, current eligible pools, references and observed history. Random targets/outcomes and future effects are not guaranteed. Missing history cannot be reconstructed as exact results.
@@ -80,3 +80,10 @@ The current implementation resolves entity-reference, entity-power, paired-refer
 ## Patch change gate
 
 Run `python tools/audit_card_previews.py <local snapshot path>`. The baseline fingerprints 2,444 constructed-set definitions/tokens/enchantments from build 255790, without distributing card text. New, removed or changed definitions return a failing status for review. Set/prefix selection is an audit aid, not a claim that every client record is legally playable. A passing fingerprint check does not detect server-only behavior changes and is not proof of universal mechanic correctness.
+
+
+### Live sensor and tracker check — October 27, 2026
+
+On client 37.0.0.255790, a 12-second Practice-match capture returned 104 READY samples, all identifying the hovered friendly Annihilation card. The entity ID and CardID matched Power.log. Integration validation exposed an opponent-only observation check suppressing friendly hand identities; build 1.3.5 fixes this. Reprocessing the match with the fix resolved the same card in the published player-hand state and identified all four friendly hand cards without a selected-deck seed. Two regressions cover the friendly reveal/hide boundary and unrevealed opponent identities.
+
+Current rendered wording was returned, including the game's formatting markers for the UI formatter to remove. The capture remains in ignored local scratch storage. This validates the read-only sensor and tracker association, not the visible production popup or Annihilation's bottom-of-deck summon preview. Practice is intentionally excluded by the Standard scope filter; a supported Standard match is required for end-to-end overlay acceptance. No scope setting or saved match data was changed.
