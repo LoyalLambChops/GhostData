@@ -46,6 +46,10 @@ def validate_import(payload: dict) -> int:
             raise ValueError("Duplicate local card identity.")
         if not isinstance(row.get("name"), str) or not isinstance(row.get("mechanics"), list) or type(row.get("standard")) is not bool:
             raise ValueError("Incomplete local card properties.")
+        if "races" in row and (not isinstance(row["races"], list) or not all(isinstance(v,str) for v in row["races"])):
+            raise ValueError("Invalid local tribe metadata.")
+        if "textBuilder" in row and not isinstance(row["textBuilder"], str):
+            raise ValueError("Invalid local text reference metadata.")
         ids.add(cid)
         dbfs.add(dbf)
     return build

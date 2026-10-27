@@ -22,6 +22,7 @@ from .models import (
 from .secrets import SecretObservation, SecretTracker
 from .public_effects import effect_frame
 from . import overdraw
+from .card_history import observe as observe_card
 from .timeline import RewindJournal, stream_of
 
 
@@ -118,7 +119,7 @@ class PowerLogParser:
         self._chosen_context_id: Optional[int] = None
         self._send_context_id: Optional[int] = None
         self._current_option: Optional[LegalOption] = None
-        self._pending_plays: Dict[int, Tuple[str, int, str]] = {}
+        self._pending_plays: Dict[int, Tuple[str, int, int]] = {}
         self._revealed_pairs: set[Tuple[int, str]] = set()
         self._current_time_seconds: float = 0.0
         self._canonical_state_tokens: Dict[Tuple[object, ...], Deque[float]] = defaultdict(deque)
@@ -554,6 +555,8 @@ class PowerLogParser:
             target = self.state.entities.get(int(target_raw))
         self._effects.append(effect_frame(e, kind, target, self.state,
                                           self._last_drawn, self._played_this_turn))
+        if e and e.card_id == "EDR_454" and kind == "POWER" and target and target.card_id:
+            self._effects[-1].stored_target = target.card_id
         if not e:
             return
         if kind == "TRIGGER":
@@ -564,7 +567,11 @@ class PowerLogParser:
             for card in self.state.entities.values():
                 if card.zone == "HAND":
                     card.tags.pop("GHOSTDATA_PUBLIC_COST", None)
+        if self.state.current_player_pid is not None:
+            self.state.turn_owners[self.state.global_turn] = self.state.current_player_pid
         if kind == "PLAY":
+            if e.card_id:
+                observe_card(self.state, e, self.card_db, "PLAY")
             e.last_played_turn = self.state.global_turn
             self._played_this_turn = [p for p in self._played_this_turn if p[1] == self.state.global_turn]
             if e.card_id:
@@ -573,7 +580,7 @@ class PowerLogParser:
                 shown = e.name or e.card_id
                 self._emit(ts, "PLAY", f"P{e.controller}: {shown}", player=e.controller, entity_id=e.entity_id, card_id=e.card_id, turn=self.state.global_turn)
             else:
-                self._pending_plays[e.entity_id] = (ts, int(e.controller or 0), target_raw)
+                self._pending_plays[e.entity_id] = (ts, int(e.controller or 0), self.state.global_turn)
             self.secret_tracker.observe_public_event(self.state, SecretObservation("PLAY", actor_pid=e.controller, actor_entity_id=e.entity_id, card_type=e.card_type, target_entity_id=target.entity_id if target else None))
         elif kind == "ATTACK":
             attacker_name = e.name or e.card_id or f"entity {e.entity_id}"
@@ -594,6 +601,10 @@ class PowerLogParser:
             )
 
     def _on_identity_change(self, e: EntityState, ts: str) -> None:
+        if e.card_id == "TLC_841t" and e.transformed_from:
+            previous = e.transformed_from[-1]
+            if previous != "TLC_841t":
+                self.state.stored_card_pools[e.entity_id] = (previous,)
         if e.zone == "HAND" and e.card_id:
             e.tags["GHOSTDATA_OVERDRAW_REVEALED"] = "1"
         self._reconcile_overdraw(ts)
@@ -605,7 +616,8 @@ class PowerLogParser:
         self.secret_tracker.on_identity_change(self.state, e)
         pending = self._pending_plays.pop(e.entity_id, None)
         if pending:
-            original_ts, player, _ = pending
+            original_ts, player, original_turn = pending
+            observe_card(self.state, e, self.card_db, "PLAY", turn=original_turn)
             shown = e.name or e.card_id or f"entity {e.entity_id}"
             self._emit(ts, "PLAY", f"P{player}: {shown}", player=player, entity_id=e.entity_id, card_id=e.card_id, delayed_resolution=True, original_play_timestamp=original_ts)
 
@@ -741,7 +753,12 @@ class PowerLogParser:
                 token = self.state.entities[eid]
                 if token.card_id == "CAP_805t":
                     captured = frame.slimed_minions.get(token.controller, {})
-                    self.state.stored_card_pools[eid] = tuple(cid for _, cid in sorted(captured.values(), key=lambda x:x[0]))
+                    self.state.stored_card_pools[eid] = tuple(item[1] for item in sorted(captured.values(), key=lambda x:x[0]))
+                    self.state.stored_card_details[eid] = tuple(item[2] for item in sorted(captured.values(), key=lambda x:x[0]))
+        if frame.card_id == "EDR_454" and frame.stored_target:
+            for eid in frame.candidates:
+                if self.state.entities[eid].card_id == "EDR_454t":
+                    self.state.stored_card_pools[eid] = (frame.stored_target,)
         if frame.pool and frame.candidates:
             members = [eid for eid in frame.candidates if self.state.entities[eid].controller == frame.controller
                        and self.state.entities[eid].zone in {"DECK", "HAND", "GRAVEYARD"}]
@@ -904,6 +921,25 @@ class PowerLogParser:
                     self.secret_tracker.observe_public_event(self.state, SecretObservation("MINION_DAMAGE_3",
                         actor_pid=dealer.controller, actor_entity_id=dealer.entity_id))
 
+        frames = self._effects if source == "canonical" else self._task_effects
+        if e.card_type == "MINION" and e.zone == "PLAY":
+            lethal = e.health is not None and e.damage >= e.health
+            if (damage and lethal) or (tag == "TO_BE_DESTROYED" and value == "1"):
+                dealer = self.state.entities.get(frames[-1].source) if frames else None
+                if dealer and dealer.card_type == "HERO":
+                    dealer = next((w for w in self.state.entities.values() if w.card_type == "WEAPON"
+                                   and w.zone == "PLAY" and w.controller == dealer.controller), dealer)
+                if dealer and dealer.card_type in {"MINION", "SPELL", "WEAPON", "HERO"} and dealer.entity_id != e.entity_id:
+                    e.tags["GHOSTDATA_LETHAL_SOURCE"] = str(dealer.entity_id)
+            elif tag in {"HEALTH", "DAMAGE"} and not lethal:
+                e.tags.pop("GHOSTDATA_LETHAL_SOURCE", None)
+        if e.tags.get("DISCARDED") == "1" and e.zone == "GRAVEYARD" and e.card_id and e.tags.get("GHOSTDATA_DISCARD_RECORDED") != "1":
+            cause = next((self.state.entities.get(f.source) for f in reversed(frames)
+                          if f.card_id in {"JAIL_887", "CATA_897"}), None)
+            cause = cause or (self.state.entities.get(frames[-1].source) if frames else None)
+            observe_card(self.state, e, self.card_db, "DISCARD", cause)
+            e.tags["GHOSTDATA_DISCARD_RECORDED"] = "1"
+
         if old_controller != e.controller and tag == "CONTROLLER":
             self._emit(
                 ts, "CONTROLLER_CHANGE",
@@ -936,7 +972,7 @@ class PowerLogParser:
             frames = self._effects if source == "canonical" else self._task_effects
             slime = next((f for f in reversed(frames) if f.card_id == "CAP_805" and f.kind == "POWER"), None)
             if slime and e.controller and e.card_id:
-                slime.slimed_minions.setdefault(e.controller, {})[e.entity_id] = (e.zone_position, e.card_id)
+                slime.slimed_minions.setdefault(e.controller, {})[e.entity_id] = (e.zone_position, e.card_id, observe_card(self.state, e, self.card_db, "STORED", append=False))
 
         # Both Ectoplasm spells have this displayed source. Hidden copies of
         # the destroyed minions only have CREATOR and must stay anonymous.
@@ -968,7 +1004,15 @@ class PowerLogParser:
             linked.card_type = linked.card_type or e.card_type
             self._on_identity_change(linked, ts)
 
+        if (e.tags.get("HAS_BEEN_REBORN") == "1" and e.card_id and e.controller
+                and not any(h.kind == "REBORN" and h.entity_id == e.entity_id for h in self.state.card_history)):
+            observe_card(self.state, e, self.card_db, "REBORN")
         if old_zone != e.zone:
+            if e.card_type in {"MINION", "WEAPON", "LOCATION"} and (e.zone == "PLAY" or old_zone == "PLAY" and e.zone in {"HAND", "DECK"}):
+                e.tags["GHOSTDATA_INSTANCE"] = str(int(e.tags.get("GHOSTDATA_INSTANCE", 0)) + 1)
+                if old_zone == "PLAY" and e.zone in {"HAND", "DECK"}:
+                    self.state.stored_card_pools.pop(e.entity_id, None)
+                    self.state.stored_card_details.pop(e.entity_id, None)
             if old_zone == "DECK" and e.zone == "HAND" and e.controller == self.state.current_player_pid:
                 player = self.state.player(e.controller)
                 key = "GHOSTDATA_DRAW_TURN"
@@ -991,7 +1035,23 @@ class PowerLogParser:
                         frame.order_base = self._deck_order
                     e.tags["GHOSTDATA_DECK_INDEX"] = str(frame.order_base - frame.ordered_count)
                     frame.ordered_count += 1
+            if e.zone == "HAND":
+                e.tags.pop("GHOSTDATA_DISCARD_RECORDED", None)
+            if old_zone == "HAND" and e.zone in {"GRAVEYARD", "SETASIDE", "REMOVEDFROMGAME"}:
+                frames = self._effects if source == "canonical" else self._task_effects
+                captor = next((self.state.entities.get(f.source) for f in reversed(frames) if f.card_id == "CATA_481"), None)
+                if captor:
+                    observe_card(self.state, e, self.card_db, "CAPTURED", captor,
+                                 anonymous=e.controller != self.state.local_player_pid)
+            if old_zone == "DECK" and e.zone in {"GRAVEYARD", "SETASIDE", "REMOVEDFROMGAME"}:
+                frames = self._effects if source == "canonical" else self._task_effects
+                eater = next((self.state.entities.get(f.source) for f in reversed(frames) if f.card_id == "EDR_494"), None)
+                if eater:
+                    observe_card(self.state, e, self.card_db, "CONSUMED", eater)
             if old_zone == "PLAY" and e.zone == "GRAVEYARD" and e.card_type == "MINION":
+                frames = self._effects if source == "canonical" else self._task_effects
+                cause = self.state.entities.get(_to_int(e.tags.pop("GHOSTDATA_LETHAL_SOURCE", "")) or 0)
+                observe_card(self.state, e, self.card_db, "DEATH", cause)
                 self.secret_tracker.observe_public_event(self.state, SecretObservation(
                     "MINION_DIED", actor_pid=self.state.current_player_pid,
                     target_pid=e.controller, target_entity_id=e.entity_id,
@@ -1042,6 +1102,8 @@ class PowerLogParser:
             if source == "canonical":
                 self._record_canonical_token(token)
             self.state.game_tags[tag] = value
+            if tag == "STEP" and value in {"MAIN_READY", "MAIN_START", "MAIN_ACTION"} and self.state.current_player_pid is not None:
+                self.state.turn_owners[self.state.global_turn] = self.state.current_player_pid
             if tag == "STEP" and value == "MAIN_END":
                 self.secret_tracker.observe_public_event(self.state, SecretObservation("TURN_END", actor_pid=self.state.current_player_pid))
             if tag == "TURN":

@@ -248,6 +248,8 @@ def run_tracker_stream(
                     converted = _tracker_snapshot(last_sensor_snapshot, card_db) if last_sensor_snapshot else tracker.selected_snapshot
                     if converted:
                         tracker.seed_selected_deck(converted, parser.state, refresh_metadata=True)
+                    from .tracking.card_history import refresh_metadata
+                    refresh_metadata(parser.state, card_db)
                     parser.secret_tracker.refresh_metadata(parser.state)
                     tracker.observe(parser.state)
                     last_secret_signature = ()

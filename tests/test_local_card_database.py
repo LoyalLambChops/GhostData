@@ -36,7 +36,7 @@ class LocalCardDatabaseTests(unittest.TestCase):
     def test_failed_new_build_preserves_last_successful_identity(self):
         self.write(1, [dict(id="SAMPLE", name="Example")])
         self.assertTrue(self.db.load_for_build(1))
-        for bad in ([], {}, [dict(id="OTHER"), 7], [dict(id="OTHER", mechanics=7)]):
+        for bad in ([], {}, [dict(id="OTHER"), 7], [dict(id="OTHER", mechanics=7)], [dict(id="OTHER", races=7)], [dict(id="OTHER", textBuilder=7)]):
             self.write(2, bad)
             self.assertFalse(self.db.load_for_build(2))
             self.assertEqual(self.db.build_number, 1)

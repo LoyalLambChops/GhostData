@@ -873,7 +873,7 @@ class DeckTrackerEngine:
             card.cost if card else None, count, "DECK", Provenance.GENERATED, state="SHUFFLED")
             for cid, count in totals.items() if count]
 
-    def _hand_slots(self, game, pid):
+    def _hand_slots(self, game, pid, known_deck=None):
         if game is None or pid is None:
             return []
         slots = []
@@ -892,11 +892,11 @@ class DeckTrackerEngine:
             elif mem and mem.hand_turn <= 1:
                 origin = "MULLIGAN" if offered and entity.entity_id not in offered else "OPENING"
             from ..related_cards import related_cards
-            related, label = related_cards(game, entity, self.card_db) if known else ((), "")
+            related, label = related_cards(game, entity, self.card_db, known_deck) if known else ((), "")
             slots.append(HandSlot(entity.entity_id, entity.zone_position or index,
                 mem.hand_turn if mem else 0, entity.card_id if known else "",
                 assembled[0] if assembled else (card.name if card else entity.card_id) if known else entity.tags.get("GHOSTDATA_PUBLIC_LABEL", "Unknown card"),
-                origin, text=assembled[2] if assembled else "", related_cards=related, related_label=label))
+                origin, text=assembled[2] if assembled else card.text if card else "", related_cards=related, related_label=label))
         return slots
 
     def _sideboard_rows(self, game):
@@ -1081,6 +1081,9 @@ class DeckTrackerEngine:
         else:
             source_status = "WAITING_FOR_GAME"
 
+        player_display = self._with_card_text(self._display_rows(game, local_pid, rows))
+        known_deck = tuple(row.card_id for row in player_display if row.zone == "DECK" and row.card_id
+                           for _ in range(max(0,row.count)))
         return DeckTrackerState(
             revision=self._revision,
             game_number=int(game.game_number if game else self._game_number),
@@ -1105,12 +1108,12 @@ class DeckTrackerEngine:
             opponent_rows=tuple(opponent_rows),
             player_hero_zone_effects=self._with_card_text(self._hero_zone_effect_rows(game, local_pid, "PLAYER")),
             opponent_hero_zone_effects=self._with_card_text(self._hero_zone_effect_rows(game, opponent_pid, "OPPONENT")),
-            player_display_rows=self._with_card_text(self._display_rows(game, local_pid, rows)),
+            player_display_rows=player_display,
             opponent_display_rows=self._with_card_text(self._display_rows(game, opponent_pid)),
             player_sideboard_rows=self._with_card_text(self._sideboard_rows(game)),
             player_overdraw_rows=overdraw_rows(game, local_pid, self.card_db),
             opponent_overdraw_rows=overdraw_rows(game, opponent_pid, self.card_db),
-            player_hand=self._with_card_text(self._hand_slots(game, local_pid)),
+            player_hand=self._with_card_text(self._hand_slots(game, local_pid, known_deck)),
             opponent_hand=self._with_card_text(self._hand_slots(game, opponent_pid)),
             player_fatigue=self._fatigue(game, local_pid),
             opponent_fatigue=self._fatigue(game, opponent_pid),

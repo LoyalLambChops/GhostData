@@ -277,6 +277,10 @@ class GameState:
     secrets: Dict[int, SecretState] = field(default_factory=dict)
     events: List[SemanticEvent] = field(default_factory=list)
     stored_card_pools: Dict[int, tuple[str, ...]] = field(default_factory=dict)
+    # Immutable public observations survive zone moves, transforms and control changes.
+    card_history: List[Any] = field(default_factory=list)
+    stored_card_details: Dict[int, tuple[Any, ...]] = field(default_factory=dict)
+    turn_owners: Dict[int, int] = field(default_factory=dict)
     play_sequence_counter: int = 0
     raw_counts: Dict[str, int] = field(default_factory=dict)
     recoverable_overdraw: List[dict] = field(default_factory=list)

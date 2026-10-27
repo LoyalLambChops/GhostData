@@ -20,6 +20,10 @@ public static class RailHoverPreview
     private static IntPtr _hook;
     private static Window? _popup;
     private static TextBlock? _fallback;
+    private static ScrollViewer? _previewScroll;
+    private static long _lastTargetAt;
+    private static int _previewHandEntity;
+    private static string _previewHandCard = "";
     private static string _cardId = "";
     private static (string Id, string Name, string Detail) _card;
     private static long _entered;
@@ -38,6 +42,7 @@ public static class RailHoverPreview
     public static void ClearHandSensor()
     {
         _hoveredEntity=0;_hoveredCard="";HandText.Clear();_sensorAt=0;_textAt=0;
+        Hide();
     }
     public static void ApplyHandSensor(System.Text.Json.JsonElement root)
     {
@@ -77,7 +82,7 @@ public static class RailHoverPreview
     {
         var slots=_handState is {Active:true,Complete:false} ? _handState.PlayerHand.Where(h=>h.CardId==card.Id).ToArray() : Array.Empty<HandSlotDto>();
         if(slots.Length==1)return (card.Id,card.Name,HandDetail(slots[0]));
-        if(slots.Length>1 && slots.Any(h=>h.RelatedLabel.Length>0))
+        if(slots.Length>1)
             return (card.Id,card.Name,string.Join("\n\n",slots.Select(h=>$"Hand position {h.Position}\n{HandDetail(h)}")));
         return (card.Id,card.Name,CleanText(card.Detail));
     }
@@ -129,6 +134,10 @@ public static class RailHoverPreview
         if (!HearthstoneWindowLocator.IsRelevantForeground()) { Hide(); return; }
         if (!GetCursorPos(out var cursor) || (GetAsyncKeyState(1) & 0x8000) != 0) { Hide(); return; }
         var screenPoint = new PixelPoint(cursor.X, cursor.Y);
+        // Allow movement into long previews without taking focus or clicks.
+        // A played/transformed card or an ended game must not leave stale content.
+        if (_previewHandEntity != 0 && ResolveHand(_handState, _previewHandEntity, _previewHandCard) is null) Hide();
+        if (InsidePreview(screenPoint)) return;
         Window? foundRail = null;
         Control? foundRow = null;
         (string Id, string Name, string Detail) card = ("", "", "");
@@ -150,7 +159,11 @@ public static class RailHoverPreview
         {
             var slot=_sensorAt!=0 && Stopwatch.GetElapsedTime(_sensorAt).TotalMilliseconds<500
                 ? ResolveHand(_handState,_hoveredEntity,_hoveredCard) : null;
-            if(slot is null || !HearthstoneWindowLocator.IsGameForeground() || !Rails.Any(w=>w.IsVisible)) { Hide(); return; }
+            if(slot is null || !HearthstoneWindowLocator.IsGameForeground() || !Rails.Any(w=>w.IsVisible))
+            {
+                if (_requested && Stopwatch.GetElapsedTime(_lastTargetAt).TotalMilliseconds < 350) return;
+                Hide(); return;
+            }
             foundRail=Rails.OfType<PlayerDeckWindow>().FirstOrDefault(w=>w.IsVisible);
             if(foundRail is null){Hide();return;}
             card=($"{slot.CardId}:{slot.EntityId}",slot.Name,HandDetail(slot));inHand=true;
@@ -159,9 +172,12 @@ public static class RailHoverPreview
         {
             Hide(); _card = card; _cardId = card.Id; _rail = foundRail; _entered = Stopwatch.GetTimestamp();
         }
+        _lastTargetAt = Stopwatch.GetTimestamp();
+        _previewHandEntity = inHand ? _hoveredEntity : 0;
+        _previewHandCard = inHand ? _hoveredCard : "";
         if (Stopwatch.GetElapsedTime(_entered).TotalMilliseconds < 150) return;
         EnsurePopup();
-        if(inHand)
+        if(inHand && !_requested)
         {
             var screen=foundRail.Screens.ScreenFromPoint(screenPoint) ?? foundRail.Screens.Primary;
             if(screen is null){Hide();return;}
@@ -171,11 +187,12 @@ public static class RailHoverPreview
             _popup.Position=new PixelPoint(Math.Clamp(screenPoint.X-width-30,area.X,Math.Max(area.X,area.Right-width)),
                 Math.Clamp(screenPoint.Y-height-45,area.Y,Math.Max(area.Y,area.Bottom-height)));
         }
-        else PlacePopup(foundRail, foundRow!);
+        else if (!inHand) PlacePopup(foundRail, foundRow!);
         if (!_requested)
         {
             _requested = true;
             _fallback!.Text = card.Name + "\n\n" + (string.IsNullOrWhiteSpace(card.Detail) ? "Card text unavailable in local data." : card.Detail);
+            _previewScroll!.Offset = default;
             _popup!.Show();
         }
     }
@@ -189,12 +206,13 @@ public static class RailHoverPreview
     {
         if (_popup is not null) return;
         _fallback = new TextBlock { FontSize = 16, TextWrapping = TextWrapping.Wrap, Margin = new Thickness(20), Foreground = Brushes.White };
+        _previewScroll = new ScrollViewer { Content = _fallback };
         _popup = new Window
         {
             Width = 280, Height = 340, Title = "GhostData · Card details", Topmost = true,
             CanResize = false, ShowActivated = false, ShowInTaskbar = false, Focusable = false,
             WindowDecorations = WindowDecorations.None, Background = Brush.Parse("#0B1520"),
-            Content = new ScrollViewer { Content = _fallback },
+            Content = _previewScroll,
         };
         _popup.Opened += (_, _) => WindowsRailOverlay.Apply(_popup);
     }
@@ -217,14 +235,18 @@ public static class RailHoverPreview
         _popup.Position = Position(bounds, screen.WorkingArea, size, row.PointToScreen(default).Y);
     }
 
+    private static bool InsidePreview(PixelPoint point) => _popup is { IsVisible: true }
+        && new Rect(_popup.Bounds.Size).Contains(_popup.PointToClient(point));
+
     private static void Hide()
     {
         if (_cardId.Length == 0) return;
         _cardId = ""; _card = default; _rail = null; _requested = false;
+        _previewHandEntity = 0; _previewHandCard = ""; _lastTargetAt = 0;
         _popup?.Hide();
     }
 
-    // Scroll only a rail under the pointer. Every click and all other mouse
+    // Scroll only a rail or preview under the pointer. Every click and all other mouse
     // input continue unchanged to Hearthstone; no window is activated.
     private static IntPtr OnMouse(int code, IntPtr message, IntPtr data)
     {
@@ -233,6 +255,14 @@ public static class RailHoverPreview
             if (code >= 0 && message.ToInt64() == 0x020A && HearthstoneWindowLocator.IsRelevantForeground())
             {
                 var mouse = Marshal.PtrToStructure<MouseData>(data);
+                if (InsidePreview(new PixelPoint(mouse.Point.X, mouse.Point.Y)) && _previewScroll is { } preview)
+                {
+                    var previewDelta = (short)(mouse.Data >> 16);
+                    Dispatcher.UIThread.Post(() => preview.Offset = new Vector(0,
+                        Math.Clamp(preview.Offset.Y - previewDelta / 120.0 * 90, 0,
+                            Math.Max(0, preview.Extent.Height - preview.Viewport.Height))));
+                    return new IntPtr(1);
+                }
                 foreach (var rail in Rails.Where(w => w.IsVisible))
                 {
                     var point = rail.PointToClient(new PixelPoint(mouse.Point.X, mouse.Point.Y));

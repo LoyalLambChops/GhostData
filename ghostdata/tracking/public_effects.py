@@ -73,6 +73,7 @@ class EffectFrame:
     order_base: int = 0
     ordered_count: int = 0
     slimed_minions: dict = field(default_factory=dict)
+    stored_target: str = ""
 
 
 def effect_frame(entity, kind, target, game, last_drawn, played):

@@ -90,3 +90,9 @@ The maintainer has a separate Windows 11 PC for the remaining clean-install test
 ## Build 1.3.3 candidate validation
 
 The private candidate workflow [40371688503](https://github.com/LoyalLambChops/GhostData/actions/runs/40371688503) passed for executable/source commit `f05ff4e0f4aa3fe72782394fd6606ef5e4ca5430`: 211 Python regressions, 49 UI/lifecycle checks, dependency audits, self-contained packaging, installer creation and isolated install/update/rollback/uninstall checks. Exact CI artifacts and checksums were downloaded for maintainer testing. Subsequent commits recording validation evidence change documentation only. Public release remains gated on the remaining HAND_PREVIEWS.md coverage, supported-Standard field acceptance and the existing privacy/history/download checks.
+
+## Coverage development — October 26, 2026
+
+Source candidate 1.3.4 extends stored/history previews and local reference metadata. Validation so far: 238 Python tests, 49 UI checks, successful local metadata import from client 255790 and 12 READY sensor samples at its main menu. Definitions: 36,390; no changes to previously imported card fields compared with 255130. Expanded compact snapshot: 10.63 MiB; artwork remains absent.
+
+Do not publish this candidate solely on those checks. HAND_PREVIEWS.md lists the contracts and limits. The private product audit is outside the repository. Wider feature parity, live Standard acceptance, and the existing public-release gates remain open.

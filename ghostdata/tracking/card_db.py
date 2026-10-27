@@ -21,6 +21,8 @@ class CardDefinition:
     dbf_id: Optional[int] = None
     spell_school: str = ""
     standard: bool | None = None
+    races: tuple[str, ...] = ()
+    text_builder: str = ""
 
     @property
     def is_secret(self) -> bool:
@@ -86,6 +88,10 @@ class CardDatabase:
             card_id = str(row.get("id") or "")
             if not card_id:
                 continue
+            if "races" in row and (not isinstance(row["races"], list) or not all(isinstance(v,str) for v in row["races"])):
+                return False
+            if "textBuilder" in row and not isinstance(row["textBuilder"], str):
+                return False
             mechanics = row.get("mechanics") or []
             if not isinstance(mechanics, list):
                 return False
@@ -103,6 +109,8 @@ class CardDatabase:
                 card_set=str(row.get("set") or ""),
                 text=str(row.get("text") or ""),
                 spell_school=str(row.get("spellSchool") or ""),
+                races=tuple(str(x) for x in row.get("races", [])),
+                text_builder=str(row.get("textBuilder") or ""),
                 standard=row.get("standard") if isinstance(row.get("standard"), bool) else None,
             )
             cards[card_id] = definition

@@ -35,6 +35,7 @@ class RewindTests(unittest.TestCase):
         self.assertEqual(("CARD_2",),self.p.state.stored_card_pools[200])
         self.feed(block("POWER",300,"TIME_000tb"))
         self.assertEqual({},self.p.state.stored_card_pools)
+        self.assertFalse(any(h.kind == "PLAY" and h.card_id == "CAP_805" for h in self.p.state.card_history))
         self.assertNotIn(200,self.p.state.entities)
 
     def test_rewind_restores_counts_provenance_and_removes_discarded_generation(self):

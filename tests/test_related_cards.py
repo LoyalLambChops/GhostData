@@ -72,3 +72,19 @@ class RelatedCardsTests(unittest.TestCase):
         self.game.stored_card_pools[100]=()
         self.assertEqual([],self.contents(a))
         self.assertEqual('No minions stored by this cast.',related_cards(self.game,a,self.db)[1])
+
+    def test_assembled_contents_keep_rules_component_after_original_transforms(self):
+        from dataclasses import replace
+        self.db.cards["CARD_1"]=replace(self.db.cards["CARD_1"], text="Body")
+        body=self.entity(50,"CARD_1",zone="PLAY")
+        rules=self.db.cards["CARD_2"]
+        body.tags.update(ASSEMBLED_MINION="1",CRAFTABLE_SECOND_HALF_DBID=str(rules.dbf_id))
+        self.entity(90,"CAP_805",kind="SPELL")
+        lines=["BLOCK_START BlockType=POWER Entity=90 EffectCardId= EffectIndex=0 Target=0 SubOption=-1",
+               "TAG_CHANGE Entity=50 tag=TO_BE_DESTROYED value=1", "FULL_ENTITY - Creating ID=100 CardID=CAP_805t",
+               "tag=CONTROLLER value=1","tag=CARDTYPE value=SPELL","tag=ZONE value=HAND","tag=CREATOR value=90","BLOCK_END"]
+        for line in lines:self.parser.parse_line("D 12:00:00.000 GameState.DebugPrintPower() - "+line+"\n")
+        body.card_id="CARD_3";body.tags.clear()
+        row=related_cards(self.game,self.game.entities[100],self.db)[0][0]
+        self.assertIn(rules.name,row.name)
+        self.assertIn(" + ",row.name)

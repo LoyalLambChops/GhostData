@@ -1,3 +1,15 @@
+# Phantom · Beta 1 — build 1.3.4 development candidate
+
+- Expanded resurrection, replay, Reborn, death/discard and stored-card previews.
+- Read local tribe and verified text-reference metadata from the installed Blizzard client.
+- Preserve per-instance histories, Assemble components, duplicates and rewind boundaries.
+- Keep hidden opposing stored identities anonymous; distinguish random candidate pools from stored contents.
+- Use reconciled deck inventory for deck-history previews and separate descriptions for same-card hand copies.
+- Add an offline definition-change audit for patch reviews.
+- Allow scrolling long hover lists and enrich observations when startup definitions arrive late.
+
+The updated build 255790 was read successfully. Its previously imported definition properties were unchanged from 255130. See HAND_PREVIEWS.md for implemented contracts and validation limits. Public release and full live Standard acceptance remain pending.
+
 # Phantom · Beta 1 — build 1.3.3 candidate
 
 - Automatic Power logging and background local card import; the first-run modal is removed.

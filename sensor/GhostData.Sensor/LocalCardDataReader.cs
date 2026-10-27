@@ -56,8 +56,10 @@ namespace GhostData.Sensor
             var types = Constants(assembly, "TAG_CARDTYPE");
             var sets = Constants(assembly, "TAG_CARD_SET");
             var schools = Constants(assembly, "TAG_SPELL_SCHOOL");
+            var races = Constants(assembly, "TAG_RACE");
+            var textBuilders = Constants(assembly, "Assets.Card+CardTextBuilderType");
             var tagIds = tagNames.ToDictionary(p => p.Value, p => p.Key, StringComparer.Ordinal);
-            var required = new[] { "COST", "CLASS", "CARDTYPE", "CARD_SET", "COLLECTIBLE", "SPELL_SCHOOL" };
+            var required = new[] { "COST", "CLASS", "CARDTYPE", "CARD_SET", "COLLECTIBLE", "SPELL_SCHOOL", "CARDRACE" };
             foreach (var name in required) if (!tagIds.ContainsKey(name)) throw new InvalidOperationException("Missing client tag: " + name);
             var mechanical = new HashSet<string>(new[] { "SECRET", "QUEST", "QUESTLINE", "SIDE_QUEST", "DREDGE", "SIGIL", "PALADIN_AURA", "AURA", "OBJECTIVE" });
             var cards = new List<object>();
@@ -77,13 +79,21 @@ namespace GhostData.Sensor
                     .Select(row => row.GetValue<int>("m_ID")));
                 var tags = new Dictionary<int, Dictionary<int, int>>();
                 var keywords = new Dictionary<int, HashSet<string>>();
+                var raceTags = Records(image, "CardRace", 500).Where(row => row.GetValue<int>("m_isRaceTagId") > 0).ToDictionary(
+                    row => row.GetValue<int>("m_isRaceTagId"), row => Lookup(races, row.GetValue<int>("m_ID")));
+                var cardRaces = new Dictionary<int, HashSet<string>>();
                 foreach (var row in Records(image, "CardTag", 1000000))
                 {
-                    if (row.GetValue<bool>("m_isReferenceTag")) continue;
                     var id = row.GetValue<int>("m_cardId");
                     var tag = row.GetValue<int>("m_tagId");
                     var value = row.GetValue<int>("m_tagValue");
                     var name = Lookup(tagNames, tag);
+                    if (row.GetValue<bool>("m_isReferenceTag")) continue;
+                    if (value != 0 && raceTags.TryGetValue(tag, out var race) && race.Length > 0)
+                    {
+                        if (!cardRaces.TryGetValue(id, out var raceSet)) cardRaces[id] = raceSet = new HashSet<string>();
+                        raceSet.Add(race);
+                    }
                     if (required.Contains(name))
                     {
                         if (!tags.TryGetValue(id, out var values)) tags[id] = values = new Dictionary<int, int>();
@@ -110,6 +120,9 @@ namespace GhostData.Sensor
                         cost = Tag("COST"), collectible = Tag("COLLECTIBLE") == 1,
                         set = Lookup(sets, cardSet), spellSchool = Lookup(schools, Tag("SPELL_SCHOOL")),
                         standard = standardSets.Contains(cardSet),
+                        races = (cardRaces.TryGetValue(id, out var raceSet) ? raceSet : new HashSet<string>())
+                            .Concat(new[] { Lookup(races, Tag("CARDRACE")) }).Where(x => x.Length > 0 && x != "INVALID").Distinct().OrderBy(x => x).ToArray(),
+                        textBuilder = Lookup(textBuilders, row.GetValue<int>("m_cardTextBuilderType")),
                         mechanics = keywords.TryGetValue(id, out var words) ? words.OrderBy(x => x).ToArray() : new string[0],
                     });
                 }
@@ -117,7 +130,7 @@ namespace GhostData.Sensor
             if (cards.Count < 1000) throw new InvalidOperationException("Card tables are not fully initialized; retry from the main menu.");
             if (process.HasExited || InstalledVersion(process) != version || Fingerprint(assemblyPath) != fingerprint)
                 throw new InvalidOperationException("The game changed during import. Retry when its update finishes.");
-            return new { status = "READY", schema_version = 1, source = "BLIZZARD_LOCAL_CLIENT", build,
+            return new { status = "READY", schema_version = 1, related_metadata_version = 1, source = "BLIZZARD_LOCAL_CLIENT", build,
                 client_version = version, assembly_sha256 = fingerprint, imported_at = DateTime.UtcNow.ToString("O"),
                 log_build = logBuild, valid_until = validUntil.ToString("O"), cards };
         }
