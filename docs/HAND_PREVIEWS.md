@@ -1,6 +1,6 @@
 # Hand preview coverage
 
-Development candidate 1.3.5; installed client 37.0.0.255790, October 26, 2026.
+Beta candidate 1.3.6; reviewed client 37.0.0.255790, October 27, 2026.
 
 ## Implemented behavior
 
@@ -63,6 +63,13 @@ History observations are immutable and include controller, global turn, source i
 - Chrono-Lord Epoch and Untimely Death: currently eligible public board entities, with the trigger/target conditions stated.
 - Tyrax/Terror's Grave and Husk/Eternal Life: fixed counterpart/hero references; future board space, corpses and triggers still apply.
 
+### Deck candidates and fixed generation
+
+- 28 explicit draw, deck-Discover, copy and summon contracts use the reconciled remaining-deck inventory. Examples include Exotic Houndmaster, Tormented Dreadwing, The Curator, Living Flame, Conjured Bookkeeper, Tracking and Cultist Map. Duplicates are retained; dual tribes and All tribes are handled. Candidate lists never claim to predict the offered choices or random draw. The definitive mapping is `ghostdata/tracking/deck_previews.py`.
+- Annihilation and Contingency use explicitly observed bottom-insertion batches, including Imp Gang Stooge, Meadowstrider and Kaldorei Cultivator. Newer batches are deeper. A batch crossing the bottom-two/three boundary produces possible candidates, not guaranteed outcomes. Unobserved slots remain unknown; unranked Dredge information is not treated as an exact order.
+- Shuffle events, unlocated insertions and supported reorder effects invalidate placement evidence. Drawn cards leave their batch. Concealed or changed identities cannot reuse a stale preview name. State reset and journal replay reconstruct placement alongside the other parser state.
+- Fixed generated identities reuse the existing reviewed creation contracts as conditional previews, with a maximum quantity. This does not create tracker entities or imply the effect has resolved.
+
 ### Generic local reference contracts
 
 The importer reads the installed client's CardRace records and Assets.Card.CardTextBuilderType metadata. Recognized reference builders distinguish entity IDs from DBF IDs, counts and race IDs. Only referenced placeholders are inspected. This covers attached effects and stored-spell tokens, including carved spells and multiple-name lists. Hidden-choice builders are deliberately not interpreted. Same-card duplicates are retained; missing references stay unavailable.
@@ -71,9 +78,9 @@ The current implementation resolves entity-reference, entity-power, paired-refer
 
 ## Evidence and limits
 
-- 240 Python regression tests and 49 UI/lifecycle checks passed during this development pass. Tests exercise filters, ties, tribes, repeated deaths/plays, extra turns, returns, hidden identities, duplicated streams, stored references, Assemble payloads and rewind.
+- 260 Python regression tests and 49 UI/lifecycle checks passed during this development pass. Tests exercise filters, ties, tribes, repeated deaths/plays, extra turns, returns, hidden identities, duplicated streams, stored references, Assemble payloads and rewind.
 - The updated client imported 36,390 definitions successfully, including 572 records with multiple tribe values. The local hand stream returned READY for all 12 sampled main-menu readings.
-- Discover/random generation pools, filtered deck-tutor previews and additional generated-card families still require implementation/review. Full live Standard acceptance across the mechanic families remains a release gate. The new source work is not itself a published or approved installer.
+- General random generation pools and cost/attack/provenance-dependent tutors still need additional contracts. These unsupported candidate lists are not advertised as complete. Live acceptance across every mechanic family remains unverified. The beta scope is dependable supported behavior and honest unknowns, rather than complete parity with another application.
 - Lists distinguish stored contents, current eligible pools, references and observed history. Random targets/outcomes and future effects are not guaranteed. Missing history cannot be reconstructed as exact results.
 - This is a documented coverage expansion, not certification that every feature or every possible interaction is equivalent to another application. The private product audit records the wider gaps.
 

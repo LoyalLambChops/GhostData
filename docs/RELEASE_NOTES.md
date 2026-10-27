@@ -1,3 +1,15 @@
+# Phantom · Beta 1 — build 1.3.6 beta candidate
+
+- Add tracked draw/copy/summon and deck-Discover candidates for 28 reviewed card contracts, preserving duplicate copies, multiple tribes and spell-school filters.
+- Add observed bottom-of-deck previews for Annihilation and Contingency. Newer placement batches take precedence; unknown positions and unordered batch boundaries are explicit.
+- Discard stale placement evidence after shuffles, unlocated insertions, reorder effects, concealment or identity changes.
+- Show fixed generated-card identities as conditional possibilities, with capped quantities; do not predict random results.
+- Retain automatic local setup, local card import, per-entity hand previews, quests, separate Secrets and local match analytics.
+
+260 Python regressions and 49 UI/lifecycle checks pass locally. The maintainer reported successful clean-machine installation and a completed Standard match on build 1.3.5. The new 1.3.6 preview cases have synthetic regression coverage; live acceptance of every mechanic is not claimed.
+
+**Beta boundaries:** Windows x64, Standard, local storage and text previews. Unsupported cost/attack/provenance-dependent tutors and general random generation pools do not have exhaustive candidate previews. Missing history and private identities remain unknown. Turn timers and additional counters are planned after beta. This is unsigned software. The installer is the only file needed for normal installation; the portable ZIP is an alternative and update payload.
+
 # Phantom · Beta 1 — build 1.3.5 development candidate
 
 - Fix friendly hand previews being suppressed by an opponent-only observation check.

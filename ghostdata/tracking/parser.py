@@ -478,6 +478,7 @@ class PowerLogParser:
             target = self._update_entity_from_inline(m.group("target"), ts=ts)
             if target is None and m.group("target").isdigit():
                 target = self.state.entities.get(int(m.group("target")))
+            self._invalidate_reordered_deck(e, m.group("kind"), "task")
             self._task_effects.append(effect_frame(e, m.group("kind"), target,
                                                    self.state, self._last_drawn, self._played_this_turn))
             self._task_effects[-1].overdraw_capture = "TriggerKeyword=TRIGGER_VISUAL" in p
@@ -538,6 +539,19 @@ class PowerLogParser:
         # Intentionally ignore CREATE_GAME, Player definitions and BLOCK_START
         # here. Those are duplicated visible-action/control records.
 
+    def _invalidate_reordered_deck(self, entity, kind, source):
+        if not entity or kind != "POWER" or entity.card_id not in {"BE_250", "TIME_701"}:
+            return
+        token = ("DECK_REORDER", entity.entity_id, entity.card_id)
+        if source == "task" and self._consume_canonical_token(token):
+            return
+        if source == "canonical": self._record_canonical_token(token)
+        for card in self.state.entities.values():
+            if card.controller == entity.controller and card.zone == "DECK":
+                for tag in ("GHOSTDATA_DECK_LOCATION", "GHOSTDATA_DECK_INDEX",
+                            "GHOSTDATA_BOTTOM_BATCH", "GHOSTDATA_BOTTOM_CARD"):
+                    card.tags.pop(tag, None)
+
     def _parse_block(self, kind: str, entity_raw: str, target_raw: str, ts: str) -> None:
         if not self._effects:
             for entity in self.state.entities.values():
@@ -553,6 +567,7 @@ class PowerLogParser:
         target = self._update_entity_from_inline(target_raw, ts=ts)
         if target is None and target_raw.isdigit():
             target = self.state.entities.get(int(target_raw))
+        self._invalidate_reordered_deck(e, kind, "canonical")
         self._effects.append(effect_frame(e, kind, target, self.state,
                                           self._last_drawn, self._played_this_turn))
         if e and e.card_id == "EDR_454" and kind == "POWER" and target and target.card_id:
@@ -699,6 +714,8 @@ class PowerLogParser:
                 if entity.controller == pid:
                     entity.tags.pop("GHOSTDATA_DECK_LOCATION", None)
                     entity.tags.pop("GHOSTDATA_DECK_INDEX", None)
+                    entity.tags.pop("GHOSTDATA_BOTTOM_BATCH", None)
+                    entity.tags.pop("GHOSTDATA_BOTTOM_CARD", None)
                     if pid == self.state.opponent_pid and entity.zone == "DECK" and entity.card_id:
                         self._revealed_pairs.discard((entity.entity_id, entity.card_id))
                         self._emit(ts, "HIDE", "Shuffle conceals future draw identity", entity_id=entity.entity_id)
@@ -738,6 +755,7 @@ class PowerLogParser:
         if source == "canonical":
             self._record_canonical_token(token)
         self._revealed_pairs.discard((eid, ent.card_id))
+        ent.tags.pop("GHOSTDATA_BOTTOM_CARD", None)
         ent.tags.pop("GHOSTDATA_PUBLIC_LABEL", None)
         ent.tags.pop("GHOSTDATA_PUBLIC_COST", None)
         frames = self._effects if source == "canonical" else self._task_effects
@@ -785,8 +803,9 @@ class PowerLogParser:
             e.tags["GHOSTDATA_PUBLIC_CREATION"] = "1"
             if not e.creator:
                 self._apply_entity_tag(e, "CREATOR", str(frame.source), ts)
-            if frame.location and e.zone == "DECK":
-                e.tags["GHOSTDATA_DECK_LOCATION"] = frame.location
+            if (frame.location == "BOTTOM" and e.zone == "DECK"
+                    and e.tags.get("GHOSTDATA_BOTTOM_BATCH")):
+                e.tags["GHOSTDATA_BOTTOM_CARD"] = e.card_id or predicted
             if frame.label and not e.card_id:
                 e.tags["GHOSTDATA_PUBLIC_LABEL"] = frame.label
                 if frame.cost is not None:
@@ -1025,7 +1044,28 @@ class PowerLogParser:
             if e.zone != "DECK":
                 e.tags.pop("GHOSTDATA_DECK_LOCATION", None)
                 e.tags.pop("GHOSTDATA_DECK_INDEX", None)
-            elif e.controller == self.state.local_player_pid:
+                e.tags.pop("GHOSTDATA_BOTTOM_BATCH", None)
+                e.tags.pop("GHOSTDATA_BOTTOM_CARD", None)
+            elif old_zone != "DECK":
+                frames = self._effects if source == "canonical" else self._task_effects
+                frame = frames[-1] if frames else None
+                placement = frame.location if frame and e.entity_id in frame.candidates else ""
+                if frame and frame.card_id in {"TIME_730", "VAC_444"}:
+                    placement = "BOTTOM" if frame.card_id == "TIME_730" else "TOP"
+                if placement == "BOTTOM":
+                    if not frame.order_base or frame.order_base != self._deck_order:
+                        self._deck_order += 100
+                        frame.order_base = self._deck_order
+                    e.tags["GHOSTDATA_DECK_LOCATION"] = "BOTTOM"
+                    e.tags["GHOSTDATA_BOTTOM_BATCH"] = str(frame.order_base)
+                    e.tags["GHOSTDATA_BOTTOM_CARD"] = e.card_id
+                elif placement != "TOP":
+                    # An unlocated insertion may shift the bottom window. Keep
+                    # older rail provenance, but stop asserting exact batches.
+                    for other in self.state.entities.values():
+                        if other.controller == e.controller:
+                            other.tags.pop("GHOSTDATA_BOTTOM_BATCH", None)
+                            other.tags.pop("GHOSTDATA_BOTTOM_CARD", None)
                 frames = self._effects if source == "canonical" else self._task_effects
                 if frames and frames[-1].card_id in {"TIME_730", "VAC_444"}:
                     e.tags["GHOSTDATA_DECK_LOCATION"] = "BOTTOM" if frames[-1].card_id == "TIME_730" else "TOP"
@@ -1035,6 +1075,9 @@ class PowerLogParser:
                         frame.order_base = self._deck_order
                     e.tags["GHOSTDATA_DECK_INDEX"] = str(frame.order_base - frame.ordered_count)
                     frame.ordered_count += 1
+                    if frame.card_id == "TIME_730":
+                        e.tags["GHOSTDATA_BOTTOM_BATCH"] = str(frame.order_base)
+                        e.tags["GHOSTDATA_BOTTOM_CARD"] = e.card_id
             if e.zone == "HAND":
                 e.tags.pop("GHOSTDATA_DISCARD_RECORDED", None)
             if old_zone == "HAND" and e.zone in {"GRAVEYARD", "SETASIDE", "REMOVEDFROMGAME"}:

@@ -2,6 +2,8 @@
 from dataclasses import dataclass
 from .related_rules import RULES, select_history
 from .card_references import visible_references
+from .deck_previews import DECK_RULES, deck_candidates, bottom_candidates
+from .public_effects import _FIXED, base_id
 from .card_history import observe as observe_card
 
 @dataclass(frozen=True)
@@ -91,6 +93,12 @@ def related_cards(game, entity, db, known_deck=None):
         deck = known_deck if known_deck is not None else [e.card_id for e in game.entities.values()
                  if e.zone == "DECK" and e.controller == entity.controller and e.card_id]
         return rows([cid for cid in deck if cid in played]), "Tracked remaining deck copies of previously played cards; unknown identities are omitted"
+    if entity.card_id in DECK_RULES:
+        candidates, label = deck_candidates(entity, db, known_deck)
+        return rows(candidates), label
+    if entity.card_id in {"JAIL_510", "TIME_023"}:
+        candidates, label = bottom_candidates(game, entity, db)
+        return rows(candidates), label
     if entity.card_id in {"TLC_433t", "TLC_433t2"}:
         return rows(["TLC_433t2" if entity.card_id == "TLC_433t" else "TLC_433t"]), "Deathrattle creates"
     if entity.card_id in {"EDR_819", "CORE_RLK_086", "RLK_086"}:
@@ -104,4 +112,15 @@ def related_cards(game, entity, db, known_deck=None):
                      and e.card_type in {"MINION", "SPELL", "WEAPON", "LOCATION"}
                      and number(e, "LINKED_ENTITY") == entity.entity_id), key=lambda e:e.entity_id)
     if stored: return rows([e.card_id for e in stored]), "Linked cards observed"
+    # Fixed generated identities are effect possibilities, never evidence that
+    # the effect has resolved or that all capped creations will occur.
+    fixed = [_FIXED[key] for key in ((base_id(entity.card_id), "POWER"),
+             (base_id(entity.card_id), "TRIGGER")) if key in _FIXED]
+    if fixed:
+        cid, cap, location = fixed[0]
+        definition = db.get(cid)
+        if definition and definition.card_type in {"MINION", "SPELL", "WEAPON", "LOCATION"}:
+            return (RelatedCard(cid, definition.name, definition.text, cap),), (
+                f"Effect can create up to {cap}; trigger conditions and available space apply"
+                + ("; placed on the bottom of the deck" if location == "BOTTOM" else ""))
     return (), ""

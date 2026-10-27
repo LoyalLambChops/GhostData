@@ -637,3 +637,11 @@ Dashboard startup invokes `--prepare-local-setup` asynchronously before starting
 `RailHoverPreview` cross-checks sensor entity ID and CardID against the active match's local hand, expires cursor data after 500 ms and description snapshots after two seconds, and hides previews outside the game foreground. It reuses one click-through popup and does not synthesize input. The formatter removes display markup while preserving words and line breaks; unresolvable definition templates have an explicit fallback instead of guessed counters.
 
 The parser snapshots public Slime 'em! destruction targets in its individual effect frame, then attaches immutable ordered card IDs to each generated Ectoplasm entity. This keeps separate casts and both players apart, survives later identity/controller changes and follows the existing rewind/reset lifecycle. Copies use the original token anchor. Other explicit set-aside links can provide observed stored-card lists. This is not a universal effect simulator; supported coverage and remaining limits are listed in HAND_PREVIEWS.md.
+
+## Beta deck-preview providers (1.3.6)
+
+`deck_previews.py` defines explicit type/tribe/school filters over the reconciled inventory passed by `DeckTracker._build_state`; it never reconstructs a tutor pool from arbitrary private deck entities. Multiplicity is preserved. `related_cards.py` supplies the shared rail/hand payload and fixed-generation previews from reviewed public creation contracts.
+
+For bottom-deck effects, the parser stamps observed insertions with monotonic batch IDs. The resolver walks batches newest first, capped by the current deck size and requested depth. Batch-internal order is not inferred. Boundary overlap, missing definitions and hidden identities are reported as uncertainty. Shuffle, unlocated insertion and reorder handling invalidate evidence; zone transitions clear it. Canonical/task deduplication and journal replay preserve the same state boundaries as ordinary tracking.
+
+Regression fixtures are synthetic and contain no user logs. The local definition audit records hashes rather than redistributing card text. Cost/attack/provenance-sensitive tutor contracts and general random generation eligibility are intentionally not inferred from free-form card text.

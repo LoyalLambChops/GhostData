@@ -1,6 +1,6 @@
 # Public release readiness
 
-Assessment: October 26, 2026. Build 1.3.2 passed the maintainer’s separate clean Windows 11 install/run check. Build 1.3.3 is the new development candidate for automatic setup and hand previews. Universal related-card mechanic coverage remains incomplete; see HAND_PREVIEWS.md. This checklist separates completed engineering from public-release gates.
+Assessment: October 27, 2026. The maintainer reports successful clean-machine installation and a completed Standard match on build 1.3.5. Build 1.3.6 is the next beta candidate with expanded deck previews. The release scope prioritizes accurate supported mechanics and hover behavior; turn timers and additional counters follow after beta. Universal feature parity is not a release requirement. Remaining preview limits are explicit in HAND_PREVIEWS.md.
 
 ## Current state
 
@@ -34,7 +34,7 @@ Inno Setup is a suitable lightweight installer builder: it supports a single set
 - [x] Migrate UI and harness to .NET 10, bundle runtime 10.0.13, and validate installed UI plus the regression suites.
 - [x] Run separate app/sensor dependency vulnerability scans, including transitive packages. No known vulnerabilities were reported at this validation; repeat during release CI.
 - [x] Extend the exact-package notice collector to include shipped sensor dependencies (JetBrains.Annotations, Newtonsoft.Json and System.ValueTuple), excluding build-only reference assemblies.
-- [ ] Keep release builds free of personal logs, data, credentials and private promotional material. Review tracked game-definition/reference files and preserve required third-party licenses.
+- [x] Review current tracked paths and reachable-history paths for private media/data/archives. No matching paths were found on October 27. Candidate CI separately validates shipped inventory and notices. Remote cached commit access remains a separate unresolved privacy gate below.
 - [x] Ship a dedicated offline package README referencing the included manuals; repository screenshot links remain in the repository README.
 
 ## License and signing decisions
@@ -49,7 +49,7 @@ Signing can be reconsidered later if installation friction warrants it. No certi
 
 - [x] Build a candidate from a clean Windows CI checkout with dependency audits and Python/UI checks. Manual dispatch has passed; matching numeric tag triggering is implemented, but the first tagged public release remains pending.
 - [x] Produce the unsigned installer and portable assets from the same tested source with manifest, checksums, build provenance and an unsigned notice, available as private CI artifacts. Public release publication remains a separate gate below.
-- [ ] Test installation and launch on a clean supported Windows VM with no development Python or .NET SDK, using a standard user account and paths containing spaces/non-ASCII characters.
+- [x] Maintainer-reported install, launch and completed Standard match on a separate clean Windows machine with build 1.3.5. Standard-user/non-ASCII path variants and the new 1.3.6 mechanics were not separately confirmed.
 - [ ] Repeat Desktop/Start Menu, duplicate-launch, upgrade, failed/interrupted-update and uninstall/reinstall acceptance on a clean VM. Local isolated install, shortcut, reinstall, update-success, startup-rollback and uninstall/data-preservation checks already pass; power-loss and interruption scenarios remain open.
 - [ ] Exercise a real downloaded release and update path, including Windows download-origin/security behavior. Do not treat locally copied unsigned builds as equivalent evidence.
 - [ ] Complete documented live deck-switch/late-start, reconnect, quest, Secret, overdraw and mixed-DPI/focus tests. See FIELD_TEST_CHECKLIST.md and parity_validation.md.
@@ -84,7 +84,7 @@ Phantom · Beta 1, build **1.3.2**, source `9cf8bdb5cd90c4d702b593b86b40ae05bac5
 - The exact CI artifacts were downloaded and their checksums/source provenance verified for the maintainer's separate-PC test. No repository visibility or public-release change was made.
 - A bounded tracked-text credential-pattern scan found no matches; locally reachable history contained no private-media/data folders. This is not proof that GitHub's remote cached/unreachable commits are purged.
 
-The maintainer has a separate Windows 11 PC for the remaining clean-install test. Its results, live-game acceptance and real public download/update behavior are not yet recorded. Windows Server CI is not a substitute for that player-machine evidence.
+The clean-machine install and Standard-match evidence has since been reported for build 1.3.5. Real public download/update behavior is still outstanding. Windows Server CI is not a substitute for player-machine evidence.
 
 
 ## Build 1.3.3 candidate validation
@@ -108,3 +108,10 @@ Remaining implementation is broader than live validation: Discover/random genera
 ## Live integration correction — build 1.3.5
 
 The October 27 Practice hover check exposed a friendly-hand identity gate incorrectly consulting an opponent-only observation set. Build 1.3.4's passing component/installer checks did not detect this; do not use its candidate as evidence that live friendly-hand previews work. Build 1.3.5 fixes the gate, preserves reveal/hide boundaries, and passes 240 Python regressions plus 49 UI checks. Reprocessing the captured match now publishes all four friendly hand identities and matches the sensor's hovered Annihilation entity. The production overlay remains intentionally inactive in Practice. Supported Standard overlay acceptance and broader mechanic coverage remain open.
+
+## October 27 beta preparation
+
+- 1.3.6: 260 Python regressions and 49 UI/lifecycle checks passed locally; reviewed definition fingerprints match client 255790 (2,444 definitions, no changes).
+- Clean install and a completed Standard match were reported by the maintainer for 1.3.5. This does not imply every hover mechanic or focus/DPI combination was field-tested.
+- GitHub still serves the removed private-media commit to authenticated repository access. The repository remains private. Do not expose that historical material by changing visibility before resolving it or publishing from a fresh repository.
+- Initial downloads should present Setup as the primary file. Portable ZIP remains the secondary option and updater payload.

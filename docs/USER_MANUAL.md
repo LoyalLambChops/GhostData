@@ -266,6 +266,8 @@ or read from old artwork caches. Hover shows a known card's name and local rules
 text after about 150 ms. For visible cards in your own hand, GhostData reads the game's rendered description, including its current numbers, and uses it in hand and matching rail previews. Local definitions are the fallback. Formatting markup, layout underscores and numeric markers are removed; unresolved templates are never shown as raw symbols or invented values. Unknown opponent identities have no preview identity.
 
 Hovering a card directly in your game hand opens the same text preview. It uses the game's hovered entity, so copies with the same name remain separate. Ectoplasm shows its stored minions in order, including duplicates; separate casts and the two players' boards remain separate. Explicitly linked stored cards are also listed when observed. Board space and later game effects can affect actual resolution. Random outcomes and unobserved relationships are not presented as certain. See [hand-preview coverage](HAND_PREVIEWS.md) for the supported evidence and limits.
+Tracked draw/Discover candidates and observed bottom-deck cards are listed for supported mechanics. Annihilation distinguishes observed Demons from unknown bottom slots. Candidate lists do not predict a random result; some tutor and generated-card families remain unsupported in beta.
+
 Full-card artwork from installed assets is not implemented; third-party cached
 images are not used as a substitute.
 

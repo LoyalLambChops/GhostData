@@ -1,7 +1,7 @@
 # GhostData feature roadmap
 
 This is a planning backlog, not a list of shipped features or a promise that all
-items are part of the current parity build. Consult the [user manual](USER_MANUAL.md)
+items are part of the current beta. Consult the [user manual](USER_MANUAL.md)
 and [validation ledger](parity_validation.md) for implemented behavior and evidence.
 The current release scope is a lightweight local Standard dashboard and rails.
 Replay/archive features, cloud services and other game modes are excluded.
@@ -9,6 +9,14 @@ Replay/archive features, cloud services and other game modes are excluded.
 GhostData should become the most trustworthy local-first Hearthstone record and
 deck-tracking companion. New work should preserve its central boundary: observed
 facts and transparent, bounded inference rather than tactical coaching.
+
+## Agreed beta boundary — October 27, 2026
+
+Prioritize reliable Standard tracking, automatic setup, readable card descriptions,
+per-entity hand previews and accurate supported mechanic lists. Keep uncertain
+outcomes explicit. Turn timers and additional counters are post-beta features,
+with optional compact presentation. Select features for local usefulness;
+complete parity with another tracker is not the product goal.
 
 ## Product goals
 
