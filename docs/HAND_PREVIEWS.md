@@ -73,7 +73,7 @@ The current implementation resolves entity-reference, entity-power, paired-refer
 
 - 238 Python regression tests and 49 UI/lifecycle checks passed during this development pass. Tests exercise filters, ties, tribes, repeated deaths/plays, extra turns, returns, hidden identities, duplicated streams, stored references, Assemble payloads and rewind.
 - The updated client imported 36,390 definitions successfully, including 572 records with multiple tribe values. The local hand stream returned READY for all 12 sampled main-menu readings.
-- Full live Standard acceptance across the mechanic families remains a release gate. The new source work is not itself a published or approved installer.
+- Discover/random generation pools, filtered deck-tutor previews and additional generated-card families still require implementation/review. Full live Standard acceptance across the mechanic families remains a release gate. The new source work is not itself a published or approved installer.
 - Lists distinguish stored contents, current eligible pools, references and observed history. Random targets/outcomes and future effects are not guaranteed. Missing history cannot be reconstructed as exact results.
 - This is a documented coverage expansion, not certification that every feature or every possible interaction is equivalent to another application. The private product audit records the wider gaps.
 
