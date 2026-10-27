@@ -5,20 +5,17 @@
 GhostData is a local Windows dashboard and deterministic deck tracker for Hearthstone Standard.
 
 Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
-**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.7) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links. This candidate is unsigned; the public download remains pending final publication checks. The previous candidate passed the maintainer’s clean Windows install and Standard-match test; the latest preview changes have automated regression coverage.
+**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.7) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links.
 
-This repository starts from the GhostData 1.2.0 source baseline. Version 1.2.1 corrects stale selected-deck handling on late starts and session changes. It includes the current app,
-sensor, build tooling, manuals and synthetic tests. Personal match history,
-captured logs, caches, backup archives and obsolete version snapshots are excluded.
+**[Download GhostData for Windows — installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.7/GhostData-Setup-1.3.7-x64.exe)**
+
+Windows 11 x64 · Unsigned beta · [Release notes, checksums and alternative portable ZIP](https://github.com/LoyalLambChops/GhostData/releases/tag/v1.3.7)
+
+Download and run the installer. That single file includes everything GhostData needs; no build commands or separate runtime installation. Normal tracking keeps match history and analytics on your machine. The repository contains the application, sensor, build tooling, manuals and synthetic tests; personal data, captured logs and private promotional material are excluded.
 
 It records completed matches across Hearthstone log sessions and presents results, deck identity, deck composition versions, opponent classes, initiative, match duration, mulligan choices, and factual card history. The live rails provide deterministic deck accounting, observed opponent history, hero-zone effects, and separately labeled Secret possibilities. It does not provide turn-by-turn advice or make causal claims about why a game was won or lost.
 
-**Version 1.2.0 baseline, October 21:** compact text-only rails, separate
-recoverable overdraw, Blizzard-local definition import, current client rotation
-membership, a portable Windows package and an explicit release Update button.
-The installed 37.0.0.255130 client supplied 36,390 public definitions during
-validation. Full interaction/reconnect and matched resource acceptance remain
-open; see the [validation ledger](docs/parity_validation.md).
+**Beta scope:** compact text rails, quests, separate Secret possibilities, recoverable overdraw, automatic logging setup and local card-definition import. Hand hover shows supported summon/replay/stored-card results without duplicating ordinary card descriptions. Rail hover retains full text and broader tracked context. Some specialized mechanic previews remain incomplete; see [coverage and limits](docs/HAND_PREVIEWS.md). Turn timers and additional counters are planned after beta.
 
 ## See GhostData
 
@@ -59,13 +56,13 @@ The screenshots below show the actual **GhostData Phantom · Beta 1** dashboard 
 
 ## Requirements
 
-- Windows 11 x64 and Hearthstone with Power.log logging enabled.
+- Windows 11 x64 and Hearthstone. GhostData configures Power.log logging automatically; an already-running game may need one restart.
 - The installer and portable package bundle Python and .NET 10. The sensor uses Windows' .NET Framework 4.8.
 - Building from source additionally requires Python 3.12+ and the .NET 10 SDK.
 
 ## Start
 
-The installer candidate is `GhostData-Setup-1.3.7-x64.exe`. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. A public download will be linked after release checks are complete.
+Use the **[Windows installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.7/GhostData-Setup-1.3.7-x64.exe)**. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. This beta is unsigned; Windows may warn or block it under its security policy.
 
 For the portable package, extract the entire ZIP to a writable folder and open
 `GhostData.App.exe`. Keep the folder together. Start Hearthstone and reach its
