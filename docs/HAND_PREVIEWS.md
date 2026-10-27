@@ -1,6 +1,6 @@
 # Hand preview coverage
 
-Beta candidate 1.3.7; reviewed client 37.0.0.255790, October 27, 2026.
+Public beta 1.3.7; reviewed client 37.0.0.255790, October 27, 2026.
 
 ## Implemented behavior
 
@@ -94,3 +94,7 @@ Run `python tools/audit_card_previews.py <local snapshot path>`. The baseline fi
 On client 37.0.0.255790, a 12-second Practice-match capture returned 104 READY samples, all identifying the hovered friendly Annihilation card. The entity ID and CardID matched Power.log. Integration validation exposed an opponent-only observation check suppressing friendly hand identities; build 1.3.5 fixes this. Reprocessing the match with the fix resolved the same card in the published player-hand state and identified all four friendly hand cards without a selected-deck seed. Two regressions cover the friendly reveal/hide boundary and unrevealed opponent identities.
 
 Current rendered wording was returned, including the game's formatting markers for the UI formatter to remove. The capture remains in ignored local scratch storage. This validates the read-only sensor and tracker association, not the visible production popup or Annihilation's bottom-of-deck summon preview. Practice is intentionally excluded by the Standard scope filter; a supported Standard match is required for end-to-end overlay acceptance. No scope setting or saved match data was changed.
+
+### Public beta verification
+
+The source tagged v1.3.7 passed [public CI](https://github.com/LoyalLambChops/GhostData/actions/runs/40596676836). The effect-only hand popup was rendered from the real Avalonia control with synthetic stored minions; the hovered card description was absent and duplicate result cards remained in order. This visual check is not a live capture of every mechanic. Anonymous download, verified public update from 1.3.6 and startup/data-preservation checks are recorded in PUBLIC_RELEASE_READINESS.md.
