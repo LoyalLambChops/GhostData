@@ -268,6 +268,7 @@ public sealed class HandSlotDto
     [JsonPropertyName("entity_id")] public int EntityId { get; set; }
     [JsonPropertyName("related_cards")] public List<RelatedCardDto> RelatedCards { get; set; } = new();
     [JsonPropertyName("related_label")] public string RelatedLabel { get; set; } = "";
+    [JsonPropertyName("related_kind")] public string RelatedKind { get; set; } = "";
     [JsonPropertyName("card_id")] public string CardId { get; set; } = "";
     [JsonPropertyName("text")] public string Text { get; set; } = "";
     [JsonPropertyName("position")] public int Position { get; set; }

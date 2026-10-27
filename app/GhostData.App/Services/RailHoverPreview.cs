@@ -72,6 +72,22 @@ public static class RailHoverPreview
         foreach(var related in slot.RelatedCards)text+="\n• "+related.Name+(related.Count>1?$" ×{related.Count}":"");
         return text;
     }
+    public static string HandEffectDetail(HandSlotDto? slot)
+    {
+        if (slot is null || slot.RelatedKind is not ("RESULT" or "STORED")
+            || slot.RelatedCards.Count == 0) return "";
+        var entries = slot.RelatedCards.Where(c => c.Count > 0 && !string.IsNullOrWhiteSpace(c.Name))
+            .Select(c =>
+            {
+                var detail = CardTextFormatter.Format(c.Text);
+                return "• " + c.Name + (c.Count > 1 ? $" ×{c.Count}" : "")
+                    + (detail.Length > 0 ? "\n" + detail : "");
+            }).ToArray();
+        if (entries.Length == 0) return "";
+        var label = CardTextFormatter.Format(slot.RelatedLabel);
+        return (label.Length > 0 ? label + "\n\n" : "") + string.Join("\n\n", entries);
+    }
+
     private static string HandDetail(HandSlotDto slot)
     {
         var rendered=_textAt!=0 && Stopwatch.GetElapsedTime(_textAt).TotalSeconds<2
@@ -136,7 +152,17 @@ public static class RailHoverPreview
         var screenPoint = new PixelPoint(cursor.X, cursor.Y);
         // Allow movement into long previews without taking focus or clicks.
         // A played/transformed card or an ended game must not leave stale content.
-        if (_previewHandEntity != 0 && ResolveHand(_handState, _previewHandEntity, _previewHandCard) is null) Hide();
+        if (_previewHandEntity != 0)
+        {
+            var activeSlot = ResolveHand(_handState, _previewHandEntity, _previewHandCard);
+            var activeDetail = HandEffectDetail(activeSlot);
+            if (activeDetail.Length == 0) Hide();
+            else if (_requested && _fallback is not null && _card.Detail != activeDetail)
+            {
+                _card = (_card.Id, activeSlot!.Name + " · Effect cards", activeDetail);
+                _fallback.Text = _card.Name + "\n\n" + activeDetail;
+            }
+        }
         if (InsidePreview(screenPoint)) return;
         Window? foundRail = null;
         Control? foundRow = null;
@@ -159,6 +185,8 @@ public static class RailHoverPreview
         {
             var slot=_sensorAt!=0 && Stopwatch.GetElapsedTime(_sensorAt).TotalMilliseconds<500
                 ? ResolveHand(_handState,_hoveredEntity,_hoveredCard) : null;
+            var effectDetail = HandEffectDetail(slot);
+            if(slot is not null && effectDetail.Length == 0) { Hide(); return; }
             if(slot is null || !HearthstoneWindowLocator.IsGameForeground() || !Rails.Any(w=>w.IsVisible))
             {
                 if (_requested && Stopwatch.GetElapsedTime(_lastTargetAt).TotalMilliseconds < 350) return;
@@ -166,7 +194,7 @@ public static class RailHoverPreview
             }
             foundRail=Rails.OfType<PlayerDeckWindow>().FirstOrDefault(w=>w.IsVisible);
             if(foundRail is null){Hide();return;}
-            card=($"{slot.CardId}:{slot.EntityId}",slot.Name,HandDetail(slot));inHand=true;
+            card=($"{slot.CardId}:{slot.EntityId}",slot.Name + " · Effect cards",effectDetail);inHand=true;
         }
         if (_card != card || _rail != foundRail)
         {

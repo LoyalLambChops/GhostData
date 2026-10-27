@@ -895,12 +895,13 @@ class DeckTrackerEngine:
                 origin = "GENERATED" if origin != "RETURNED" else origin
             elif mem and mem.hand_turn <= 1:
                 origin = "MULLIGAN" if offered and entity.entity_id not in offered else "OPENING"
-            from ..related_cards import related_cards
+            from ..related_cards import related_cards, related_preview_kind
             related, label = related_cards(game, entity, self.card_db, known_deck) if known else ((), "")
             slots.append(HandSlot(entity.entity_id, entity.zone_position or index,
                 mem.hand_turn if mem else 0, entity.card_id if known else "",
                 assembled[0] if assembled else (card.name if card else entity.card_id) if known else entity.tags.get("GHOSTDATA_PUBLIC_LABEL", "Unknown card"),
-                origin, text=assembled[2] if assembled else card.text if card else "", related_cards=related, related_label=label))
+                origin, text=assembled[2] if assembled else card.text if card else "", related_cards=related, related_label=label,
+                related_kind=related_preview_kind(entity, related) if known else ""))
         return slots
 
     def _sideboard_rows(self, game):

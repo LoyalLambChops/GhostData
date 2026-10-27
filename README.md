@@ -5,7 +5,7 @@
 GhostData is a local Windows dashboard and deterministic deck tracker for Hearthstone Standard.
 
 Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
-**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.6) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links. This candidate is unsigned; the public download remains pending final publication checks. The previous candidate passed the maintainer’s clean Windows install and Standard-match test; the latest preview changes have automated regression coverage.
+**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.7) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links. This candidate is unsigned; the public download remains pending final publication checks. The previous candidate passed the maintainer’s clean Windows install and Standard-match test; the latest preview changes have automated regression coverage.
 
 This repository starts from the GhostData 1.2.0 source baseline. Version 1.2.1 corrects stale selected-deck handling on late starts and session changes. It includes the current app,
 sensor, build tooling, manuals and synthetic tests. Personal match history,
@@ -65,7 +65,7 @@ The screenshots below show the actual **GhostData Phantom · Beta 1** dashboard 
 
 ## Start
 
-The installer candidate is `GhostData-Setup-1.3.6-x64.exe`. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. A public download will be linked after release checks are complete.
+The installer candidate is `GhostData-Setup-1.3.7-x64.exe`. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. A public download will be linked after release checks are complete.
 
 For the portable package, extract the entire ZIP to a writable folder and open
 `GhostData.App.exe`. Keep the folder together. Start Hearthstone and reach its

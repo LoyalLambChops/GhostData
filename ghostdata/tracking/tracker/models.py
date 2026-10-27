@@ -40,6 +40,7 @@ class HandSlot:
     text: str = ""
     related_cards: tuple = ()
     related_label: str = ""
+    related_kind: str = ""
 
 
 @dataclass(frozen=True)

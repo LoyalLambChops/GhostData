@@ -1,6 +1,6 @@
 # Public release readiness
 
-Assessment: October 27, 2026. The maintainer reports successful clean-machine installation and a completed Standard match on build 1.3.5. Build 1.3.6 is the next beta candidate with expanded deck previews. The release scope prioritizes accurate supported mechanics and hover behavior; turn timers and additional counters follow after beta. Universal feature parity is not a release requirement. Remaining preview limits are explicit in HAND_PREVIEWS.md.
+Assessment: October 27, 2026. The maintainer reports successful clean-machine installation and a completed Standard match on build 1.3.5. Build 1.3.7 is the next beta candidate, correcting hand hover to show only effect-card results. Build 1.3.6 remains unpublished and is superseded. The release scope prioritizes accurate supported mechanics and hover behavior; turn timers and additional counters follow after beta. Universal feature parity is not a release requirement. Remaining preview limits are explicit in HAND_PREVIEWS.md.
 
 ## Current state
 
@@ -115,3 +115,7 @@ The October 27 Practice hover check exposed a friendly-hand identity gate incorr
 - Clean install and a completed Standard match were reported by the maintainer for 1.3.5. This does not imply every hover mechanic or focus/DPI combination was field-tested.
 - GitHub still serves the removed private-media commit to authenticated repository access. The repository remains private. Do not expose that historical material by changing visibility before resolving it or publishing from a fresh repository.
 - Initial downloads should present Setup as the primary file. Portable ZIP remains the secondary option and updater payload.
+
+## Hand-hover correction before publication
+
+The maintainer clarified that hovering an ordinary game-hand card must not open a duplicate description. Version 1.3.7 separates effect-card previews from rail descriptions, suppresses unrelated context and empty lists, and preserves each Ectoplasm’s own ordered stored minions. Local validation: 261 Python regressions and 67 UI/lifecycle checks. Public repository creation/publication remains on hold while this candidate is packaged.

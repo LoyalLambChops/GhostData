@@ -1,3 +1,12 @@
+# Phantom · Beta 1 — build 1.3.7 beta candidate
+
+- Correct game-hand hover: display only related effect cards for supported summon, replay and stored-card mechanics. Do not duplicate the hovered card's description.
+- Suppress the popup for ordinary hand cards, empty results, counter/history context, and draw/Discover-only lists. These broader lists remain available through rail hover.
+- Keep each Ectoplasm's stored minions separate, in order and with duplicates. Show the resulting cards' readable local rules text.
+- Preserve full card descriptions on rail hover and refresh an open effect list if its contents change.
+
+261 Python regressions and 67 UI/lifecycle checks pass locally. Build 1.3.6 is superseded and must not be published as the beta. No repository visibility change has been made while this correction is being validated.
+
 # Phantom · Beta 1 — build 1.3.6 beta candidate
 
 - Add tracked draw/copy/summon and deck-Discover candidates for 28 reviewed card contracts, preserving duplicate copies, multiple tribes and spell-school filters.

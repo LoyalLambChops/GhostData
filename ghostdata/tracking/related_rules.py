@@ -24,10 +24,11 @@ class HistoryRule:
     last: int = 0
     source_id: str = ""
     label: str = "Observed resurrection candidates; selection and board space apply"
+    preview_kind: str = "RESULT"
 
 
 RULES = {
-    "EDR_455": HistoryRule(race="DRAGON", distinct=True, label="Observed friendly Dragons available to Discover"),
+    "EDR_455": HistoryRule(preview_kind="DISCOVER", race="DRAGON", distinct=True, label="Observed friendly Dragons available to Discover"),
     "EDR_238": HistoryRule(minimum=8, distinct=True, label="Different friendly minions costing 8+ that died; board space applies"),
     "EDR_891": HistoryRule(mechanic="DEATHRATTLE", maximum=4, label="Current resurrection pool; one is selected and copied"),
     "EDR_892": HistoryRule(mechanic="DEATHRATTLE", minimum=5, exclude_self=True, label="Current resurrection pool excluding this card type; one is selected and copied"),
@@ -42,32 +43,32 @@ RULES = {
     "EDR_491": HistoryRule(mechanic="DEATHRATTLE", turn="current", label="Friendly minions with Deathrattles that died this turn"),
     "MEND_805": HistoryRule(turn="current", label="Friendly minions that died this turn; copies get +3/+3"),
     "TIME_619": HistoryRule(only_id="TIME_619t", label="Observed Bwonsamdi resurrection candidates; otherwise draws him"),
-    "CORE_TRL_345": HistoryRule(kind="PLAY", card_type="SPELL", turn="previous_friendly", label="Spells played on your previous turn; hand space applies"),
-    "TRL_345": HistoryRule(kind="PLAY", card_type="SPELL", turn="previous_friendly", label="Spells played on your previous turn; hand space applies"),
+    "CORE_TRL_345": HistoryRule(preview_kind="RETURN", kind="PLAY", card_type="SPELL", turn="previous_friendly", label="Spells played on your previous turn; hand space applies"),
+    "TRL_345": HistoryRule(preview_kind="RETURN", kind="PLAY", card_type="SPELL", turn="previous_friendly", label="Spells played on your previous turn; hand space applies"),
     "TLC_430": HistoryRule(kind="PLAY", card_type="SPELL", school="HOLY", turn="current", label="Holy spells cast this turn; one is selected at random"),
     "JAIL_500": HistoryRule(kind="PLAY", turn="current", exclude_self=True, label="Other cards played this turn; replay targets and order are not predicted"),
     "CATA_560": HistoryRule(kind="PLAY", card_type="MINION", minimum=1, maximum=1, label="1-Cost minions played this game; board space applies"),
-    "DINO_407": HistoryRule(kind="PLAY", card_type="MINION", opponent=True, last=1, label="Last publicly played opposing minion"),
+    "DINO_407": HistoryRule(preview_kind="SELF", kind="PLAY", card_type="MINION", opponent=True, last=1, label="Last publicly played opposing minion"),
     "THD_040hpb": HistoryRule(kind="PLAY", card_type="SPELL", last=1, label="Last observed spell played"),
-    "TOT_343": HistoryRule(kind="PLAY", opponent=True, last=2, label="Last two publicly played opposing cards"),
-    "TOT_108": HistoryRule(kind="PLAY", distinct=True, label="Previously played spells and minions; Combo determines the second Discover"),
-    "JAIL_887t2": HistoryRule(kind="DISCARD", source_id="JAIL_887", label="Observed prison discards; one card is selected each turn"),
-    "JAIL_887": HistoryRule(kind="DISCARD", source_id="JAIL_887", label="Cards discarded by a prison this game"),
+    "TOT_343": HistoryRule(preview_kind="COPY", kind="PLAY", opponent=True, last=2, label="Last two publicly played opposing cards"),
+    "TOT_108": HistoryRule(preview_kind="DISCOVER", kind="PLAY", distinct=True, label="Previously played spells and minions; Combo determines the second Discover"),
+    "JAIL_887t2": HistoryRule(preview_kind="STORED", kind="DISCARD", source_id="JAIL_887", label="Observed prison discards; one card is selected each turn"),
+    "JAIL_887": HistoryRule(preview_kind="STORED", kind="DISCARD", source_id="JAIL_887", label="Cards discarded by a prison this game"),
     # These conditional/counter cards expose the relevant history in addition
     # to the current description supplied by the visible client card.
-    "EDR_430": HistoryRule(label="Friendly minions that died this game"),
-    "EDR_941": HistoryRule(label="Friendly minions that died this game"),
-    "END_009": HistoryRule(race="TREANT", label="Friendly Treants that died this game"),
-    "EDR_465": HistoryRule(only_id="EDR_465", label="Observed Ysondre deaths; Dragon summons are random"),
-    "EDR_812": HistoryRule(kind="PLAY", last=1, label="Last card played; its runes determine the bonus"),
-    "CATA_616": HistoryRule(kind="PLAY", last=1, label="Last card played; its cost determines the reduction"),
-    "CATA_493": HistoryRule(kind="DISCARD", label="Observed cards discarded this game"),
-    "CATA_529": HistoryRule(kind="PLAY", card_type="SPELL", school="FEL", label="Fel spells played this game"),
-    "BE_564": HistoryRule(turn="current", label="Friendly minions that died this turn"),
-    "BE_565": HistoryRule(turn="current", label="Friendly minions that died this turn"),
-    "BE_877": HistoryRule(turn="current", label="Friendly minions that died this turn"),
-    "JAIL_445": HistoryRule(turn="current", label="Friendly minions that died this turn"),
-    "JAIL_909": HistoryRule(kind="PLAY", turn="current", exclude_self=True, label="Other cards played this turn"),
+    "EDR_430": HistoryRule(preview_kind="HISTORY", label="Friendly minions that died this game"),
+    "EDR_941": HistoryRule(preview_kind="HISTORY", label="Friendly minions that died this game"),
+    "END_009": HistoryRule(preview_kind="HISTORY", race="TREANT", label="Friendly Treants that died this game"),
+    "EDR_465": HistoryRule(preview_kind="HISTORY", only_id="EDR_465", label="Observed Ysondre deaths; Dragon summons are random"),
+    "EDR_812": HistoryRule(preview_kind="HISTORY", kind="PLAY", last=1, label="Last card played; its runes determine the bonus"),
+    "CATA_616": HistoryRule(preview_kind="HISTORY", kind="PLAY", last=1, label="Last card played; its cost determines the reduction"),
+    "CATA_493": HistoryRule(preview_kind="HISTORY", kind="DISCARD", label="Observed cards discarded this game"),
+    "CATA_529": HistoryRule(preview_kind="HISTORY", kind="PLAY", card_type="SPELL", school="FEL", label="Fel spells played this game"),
+    "BE_564": HistoryRule(preview_kind="HISTORY", turn="current", label="Friendly minions that died this turn"),
+    "BE_565": HistoryRule(preview_kind="HISTORY", turn="current", label="Friendly minions that died this turn"),
+    "BE_877": HistoryRule(preview_kind="HISTORY", turn="current", label="Friendly minions that died this turn"),
+    "JAIL_445": HistoryRule(preview_kind="HISTORY", turn="current", label="Friendly minions that died this turn"),
+    "JAIL_909": HistoryRule(preview_kind="HISTORY", kind="PLAY", turn="current", exclude_self=True, label="Other cards played this turn"),
 }
 
 

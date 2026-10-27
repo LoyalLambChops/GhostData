@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from ghostdata.tracking.models import GameState, EntityState
 from ghostdata.tracking.card_db import CardDatabase, CardDefinition
-from ghostdata.tracking.related_cards import related_cards
+from ghostdata.tracking.related_cards import related_cards, related_preview_kind
 from ghostdata.tracking.parser import PowerLogParser
 from ghostdata.tracking.deck_previews import DECK_RULES
 
@@ -161,6 +161,19 @@ class DeckPreviewTests(unittest.TestCase):
         e = self.deck(20, "D", 100); e.card_id = "B"
         self.assertEqual([], self.preview()[0])
         self.assertIn("identities unresolved", self.preview()[1])
+
+    def test_hand_presentation_separates_results_from_deck_and_counter_context(self):
+        for cid, kind in [("CAP_805t", "STORED"), ("JAIL_510", "RESULT"),
+                          ("CORE_CFM_344", "RESULT"), ("FIR_941", "RESULT"),
+                          ("TLC_106", "RESULT"), ("JAIL_500", "RESULT"),
+                          ("CORE_DS1_184", "DECK"), ("EDR_226", "DECK"),
+                          ("TIME_023", "DECK"), ("EDR_430", "HISTORY"),
+                          ("TIME_714", "TARGET"), ("TIME_618", "SELF"),
+                          ("JAIL_399", "GENERATED"), ("EDR_455", "DISCOVER")]:
+            with self.subTest(cid=cid):
+                self.card.card_id = cid
+                self.assertEqual(kind, related_preview_kind(self.card, ("D",)))
+                self.assertEqual("", related_preview_kind(self.card, ()))
 
     def test_fixed_generation_is_capped_preview_not_mutation(self):
         self.card.card_id = "JAIL_399"

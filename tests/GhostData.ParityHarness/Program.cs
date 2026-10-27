@@ -95,3 +95,23 @@ Check(RailHoverPreview.HandDetail(handState.PlayerHand[0],"Deal 7 damage.").Cont
 Check(RailHoverPreview.HandDetail(handState.PlayerHand[0],null).Split("• A").Length==3,"Related duplicates retained");
 handState.Complete=true;Check(RailHoverPreview.ResolveHand(handState,20,"CAP_805t") is null,"Completed match hover cleared");
 Console.WriteLine("Passed 9 card text and hand-preview checks.");
+
+var effectSlot = new HandSlotDto {EntityId=41,CardId="CAP_805t",Name="Ectoplasm",Text="SOURCE DESCRIPTION MUST NOT APPEAR",RelatedKind="STORED",RelatedLabel="Stored minions",RelatedCards=new(){new(){CardId="A",Name="First minion",Text="[x]<b>Taunt</b>"},new(){CardId="A",Name="First minion",Text="[x]<b>Taunt</b>"},new(){CardId="B",Name="Second minion",Text="Deal $3 damage."}}};
+var effectDetail = RailHoverPreview.HandEffectDetail(effectSlot);
+Check(!effectDetail.Contains("SOURCE DESCRIPTION"),"Game hand popup omits the hovered card description");
+Check(effectDetail.Split("• First minion").Length==3 && effectDetail.LastIndexOf("First minion") < effectDetail.IndexOf("Second minion"),"Stored results retain duplicates and order");
+Check(effectDetail.Contains("Taunt") && effectDetail.Contains("Deal 3 damage.") && !effectDetail.Contains("<b>") && !effectDetail.Contains("[x]"),"Result cards use cleaned local card text");
+Check(RailHoverPreview.HandDetail(effectSlot,"Current rail description").Contains("Current rail description"),"Rail hover retains current full description");
+Check(RailHoverPreview.HandEffectDetail(new(){CardId="FIREBALL",Text="Deal 6 damage."})=="","Ordinary game-hand cards do not spawn a popup");
+Check(RailHoverPreview.HandEffectDetail(new(){RelatedKind="STORED",RelatedLabel="No minions stored"})=="","Empty stored pools do not spawn blank popups");
+Check(RailHoverPreview.HandEffectDetail(null)=="","Missing hand entity hides effect popup");
+foreach(var excludedKind in new[]{"DECK","DISCOVER","HISTORY","SELF","TARGET","RETURN","COPY","GENERATED",""})
+{
+    effectSlot.RelatedKind=excludedKind;
+    Check(RailHoverPreview.HandEffectDetail(effectSlot)=="","Hand preview excludes unrelated context: "+excludedKind);
+}
+effectSlot.RelatedKind="RESULT";
+Check(RailHoverPreview.HandEffectDetail(effectSlot).Contains("First minion"),"Summon/replay results remain eligible");
+var separateHand = new TrackerStateDto {Active=true,PlayerHand=new(){effectSlot,new(){EntityId=42,CardId="CAP_805t",RelatedKind="STORED",RelatedCards=new(){new(){CardId="C",Name="Other cast minion"}}}}};
+Check(!RailHoverPreview.HandEffectDetail(RailHoverPreview.ResolveHand(separateHand,41,"CAP_805t")).Contains("Other cast minion") && RailHoverPreview.HandEffectDetail(RailHoverPreview.ResolveHand(separateHand,42,"CAP_805t")).Contains("Other cast minion"),"Same-card hand copies use separate stored effects");
+Console.WriteLine("Passed 18 effect-only hand-preview checks.");

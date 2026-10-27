@@ -124,3 +124,28 @@ def related_cards(game, entity, db, known_deck=None):
                 f"Effect can create up to {cap}; trigger conditions and available space apply"
                 + ("; placed on the bottom of the deck" if location == "BOTTOM" else ""))
     return (), ""
+
+
+def related_preview_kind(entity, cards):
+    """Presentation meaning, independent of card wording and UI heuristics.
+
+    Rail descriptions can expose broader tracked context. Game-hand previews
+    only expose effect-result/stored lists; draws, counters and self references
+    must not create an extra card-description window over the game.
+    """
+    if not cards: return ""
+    cid = entity.card_id
+    if cid in RULES: return RULES[cid].preview_kind
+    if cid in DECK_RULES:
+        return "RESULT" if cid in {"CORE_CFM_344", "FIR_941", "TIME_870"} else "DECK"
+    if cid in {"TIME_103", "TIME_023"}: return "DECK"
+    if cid == "TIME_714": return "TARGET"
+    if cid in {"TIME_618", "TIME_618t"}: return "SELF"
+    if cid in {"JAIL_510", "TIME_620", "TLC_433t", "TLC_433t2", "EDR_819", "CORE_RLK_086", "RLK_086"}:
+        return "RESULT"
+    if cid in {"CAP_805t", "EDR_454t", "TLC_841t", "EDR_494", "CATA_897", "CATA_481"}:
+        return "STORED"
+    if any((base_id(cid), kind) in _FIXED for kind in ("POWER", "TRIGGER")):
+        return "GENERATED"
+    # The remaining providers expose verified current references/linked storage.
+    return "STORED"
