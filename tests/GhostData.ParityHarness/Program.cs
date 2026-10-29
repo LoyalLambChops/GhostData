@@ -8,6 +8,9 @@ static void Check(bool value, string message)
     if (!value) throw new Exception(message);
 }
 
+Check(CardTextFormatter.Format("In 1 turn, Steal 2 cards from your opponent's hand. Restore #12 Health to your hero.")
+    == "In 1 turn, Steal 2 cards from your opponent's hand. Restore 12 Health to your hero.", "Resolved modular objective text has no game formatting markers");
+
 var snapshot = new DashboardSnapshotDto
 {
     RecentMatches = new()

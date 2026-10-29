@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class RecorderTests(unittest.TestCase):
-    def test_new_match_gets_selected_deck_once(self):
+    def test_unbound_match_does_not_use_later_selected_deck(self):
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)
             log = td / "Power.log"
@@ -28,9 +28,9 @@ class RecorderTests(unittest.TestCase):
                 _, added = record_once(ROOT, power_log=log, data_dir=data)
             self.assertEqual(1, added)
             row = MatchStore(td / "data").load()[0]
-            self.assertEqual("Ghost", row.deck_name)
-            self.assertEqual("ABC123", row.deck_version)
-            self.assertEqual("COMPLETE", row.data_quality)
+            self.assertEqual("", row.deck_name)
+            self.assertEqual("", row.deck_version)
+            self.assertEqual("LIMITED", row.data_quality)
 
     def test_rescan_does_not_stamp_a_later_selected_deck(self):
         with tempfile.TemporaryDirectory() as td:
@@ -85,7 +85,7 @@ class RecorderTests(unittest.TestCase):
             self.assertEqual("", row.deck_version)
             self.assertEqual("LIMITED", row.data_quality)
 
-    def test_current_deck_metadata_applies_only_to_latest_new_completed_game(self):
+    def test_current_selection_does_not_identify_unbound_completed_games(self):
         with tempfile.TemporaryDirectory() as td:
             td = Path(td)
             log = td / "Power.log"
@@ -101,7 +101,7 @@ class RecorderTests(unittest.TestCase):
             self.assertEqual((2, 2), (parsed, added))
             rows = {r.match_id: r for r in MatchStore(data).load()}
             self.assertEqual("", rows["a"].deck_name)
-            self.assertEqual("Ghost", rows["b"].deck_name)
+            self.assertEqual("", rows["b"].deck_name)
 
     def test_game_started_before_epoch_but_completed_after_epoch_is_kept(self):
         with tempfile.TemporaryDirectory() as td:

@@ -435,3 +435,8 @@ The dashboard footer identifies **Phantom · Beta 1**, build **1.3.2**. TWITCH o
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 
 UPDATE is explicit: this beta can offer a newer published beta or stable GhostData build. Numeric versions determine upgrade order; the release nickname is for display. It never downgrades to an older build. While the repository is private or has no compatible published release, the updater reports unavailable.
+
+
+### Deck identity recovery
+
+GhostData retains a verified deck snapshot for each active game in local `match_decks.json`. This lets match history recover a missing deck name after a temporary sensor interruption. A match without such evidence stays unidentified; selecting a different deck later does not relabel it. Recoverable overdraw is a separate list, ordered by capture, and is not counted as cards in hand.

@@ -17,7 +17,7 @@ tracked=subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split
 for name in filter(None,tracked):
     path=Path(name);parts={part.casefold() for part in path.parts}
     assert not parts.intersection({'media','ghostdatadata','card_art','card_renders','backups','.aws'}), 'Private path tracked: '+name
-    assert path.name.casefold() not in {'matches.json','selected_deck.json','settings.json','log.config','.env'}, 'Local data tracked: '+name
+    assert path.name.casefold() not in {'matches.json','selected_deck.json','match_decks.json','settings.json','log.config','.env'}, 'Local data tracked: '+name
     assert path.suffix.casefold() not in {'.log','.bak','.zip','.pfx','.pem','.key'}, 'Unexpected sensitive/archive file: '+name
 assert (root/'LICENSE').read_text().startswith('MIT License')
 print('Release versions, MIT license and tracked-path hygiene checks passed. History/content review remains separate.')

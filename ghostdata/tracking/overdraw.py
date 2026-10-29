@@ -8,6 +8,15 @@ def created(state, entity_id, frame):
     source = state.entities.get(frame.source)
     if source is None or not source.controller:
         return
+    entity = state.entities.get(entity_id)
+    if entity is None or entity.zone != "SETASIDE":
+        return
+    # Atlas creates the recoverable copy AND a second copy for its history tile.
+    # Only the first is a playable recovery; its copy must never become a row.
+    if entity.copied_from_entity_id in frame.candidates:
+        return
+    if entity.card_type not in {None, "", "INVALID", "MINION", "SPELL", "WEAPON", "LOCATION", "HERO"}:
+        return
     pool = state.recoverable_overdraw
     if any(r["new"] == entity_id for r in pool):
         return
@@ -15,7 +24,7 @@ def created(state, entity_id, frame):
     if pending is not None:
         pending["new"] = entity_id
     else:
-        pool.append(dict(controller=source.controller, old=0, new=entity_id, returned=False))
+        pool.append(dict(controller=source.controller, old=entity.copied_from_entity_id or 0, new=entity_id, returned=False))
 
 
 def burned(state, entity):
@@ -73,7 +82,10 @@ def rows(state, controller, database):
     ambiguous = controller != state.local_player_pid and any(r["returned"] for r in pool)
     for row in pool:
         original = state.entities.get(row["old"])
+        replacement = state.entities.get(row["new"])
         cid = original.card_id if original else ""
+        if not cid and controller == state.local_player_pid and replacement:
+            cid = replacement.card_id
         card = database.get(cid)
         cost = card.cost if card else original.cost if original else None
         result.append(RailCardRow(card_id=cid, name=card.name if card else original.name or cid if original else "Unknown card",

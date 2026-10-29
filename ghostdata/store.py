@@ -61,6 +61,9 @@ def _prefer(existing: MatchRecord, incoming: MatchRecord) -> MatchRecord:
     for field in list_fields:
         if not getattr(existing, field) and getattr(incoming, field):
             setattr(existing, field, getattr(incoming, field))
+    if (existing.result and existing.player_class and existing.opponent_class
+            and existing.initiative and existing.started_at and (existing.deck_name or existing.deck_version)):
+        existing.data_quality = "COMPLETE"
     return existing
 
 

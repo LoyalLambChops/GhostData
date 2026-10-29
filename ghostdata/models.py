@@ -32,6 +32,7 @@ class DeckSnapshot:
     archetype_name: str = ""
     hearthstone_build: str = ""
     sensor_status: str = ""
+    game_context: bool = False
     hero_card_ids: list[str] = field(default_factory=list)
     cards: list[dict[str, Any]] = field(default_factory=list)
     sideboards: list[dict[str, Any]] = field(default_factory=list)

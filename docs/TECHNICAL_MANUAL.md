@@ -649,3 +649,10 @@ Regression fixtures are synthetic and contain no user logs. The local definition
 ## Separate game-hand and rail presentation (1.3.7)
 
 The Python hand payload includes `related_kind`, derived from explicit provider contracts rather than card-text matching. `RailHoverPreview.HandEffectDetail` accepts only RESULT and STORED lists with displayable entries. It omits the source card description and formats the result cards’ text, retaining duplicates and order. Empty lists and DECK, DISCOVER, HISTORY, SELF, TARGET, RETURN, COPY or GENERATED context do not create game-hand popups. `HandDetail` remains the rail formatter, including current rendered source text. Entity and CardID matching, stale-sensor limits, focus checks and played-card invalidation apply to both paths.
+
+
+### 1.3.8 observation and identity boundaries
+
+The tracker rejects private SETASIDE-to-GRAVEYARD choice artifacts before late tags can cause a provisional disclosure. Atlas recovery registration waits for completed effect metadata and rejects copies of another candidate (history tiles). MODULAR_ENTITY text substitutes locally resolved per-entity MODULAR_ENTITY_PART_n DBF definitions. Missing components remain unresolved rather than guessed.
+
+The sensor marks a deck read as game_context only after a stable GAMEPLAY scene/read. The live bridge consumes log transitions before accepting asynchronous sensor results, validates the session/game context, and binds an EXACT Standard snapshot with matching starting class. The bounded local match_decks.json journal is keyed by session path, game index and CREATE_GAME clock. The recorder retries these bindings even for unchanged log sources and existing records, and recomputes data quality. Bindings are immutable within a game; current menu selection is not an historical attribution source.

@@ -11,6 +11,7 @@ from .deck_sensor import read_selected_deck
 from .paths import append_log, data_paths, ensure_history_epoch
 from .powerlog import discover_power_logs, parse_completed_games
 from .store import MatchStore
+from . import match_decks
 
 # Schema 2 invalidates indexes written by the old session-time reconstruction,
 # allowing completed games that were incorrectly classified as pre-epoch to be
@@ -126,7 +127,6 @@ def record_once(project_root: Path, *, power_log: Path | None = None, data_dir: 
         epoch = ensure_history_epoch(data_dir=data_dir)
         store = MatchStore(data_dir)
         existing = store.load()
-        known_ids = {m.match_id for m in existing if m.match_id}
 
         index = _read_source_index(data_dir)
         # If a previously populated match store vanished, re-scan sources that
@@ -164,6 +164,24 @@ def record_once(project_root: Path, *, power_log: Path | None = None, data_dir: 
             index[key] = state
             changed_index = True
 
+        # The tracker captures deck identity during the game. This binding is
+        # safe to retry even after completion, source inactivity or app restart.
+        bindings = match_decks.load(data_dir)
+        repairs = []
+        for match in existing:
+            source = next((p for p in logs if p.parent.name == match.source_session), None)
+            deck = match_decks.lookup(bindings, source, match) if source else None
+            if deck and not (match.deck_name and match.deck_id and match.deck_version):
+                match.enrich_from_deck(deck)
+                match.data_quality = "COMPLETE" if _core_complete(match) else "LIMITED"
+                repairs.append(match)
+        if repairs:
+            store.merge(repairs)
+        for match, source in parsed_candidates:
+            deck = match_decks.lookup(bindings, source, match)
+            if deck:
+                match.enrich_from_deck(deck)
+
         if not parsed_candidates:
             if changed_index:
                 _write_source_index(index, data_dir)
@@ -172,32 +190,6 @@ def record_once(project_root: Path, *, power_log: Path | None = None, data_dir: 
                 data_dir=data_dir,
             )
             return 0, 0
-
-        # Client-state metadata describes the deck selected now. Apply it only
-        # to the newest *new* completed match whose source file is recent. This
-        # prevents an old recovered session from inheriting today's deck.
-        new_candidates = [(m, p) for m, p in parsed_candidates if m.match_id not in known_ids]
-        if new_candidates:
-            latest_match, latest_source = max(
-                new_candidates,
-                key=lambda item: ((item[0].ended_at or item[0].started_at), item[0].game_index),
-            )
-            try:
-                source_is_recent = abs(time.time() - latest_source.stat().st_mtime) <= 600
-            except OSError:
-                source_is_recent = False
-            newest_discovered_source = logs[-1].resolve() if logs else None
-            source_is_current_session = newest_discovered_source == latest_source.resolve()
-            if (
-                source_is_recent
-                and source_is_current_session
-                and not latest_match.deck_name
-                and not latest_match.deck_id
-                and not latest_match.deck_version
-            ):
-                deck = read_selected_deck(project_root, data_dir=data_dir)
-                if deck:
-                    latest_match.enrich_from_deck(deck)
 
         matches = [m for m, _ in parsed_candidates]
         for match in matches:

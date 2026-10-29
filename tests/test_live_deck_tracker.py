@@ -199,7 +199,7 @@ class DeckTrackerTests(unittest.TestCase):
         # graveyard move, before the trailing option tag has been applied.
         self.state.emit("12:00:02", "REVEAL", "OPP_A", entity_id=203, card_id="OPP_A", player=2)
         self.tracker.observe(self.state)
-        self.assertIn("OPP_A", {r.card_id for r in self.tracker.state.opponent_rows})
+        self.assertNotIn("OPP_A", {r.card_id for r in self.tracker.state.opponent_rows})
 
         option.tags["WAS_DISCOVER_OPTION"] = "1"
         self.tracker.observe(self.state)

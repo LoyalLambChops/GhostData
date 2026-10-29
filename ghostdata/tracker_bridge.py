@@ -8,6 +8,7 @@ import sys
 import time
 
 from .deck_sensor import read_selected_deck
+from .match_decks import bind as bind_match_deck
 from .log_tail import LogTail
 from .local_card_data import import_card_data
 from .paths import data_paths
@@ -196,22 +197,6 @@ def run_tracker_stream(
             last_revision = -1
             last_secret_signature = ()
 
-        if sensor_result is not None and sensor_result.done():
-            try:
-                snapshot = sensor_result.result()
-                if snapshot is not None and sensor_context == (source_epoch, parser.state.game_number):
-                    last_sensor_snapshot = snapshot
-                    converted = _tracker_snapshot(snapshot, card_db)
-                    if converted is not None:
-                        tracker.seed_selected_deck(converted, parser.state)
-            except Exception as exc:
-                print(f"selected deck warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
-            sensor_result = None
-        if sensor_result is None and now - last_sensor_poll >= 3.0:
-            last_sensor_poll = now
-            sensor_context = (source_epoch, parser.state.game_number)
-            sensor_result = sensor_worker.submit(read_selected_deck, project_root, data_dir=data_dir)
-
         if current_source is not None:
             try:
                 chunk, reset = tail.read(current_source)
@@ -232,6 +217,22 @@ def run_tracker_stream(
                         last_sensor_poll = 0.0
             except (OSError, ValueError) as exc:
                 print(f"tracker source warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+
+        if sensor_result is not None and sensor_result.done():
+            try:
+                snapshot = sensor_result.result()
+                if snapshot is not None and sensor_context == (source_epoch, parser.state.game_number):
+                    last_sensor_snapshot = snapshot
+                    converted = _tracker_snapshot(snapshot, card_db)
+                    if converted is not None and tracker.seed_selected_deck(converted, parser.state):
+                        bind_match_deck(current_source, parser.state, snapshot, data_dir)
+            except Exception as exc:
+                print(f"selected deck warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
+            sensor_result = None
+        if sensor_result is None and now - last_sensor_poll >= 3.0:
+            last_sensor_poll = now
+            sensor_context = (source_epoch, parser.state.game_number)
+            sensor_result = sensor_worker.submit(read_selected_deck, project_root, data_dir=data_dir)
 
         # Share the one I/O worker with sensor polling; neither operation may
         # pause log ingestion. Publish a complete new database on this thread.

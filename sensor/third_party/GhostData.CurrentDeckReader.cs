@@ -28,6 +28,8 @@ namespace HackF5.UnitySpy.HearthstoneLib
                 ? (long?)value.GetValue<long>("value") : null;
         }
 
+        public bool GameContext { get; private set; }
+
         public IDeck Read()
         {
             var scene = SceneModeReader.ReadSceneMode(image);
@@ -38,6 +40,7 @@ namespace HackF5.UnitySpy.HearthstoneLib
             if (SceneModeReader.ReadSceneMode(image) != scene || ContextDeckId(scene) != id)
                 return null;
             if (deck == null || (id.Value > 0 && deck.DeckId != id.Value)) return null;
+            GameContext = scene == SceneModeEnum.GAMEPLAY;
             return deck;
         }
 

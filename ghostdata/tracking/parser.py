@@ -334,6 +334,7 @@ class PowerLogParser:
         if p == "CREATE_GAME":
             game_no = self.state.game_number + 1
             self.state.reset(game_no)
+            self.state.game_tags["GHOSTDATA_GAME_START"] = ts[:8]
             # CREATE_GAME is a hard parser lifecycle boundary. GameState.reset()
             # clears persisted game data, but parser-side stream contexts must be
             # cleared independently so a warm-replayed choice/option ID from the
@@ -383,7 +384,6 @@ class PowerLogParser:
                 self._created_entities.add(eid)
                 if self._effects:
                     self._effects[-1].candidates.append(eid)
-                    overdraw.created(self.state, eid, self._effects[-1])
             self._entity_context_id = eid
             if changed:
                 self._on_identity_change(e, ts)
@@ -498,7 +498,6 @@ class PowerLogParser:
                 self._created_entities.add(eid)
                 if self._task_effects:
                     self._task_effects[-1].candidates.append(eid)
-                    overdraw.created(self.state, eid, self._task_effects[-1])
             if changed:
                 self._on_identity_change(e, ts)
             self.state.raw_counts["task_entity"] = self.state.raw_counts.get("task_entity", 0) + 1
@@ -766,6 +765,8 @@ class PowerLogParser:
 
     def _resolve_creations(self, frame, ts):
         """Resolve only this completed effect's newly created playable cards."""
+        for eid in frame.candidates:
+            overdraw.created(self.state, eid, frame)
         if frame.card_id == "CAP_805" and frame.kind == "POWER":
             for eid in frame.candidates:
                 token = self.state.entities[eid]

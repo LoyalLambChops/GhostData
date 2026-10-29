@@ -129,3 +129,12 @@ The new source passes 211 Python tests and 49 UI/lifecycle checks. A read-only l
 This does not certify every related-card mechanic. See HAND_PREVIEWS.md for supported evidence and remaining rule coverage. Actual supported-Standard overlay acceptance and final release checks remain required.
 
 An isolated fresh-profile startup check then configured Power logging and imported 36,390 client definitions automatically in 9.5 seconds, without setup UI actions. Its configuration, cache and evidence stayed under an ignored test directory. A parent-termination check confirmed the hand reader exited with code 0. A separate warmed 10-second sample of the hand reader alone consumed 0.141 CPU seconds and had a 72.2 MiB working set on the development PC. This is not a whole-application or comparative performance benchmark; the extra reader has a real memory cost.
+
+
+## October 29 — 1.3.8 observation and capture patch
+
+Local source verification: 265 Python regressions and the UI/lifecycle harness pass (including an additional modular-text formatting assertion). An offline reconstruction of reported live logs confirms that a private construction body no longer appears on the opponent rail, Atlas history copies no longer become spurious overdraw rows, and Grueling Trial resolves its two local modular effect definitions. Player logs and screenshots remain private and are not packaged.
+
+The regression suite covers hidden chosen cards until public play, Atlas recovery/removal, separate modular instances and missing components, and a previously saved match recovering a verified game-bound identity after its log stops changing. Menu context, another game index, a different start clock and completed-game binding are rejected. Source review also moved asynchronous deck application after log ingestion to reject results crossing a newly consumed game boundary.
+
+Installer CI and publication status are recorded with the release artifacts; these checks do not substitute for broad live mechanic testing or a new clean-PC field run.

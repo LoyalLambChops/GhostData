@@ -38,6 +38,7 @@ card_art/
 card_renders/
 matches.json
 selected_deck.json
+match_decks.json
 history_epoch.json
 source_index.json
 image-settings.json

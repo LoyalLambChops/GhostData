@@ -1,3 +1,17 @@
+# Phantom · Beta 1 — build 1.3.8
+
+Observation-only and tracking reliability patch:
+
+- Exclude discarded private Assemble/choice artifacts from opponent rails, including choices without a Discover-option tag. Cards actually observed in gameplay remain tracked.
+- Correct Godfrey's recoverable-overdraw list: exclude history-display copies, show the original card names and discounted costs, preserve capture order, and remove entries when they return to hand. The list stays separate from ordinary deck/hand rows.
+- Resolve Grueling Trial's rail description from its own locally observed modular components. Do not reuse another instance's effects or fetch external definitions.
+- Capture verified deck identity during each active game. Persist it by log session, game number and start time so an unavailable end-of-game sensor read does not permanently lose the deck name. Recover saved blank identities when a matching binding arrives; never use a later deck selection to label an older game.
+- Log sensor status failures for future diagnosis. Existing historical records without a verified game binding are not guessed or automatically relabeled.
+
+Local Standard tracking, MIT licensing, local data storage and the existing hand-effect-only hover scope remain unchanged. The Windows installer includes the required runtimes. This beta is unsigned. Specialized mechanic coverage remains bounded; see HAND_PREVIEWS.md.
+
+Validation: synthetic regression tests plus local replay of the reported Assemble, Godfrey and Grueling Trial logs. This does not claim every card mechanic or every Windows configuration has been field-tested.
+
 # Phantom · Beta 1 — build 1.3.7 beta candidate
 
 - Correct game-hand hover: display only related effect cards for supported summon, replay and stored-card mechanics. Do not duplicate the hovered card's description.

@@ -9,6 +9,7 @@ from ..scope import is_standard_constructed
 from ..card_db import CardDatabase
 from ..models import EntityState, GameState, SemanticEvent
 from ..overdraw import rows as overdraw_rows
+from ..entity_text import card_text
 from .models import DeckTrackerState, HeroZoneEffectRow, OpponentObservedRow, PlayerDeckRow, PlayerExtraDeckRow, Provenance, RailCardRow, HandSlot
 from ..card_taxonomy import hero_zone_effect_kind, is_playable_card_entity, quest_progress, resolved_card_type
 
@@ -573,22 +574,20 @@ class DeckTrackerEngine:
 
     @staticmethod
     def _is_unselected_discover_option(entity: EntityState, mem: _TrackedEntity) -> bool:
-        """Identify revealed Discover choices that never became opponent cards.
+        """Discarded choice bodies are not observed cards, even without a tag.
 
-        Hearthstone reveals unchosen choices while moving them directly from
-        SETASIDE to GRAVEYARD. The WAS_DISCOVER_OPTION tag can arrive after the
-        reveal/zone events, so this predicate is also applied while rendering
-        rows to retract an early provisional observation deterministically.
-        A selected option reaches HAND (or another actionable zone) and remains
-        eligible if it is later publicly revealed or played.
+        Some construction choices lack WAS_DISCOVER_OPTION entirely. Reject the
+        SETASIDE-to-GRAVEYARD lifecycle before any later tags can arrive; retain
+        actual gameplay, summoned, drawn, discarded and publicly burned cards.
         """
-        tags = {str(key or "").upper(): str(value or "") for key, value in entity.tags.items()}
         return (
-            tags.get("WAS_DISCOVER_OPTION") == "1"
-            and str(mem.first_zone or "").upper() == "SETASIDE"
+            str(mem.first_zone or "").upper() == "SETASIDE"
             and str(entity.zone or mem.zone or "").upper() == "GRAVEYARD"
             and not mem.ever_hand
             and not mem.ever_left_deck
+            and not mem.played
+            and not mem.burned
+            and entity.entered_play_sequence is None
         )
 
     def _player_extra_deck_rows(
@@ -676,6 +675,7 @@ class DeckTrackerEngine:
                 progress=progress,
                 progress_total=total,
                 candidate_count=0,
+                text="" if protect_hidden_opponent_secret else card_text(entity, self.card_db),
                 provenance=provenance,
             )
 
@@ -900,7 +900,7 @@ class DeckTrackerEngine:
             slots.append(HandSlot(entity.entity_id, entity.zone_position or index,
                 mem.hand_turn if mem else 0, entity.card_id if known else "",
                 assembled[0] if assembled else (card.name if card else entity.card_id) if known else entity.tags.get("GHOSTDATA_PUBLIC_LABEL", "Unknown card"),
-                origin, text=assembled[2] if assembled else card.text if card else "", related_cards=related, related_label=label,
+                origin, text=assembled[2] if assembled else card_text(entity, self.card_db) if known else "", related_cards=related, related_label=label,
                 related_kind=related_preview_kind(entity, related) if known else ""))
         return slots
 

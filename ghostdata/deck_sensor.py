@@ -9,7 +9,7 @@ import subprocess
 from typing import Any
 
 from .models import DeckSnapshot
-from .paths import data_paths
+from .paths import data_paths, append_log
 from .powerlog import class_from_card_id
 
 
@@ -77,6 +77,7 @@ def _snapshot_from_payload(payload: dict[str, Any]) -> DeckSnapshot | None:
         archetype_name="",
         hearthstone_build=str(payload.get("hearthstone_build") or ""),
         sensor_status=str(payload.get("status") or "").upper(),
+        game_context=payload.get("game_context") is True,
         hero_card_ids=hero_ids,
         cards=cards,
         sideboards=sideboards,
@@ -92,14 +93,16 @@ def read_selected_deck(project_root: Path, *, data_dir: Path | None = None, time
     try:
         proc = subprocess.run(args, capture_output=True, text=True, timeout=timeout, check=False)
         if proc.returncode != 0:
+            append_log(f"deck sensor: exit={proc.returncode}", data_dir=data_dir)
             return None
         payload = json.loads(proc.stdout.strip() or "{}")
         snapshot = _snapshot_from_payload(payload)
         if snapshot:
             save_cached_deck(snapshot, data_dir=data_dir)
             return snapshot
-    except (OSError, subprocess.SubprocessError, json.JSONDecodeError):
-        pass
+        append_log("deck sensor: status=" + str(payload.get("status", "MISSING")), data_dir=data_dir)
+    except (OSError, subprocess.SubprocessError, json.JSONDecodeError) as exc:
+        append_log("deck sensor: " + type(exc).__name__, data_dir=data_dir)
     return None
 
 
