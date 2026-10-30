@@ -138,3 +138,12 @@ Local source verification: 265 Python regressions and the UI/lifecycle harness p
 The regression suite covers hidden chosen cards until public play, Atlas recovery/removal, separate modular instances and missing components, and a previously saved match recovering a verified game-bound identity after its log stops changing. Menu context, another game index, a different start clock and completed-game binding are rejected. Source review also moved asynchronous deck application after log ingestion to reject results crossing a newly consumed game boundary.
 
 Installer CI and publication status are recorded with the release artifacts; these checks do not substitute for broad live mechanic testing or a new clean-PC field run.
+
+## 2026-10-30 — Effect counters, build 1.3.9
+
+- Source 5d94caf0a43558b92e122d567572622883684d64; Windows package run 41073491967 succeeded.
+- 270 Python regressions passed, plus the Avalonia harness including counter DTO and vertical layout boundaries. Actual Avalonia counter frames were rendered and inspected with sample values.
+- Replayed local game evidence confirmed controller-scoped Herald and friendly-death tags. No private logs were published.
+- The published portable asset staged through the bundled 1.3.8 updater. An isolated apply using the same absolute plan path as the app succeeded, acknowledged startup and preserved the data sentinel. A relative-path test invocation initially exercised rollback; production creates an absolute plan path.
+- Anonymous public installer checksum matched the tested artifact. The local installed 1.3.9 manifest was verified and the existing match-history hash remained unchanged.
+- Live field testing of Aessina/Herald panel behavior remains to be performed. This is bounded support for Aessina, Starsurge and Herald, not all card-effect counters.
