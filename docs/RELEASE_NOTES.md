@@ -1,3 +1,13 @@
+# Phantom · Beta 1 — build 1.3.9
+
+- Add a separate Avalonia effect-counter panel beneath the player rail: Aessina progress and remaining friendly deaths, Starsurge death count, and the authoritative Herald amount.
+- Reserve space within the existing overlay bounds to protect the game hand and player banner. Hide irrelevant counters and reset with each match.
+- Show unknown rather than inventing a total when attaching to incomplete game data.
+- Make the Update result identify the installed version when no files need replacing.
+- Correct stale current installation/manual versions and publication instructions; check guide versions during release validation.
+
+This update does not claim universal mechanic-counter coverage. Game data, match history and definitions remain local. Historical release notes follow.
+
 # Phantom · Beta 1 — build 1.3.8
 
 Observation-only and tracking reliability patch:

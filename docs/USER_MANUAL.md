@@ -1,12 +1,12 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.3) - Updated October 26, 2026
+Phantom · Beta 1 (build 1.3.9) - Updated October 30, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
 use Avalonia. No GhostData account is required. Match history stays on your
 computer. Rails are text-only, and card metadata is imported from your installed Blizzard client and cached locally.
-This candidate includes the Windows installer, bundled .NET 10 runtime, local-data importer, portable package and release-update button. Public downloads are not yet published.
+This beta includes the Windows installer, bundled .NET 10 runtime, local-data importer, portable package and release-update button. Download the installer from [GitHub Releases](https://github.com/LoyalLambChops/GhostData/releases).
 The validation ledger records remaining live acceptance work.
 
 This manual describes the current implementation. The [validation ledger](parity_validation.md)
@@ -33,11 +33,11 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.2-x64.exe` from the candidate package. After public release, obtain Setup from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.9-x64.exe` from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
-5. Start Hearthstone and reach its main menu so local card definitions can be imported. Enable Power.log logging before field testing, as described below.
+5. Start Hearthstone and reach its main menu so local card definitions can be imported. GhostData configures Power.log logging automatically; restart Hearthstone if prompted for the change to take effect.
 
 Setup bundles Python and .NET 10. No SDK, separate runtime download, build command or launch script is needed. The initial beta is unsigned by choice. Windows may warn or block it under your security policy; signing is not a release requirement.
 
@@ -45,7 +45,7 @@ Use Windows **Settings > Apps > Installed apps > GhostData > Uninstall** to remo
 
 ### Portable installation
 
-1. Obtain the GhostData Windows x64 ZIP candidate. After public release, use this project's GitHub Releases.
+1. Obtain the GhostData Windows x64 ZIP from this project's GitHub Releases.
 2. Extract the whole ZIP into a writable folder, such as `Documents\GhostData`.
 3. Open `GhostData.App.exe`. Python and the .NET runtime are included; no separate runtime setup is needed.
 4. Start Hearthstone and reach its main menu. GhostData reads its public card tables locally, normally in several seconds, and retries if the game is not ready.
@@ -337,7 +337,7 @@ Default data folder: `%USERPROFILE%\GhostDataData`.
 | `ghostdata.log` | Recorder diagnostics and local file paths. |
 | `recorder.lock` | Temporary recorder coordination file. |
 | `local_cards` | Validated snapshots imported from installed Blizzard public definitions. |
-| `card_art`, `card_renders` | Obsolete artwork caches; not read or created by this candidate. |
+| `card_art`, `card_renders` | Obsolete artwork caches; not read or created by this beta. |
 | `image-settings.json` | Obsolete artwork preference; ignored. |
 
 For a backup, close GhostData and copy the data folder to a safe location.
@@ -373,7 +373,7 @@ Do not run two copies against different assumptions about which folder is active
 | Rails absent | Enable DECK RAILS, foreground Hearthstone, restore it from minimization and enter an active supported match. Check that the tracker backend started and logs are available. Closing/reopening GhostData restarts the backend. |
 | Wrong/unavailable selected deck | Select the intended deck in Hearthstone and allow a sensor poll. Start GhostData before the next match. A game patch may require a sensor update. The disk cache is never used as proof of the current deck. Until a live read succeeds, only observed cards are shown and exact-deck accounting stays unavailable. |
 | PARTIAL counts or missing odds | Preserve the log and note the card interaction, turn and game build. Missing baseline or unsupported interactions can prevent reconciliation. Restart at a clean match boundary; do not interpret missing odds as zero. |
-| No full-card image | This candidate intentionally uses text previews. Local full-card artwork extraction is not implemented. |
+| No full-card image | This beta intentionally uses text previews. Local full-card artwork extraction is not implemented. |
 | Empty deck types | The current sensor does not classify archetypes. Unclassified is the expected fallback. |
 | Missing older games after clear | The new epoch intentionally excludes them. Restore your backup if you need the previous history. |
 | Wrong placement after monitor change | Return Hearthstone to its prior monitor and reopen GhostData if necessary. Record monitor resolutions/scales for a reproducible report; live mixed-DPI acceptance remains open. |
@@ -430,7 +430,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Community, feedback and license
 
-The dashboard footer identifies **Phantom · Beta 1**, build **1.3.2**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.9**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
 
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 
@@ -440,3 +440,9 @@ UPDATE is explicit: this beta can offer a newer published beta or stable GhostDa
 ### Deck identity recovery
 
 GhostData retains a verified deck snapshot for each active game in local `match_decks.json`. This lets match history recover a missing deck name after a temporary sensor interruption. A match without such evidence stays unidentified; selecting a different deck later does not relabel it. Recoverable overdraw is a separate list, ordered by capture, and is not counted as cards in hand.
+
+## Effect counters below your rail
+
+A separate frame appears below your player rail when relevant: **Aessina** shows friendly deaths out of 20, how many remain, and Ready at the threshold. **Starsurge** shows friendly deaths when Aessina is absent. **Herald** shows the game's recorded Herald amount. These are local-player counters; they do not expose opponent hand choices. A partial log can show Waiting for game data until a reliable count arrives. Counters reset with each match and hide with the rails. The panel reserves space within the rail area instead of extending over your hand.
+
+UPDATE reports the installed version when no newer compatible release exists. A downloaded release installs when GhostData closes; the version in the footer changes on the next launch. Current manuals ship with each build; older sections of release notes are intentionally historical.

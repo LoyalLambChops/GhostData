@@ -56,7 +56,11 @@ public sealed partial class DashboardWindow : Window
             var player=new PlayerDeckWindow(); player.ViewModel.Apply(state); player.Position=new Avalonia.PixelPoint(1650,100);
             var opponent=new OpponentDeckWindow(); opponent.ViewModel.Apply(state); opponent.Position=new Avalonia.PixelPoint(30,100);
             var secrets=new SecretTrackerWindow(); secrets.ViewModel.Apply(state); secrets.Position=new Avalonia.PixelPoint(255,100);
-            foreach(var window in new Window[]{player,opponent,secrets}) { _previewWindows.Add(window); window.Show(); }
+            var counters=new EffectCounterWindow(); counters.Apply(state); counters.Width=220;
+            var split=HearthstoneOverlayLayoutCalculator.SplitPlayerHeight(player.Height,state.PlayerCounters.Count);
+            player.Height=split.PlayerHeight; counters.Height=Math.Max(1,split.CounterHeight);
+            counters.Position=new Avalonia.PixelPoint(1650,100+(int)player.Height+6);
+            foreach(var window in (state.PlayerCounters.Count>0 ? new Window[]{player,opponent,secrets,counters} : new Window[]{player,opponent,secrets})) { _previewWindows.Add(window); window.Show(); }
             Title=$"GhostData — {ProductInfo.ReleaseName} — Preview (sample data)";
             await Task.Delay(500);
             foreach(var pair in _previewWindows.Select((window,index)=>(window,index))) SavePreview(pair.window, $"rail-{pair.index}.png");

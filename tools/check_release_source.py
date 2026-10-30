@@ -21,3 +21,8 @@ for name in filter(None,tracked):
     assert path.suffix.casefold() not in {'.log','.bak','.zip','.pfx','.pem','.key'}, 'Unexpected sensitive/archive file: '+name
 assert (root/'LICENSE').read_text().startswith('MIT License')
 print('Release versions, MIT license and tracked-path hygiene checks passed. History/content review remains separate.')
+
+for name in ('docs/USER_MANUAL.md', 'docs/TECHNICAL_MANUAL.md', 'START_HERE_GHOSTDATA.md'):
+    text = (root/name).read_text(encoding='utf-8')
+    assert version in '\n'.join(text.splitlines()[:4]), name + ' current version is stale'
+    assert 'Public downloads are not yet published' not in text, name + ' has stale publication status'

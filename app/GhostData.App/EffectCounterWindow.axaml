@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Class="GhostData.App.EffectCounterWindow" Width="220" Title="GhostData · EFFECT COUNTERS" Topmost="True" CanResize="False" WindowDecorations="None" Background="{DynamicResource GcSurface}" ShowInTaskbar="False" ShowActivated="False" Focusable="False" WindowStartupLocation="Manual">
+  <Border CornerRadius="10" BorderBrush="{DynamicResource GcBorder}" BorderThickness="1" Padding="8">
+    <Grid RowDefinitions="Auto,*" RowSpacing="5">
+      <TextBlock Text="EFFECT COUNTERS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource GcHalo}"/>
+      <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ItemsControl x:Name="Counters">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Border Background="#102F3A" CornerRadius="5" Padding="7" Margin="0,0,0,4">
+                <StackPanel>
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="{Binding Name}" FontSize="13" FontWeight="SemiBold" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                    <TextBlock Grid.Column="1" Text="{Binding Value}" FontSize="19" FontWeight="Bold" Foreground="{DynamicResource GcHalo}" Margin="5,0,0,0"/>
+                  </Grid>
+                  <TextBlock Text="{Binding Detail}" FontSize="11" TextWrapping="Wrap" Foreground="{DynamicResource GcSage}"/>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</Window>

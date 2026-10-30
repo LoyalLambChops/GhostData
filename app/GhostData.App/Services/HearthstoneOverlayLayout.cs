@@ -17,6 +17,12 @@ public readonly record struct HearthstoneOverlayLayout(
 /// </summary>
 public static class HearthstoneOverlayLayoutCalculator
 {
+    public static (double PlayerHeight, double CounterHeight) SplitPlayerHeight(double availableHeight, int counterCount)
+    {
+        var counterHeight = counterCount <= 0 ? 0 : Math.Min(32 + counterCount * 72, availableHeight * 0.35);
+        return (availableHeight - (counterHeight > 0 ? counterHeight + 6 : 0), counterHeight);
+    }
+
     public const double RailWidthRatio = 0.09;
     public const double RailMinWidthDip = 180;
     public const double RailMaxWidthDip = 220;

@@ -11,6 +11,17 @@ static void Check(bool value, string message)
 Check(CardTextFormatter.Format("In 1 turn, Steal 2 cards from your opponent's hand. Restore #12 Health to your hero.")
     == "In 1 turn, Steal 2 cards from your opponent's hand. Restore 12 Health to your hero.", "Resolved modular objective text has no game formatting markers");
 
+foreach (var height in new[] { 280.0, 460.0, 780.0 })
+foreach (var count in new[] { 0, 1, 2, 8 })
+{
+    var split = HearthstoneOverlayLayoutCalculator.SplitPlayerHeight(height, count);
+    Check(split.PlayerHeight > 0 && split.CounterHeight >= 0, "Counter layout keeps player rail usable");
+    Check(Math.Abs(split.PlayerHeight + split.CounterHeight + (count > 0 ? 6 : 0) - height) < 0.01,
+        "Counters stay inside existing safe overlay bounds");
+}
+var counterState = System.Text.Json.JsonSerializer.Deserialize<TrackerStateDto>("""{"player_counters":[{"key":"aessina","name":"Aessina","value":"19 / 20","detail":"1 friendly death remaining"}]}""")!;
+Check(counterState.PlayerCounters.Single().Value == "19 / 20", "Counter protocol deserializes");
+
 var snapshot = new DashboardSnapshotDto
 {
     RecentMatches = new()

@@ -126,7 +126,7 @@ def stage_release(root: Path):
         if release is None:
             return {"status":"UNAVAILABLE", "message":"No compatible public GhostData release is available."}
         tag = release.get("tag_name", "")
-        if version(tag) <= version(__version__): return {"status":"CURRENT", "message":"GhostData is up to date."}
+        if version(tag) <= version(__version__): return {"status":"CURRENT", "message":f"GhostData {__version__} is installed and up to date. No files needed replacing."}
         marker = root / "ghostdata-release.json"
         if not marker.is_file() or (root / ".git").exists():
             return {"status":"SOURCE_CHECKOUT", "message":f"GhostData {tag} is available. Install its portable package to enable in-app installation."}

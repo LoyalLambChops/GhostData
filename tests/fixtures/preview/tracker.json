@@ -345,5 +345,19 @@
       "state": "MAY BE IN HAND",
       "text": "Deal 6 damage."
     }
+  ],
+  "player_counters": [
+    {
+      "key": "aessina",
+      "name": "Aessina",
+      "value": "19 / 20",
+      "detail": "1 friendly death remaining"
+    },
+    {
+      "key": "herald",
+      "name": "Herald",
+      "value": "4",
+      "detail": "Herald effects triggered"
+    }
   ]
 }

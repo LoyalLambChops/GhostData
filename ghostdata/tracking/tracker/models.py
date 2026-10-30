@@ -133,6 +133,7 @@ class DeckTrackerState:
     opponent_overdraw_rows: Tuple[RailCardRow, ...] = field(default_factory=tuple)
     player_hand: Tuple[HandSlot, ...] = field(default_factory=tuple)
     opponent_hand: Tuple[HandSlot, ...] = field(default_factory=tuple)
+    player_counters: tuple = ()
     player_fatigue: int = 0
     opponent_fatigue: int = 0
     player_portal: bool = False

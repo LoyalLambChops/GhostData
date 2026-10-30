@@ -12,6 +12,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
     private readonly PlayerDeckWindow _playerRail = new();
     private readonly OpponentDeckWindow _opponentRail = new();
     private readonly SecretTrackerWindow _secretRail = new();
+    private readonly EffectCounterWindow _counterRail = new();
     private readonly IGameWindowLocator _gameWindowLocator = new HearthstoneWindowLocator();
     private readonly DispatcherTimer _placementTimer;
     private readonly object _pendingGate = new();
@@ -64,6 +65,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         }
         if (state is null) return;
         _latest = state;
+        _counterRail.Apply(state);
         RailHoverPreview.ApplyHandState(state);
         _secretRail.ViewModel.Apply(state);
         _playerRail.ViewModel.Apply(state);
@@ -99,6 +101,14 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         _playerRail.Height = _opponentRail.Height = layout.RailHeightDip;
         _opponentRail.Position = layout.OpponentRailPosition;
         _playerRail.Position = layout.PlayerRailPosition;
+        var (playerHeight, counterHeight) = HearthstoneOverlayLayoutCalculator.SplitPlayerHeight(layout.RailHeightDip, _latest!.PlayerCounters.Count);
+        _playerRail.Height = playerHeight;
+        _counterRail.Width = layout.RailWidthDip;
+        _counterRail.Height = Math.Max(1, counterHeight);
+        _counterRail.Position = new PixelPoint(layout.PlayerRailPosition.X,
+            layout.PlayerRailPosition.Y + (int)Math.Round((_playerRail.Height + 6) * screen.Scaling));
+        if (counterHeight > 0) { if (!_counterRail.IsVisible) _counterRail.Show(); }
+        else if (_counterRail.IsVisible) _counterRail.Hide();
         _playerRail.Topmost = _opponentRail.Topmost = true;
         var secretWidth = layout.RailWidthDip;
         _secretRail.Width = secretWidth;
@@ -123,6 +133,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
 
     private void Hide()
     {
+        if (_counterRail.IsVisible) _counterRail.Hide();
         if (_secretRail.IsVisible) _secretRail.Hide();
         if (_playerRail.IsVisible) _playerRail.Hide();
         if (_opponentRail.IsVisible) _opponentRail.Hide();
@@ -133,6 +144,7 @@ public sealed class DeckRailCoordinator : IAsyncDisposable
         _placementTimer.Stop();
         _handSensor?.Dispose();
         Hide();
+        try { _counterRail.Close(); } catch { }
         try { _secretRail.Close(); } catch { }
         try { _playerRail.Close(); } catch { }
         try { _opponentRail.Close(); } catch { }

@@ -10,6 +10,7 @@ from ..card_db import CardDatabase
 from ..models import EntityState, GameState, SemanticEvent
 from ..overdraw import rows as overdraw_rows
 from ..entity_text import card_text
+from ..effect_counters import counters
 from .models import DeckTrackerState, HeroZoneEffectRow, OpponentObservedRow, PlayerDeckRow, PlayerExtraDeckRow, Provenance, RailCardRow, HandSlot
 from ..card_taxonomy import hero_zone_effect_kind, is_playable_card_entity, quest_progress, resolved_card_type
 
@@ -1116,6 +1117,7 @@ class DeckTrackerEngine:
             player_display_rows=player_display,
             opponent_display_rows=self._with_card_text(self._display_rows(game, opponent_pid)),
             player_sideboard_rows=self._with_card_text(self._sideboard_rows(game)),
+            player_counters=counters(game, local_pid, (meta[0] for meta in self._baseline_meta.values())),
             player_overdraw_rows=overdraw_rows(game, local_pid, self.card_db),
             opponent_overdraw_rows=overdraw_rows(game, opponent_pid, self.card_db),
             player_hand=self._with_card_text(self._hand_slots(game, local_pid, known_deck)),

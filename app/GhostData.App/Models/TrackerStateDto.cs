@@ -4,6 +4,7 @@ namespace GhostData.App.Models;
 
 public sealed class TrackerStateDto
 {
+    [JsonPropertyName("player_counters")] public List<EffectCounterDto> PlayerCounters { get; set; } = new();
     [JsonPropertyName("player_hand")] public List<HandSlotDto> PlayerHand { get; set; } = new();
     [JsonPropertyName("schema_version")]
     public int SchemaVersion { get; set; }
@@ -284,4 +285,12 @@ public sealed class RelatedCardDto
     [JsonPropertyName("name")] public string Name { get; set; } = "";
     [JsonPropertyName("text")] public string Text { get; set; } = "";
     [JsonPropertyName("count")] public int Count { get; set; } = 1;
+}
+
+public sealed class EffectCounterDto
+{
+    [JsonPropertyName("key")] public string Key { get; set; } = "";
+    [JsonPropertyName("name")] public string Name { get; set; } = "";
+    [JsonPropertyName("value")] public string Value { get; set; } = "";
+    [JsonPropertyName("detail")] public string Detail { get; set; } = "";
 }

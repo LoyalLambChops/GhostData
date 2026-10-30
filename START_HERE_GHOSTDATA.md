@@ -1,4 +1,4 @@
-# START HERE — GhostData 1.2.1
+# START HERE — GhostData 1.3.9
 
 GhostData is one local-first Windows application combining a factual Hearthstone
 match-history dashboard with deterministic in-match deck-tracker rails.
@@ -6,9 +6,11 @@ match-history dashboard with deterministic in-match deck-tracker rails.
 Full documentation: [user manual](docs/USER_MANUAL.md) and
 [technical manual](docs/TECHNICAL_MANUAL.md).
 
-The portable package includes its runtimes. Extract it and open
+For the simplest setup, download the Windows installer from [GitHub Releases](https://github.com/LoyalLambChops/GhostData/releases), run it and use the installed shortcut. No developer tools are required.
+
+The optional portable package includes its runtimes. Extract it and open
 `GhostData.App.exe`; start Hearthstone at its main menu for local card import.
-**UPDATE** refreshes installed game data and checks stable GhostData releases.
+**UPDATE** refreshes installed game data and checks compatible GhostData beta releases.
 See the [validation ledger](docs/parity_validation.md) for remaining acceptance.
 
 ## Product surfaces
