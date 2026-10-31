@@ -723,7 +723,7 @@ class DeckTrackerEngine:
         stats = " / ".join(str(entity.tags.get(tag, "?")) for tag in ("ATK", "HEALTH"))
         cost_tag = str(entity.tags.get("COST", ""))
         cost = int(cost_tag) if cost_tag.lstrip("-").isdigit() else (body.cost if body else None)
-        text = f"Assembled minion · {stats} attack / health · Cost {cost if cost is not None else '?'}\n"
+        text = f"Assembled minion Â· {stats} attack / health Â· Cost {cost if cost is not None else '?'}\n"
         text += f"Rules: {rules.name}\n{rules.text}" if rules else "Rules unavailable in local data."
         return name, cost, text
 
@@ -743,7 +743,7 @@ class DeckTrackerEngine:
             if discarded: detail.append(f"DISCARDED {discarded}")
             if burned: detail.append(f"BURNED {burned}")
             result.append(RailCardRow(row.card_id, row.name, row.cost, row.remaining_copies, "DECK",
-                Provenance.ORIGINAL_DECK, held, " · ".join(detail), row.remaining_copies == 0,
+                Provenance.ORIGINAL_DECK, held, " Â· ".join(detail), row.remaining_copies == 0,
                 round(100 * row.remaining_copies / deck_count, 1) if deck_count and row.remaining_copies <= deck_count else None))
         groups = Counter()
         for mem in self._entities.values():
@@ -855,7 +855,7 @@ class DeckTrackerEngine:
                     marks = [mark for mark, entries in (("TOP", ordered), ("BOTTOM", bottom))
                              if any(m.card_id == row.card_id for m in entries)]
                     if marks:
-                        result[index] = replace(row, state=" · ".join(filter(None, [row.state, *marks])))
+                        result[index] = replace(row, state=" Â· ".join(filter(None, [row.state, *marks])))
         if local and (portal or sum(r.count for r in result if r.zone == "DECK") != deck_count):
             result = [replace(r, draw_chance=None) for r in result]
         return sorted(result, key=lambda r: (r.cost if r.cost is not None else 99, r.name.casefold(), r.provenance, r.zone))
@@ -1132,7 +1132,7 @@ class DeckTrackerEngine:
             player_fatigue=self._fatigue(game, local_pid),
             opponent_fatigue=self._fatigue(game, opponent_pid),
             player_portal=portal,
-            opponent_portal=self._has_portal(game, opponent_pid),
+            opponent_portal=False if startup_pending else self._has_portal(game, opponent_pid),
             unknown_provenance_events=unknown_events,
             warnings=tuple(dict.fromkeys(warnings)),
         )

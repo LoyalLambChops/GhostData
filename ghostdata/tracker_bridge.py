@@ -85,6 +85,8 @@ def _tracker_snapshot(snapshot, card_db: CardDatabase) -> TrackerDeckSnapshot | 
 
 
 def _secret_reads(game, card_db=None) -> list[dict]:
+    if game.opponent_startup_pending:
+        return []
     opponent_pid = game.opponent_pid
     if opponent_pid is None:
         return []

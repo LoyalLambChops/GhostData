@@ -132,6 +132,11 @@ class MulliganVisibilityTests(unittest.TestCase):
         self.assertFalse(state.opponent_overdraw_rows)
         self.assertTrue(state.opponent_hand)
         self.assertTrue(all(not slot.card_id and not slot.text and not slot.related_cards for slot in state.opponent_hand))
+        from ghostdata.tracker_bridge import _secret_reads
+        f.state.secrets[999] = object()  # Must not inspect private startup slots.
+        self.assertEqual(_secret_reads(f.state), [])
+        self.assertFalse(state.opponent_portal)
+        f.state.secrets.clear()
         # No queued observation is flushed by animated DONE alone.
         for pid in (1,2): f.state.game_tags[f"GHOSTDATA_TASK_MULLIGAN_{pid}"]="DONE"
         f.tracker.observe(f.state)
