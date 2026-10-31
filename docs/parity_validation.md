@@ -155,3 +155,11 @@ The reported Azalina setup SHOW_ENTITY occurred at 14:12:27 before mulligan INPU
 271 Python tests passed. Line-by-line replay of the reported private log confirmed no opponent Azalina row before the second SHOW_ENTITY and normal visibility afterward. No private logs or screenshots are included in source. This source fix is not included in the already published 1.3.9 package.
 
 Release validation: Windows package run 41235971259 succeeded for source 2abcfb73e95809fa6b4d2966096da21d95abb0fd. Published v1.3.10 asset digests and the anonymous installer download were verified. The bundled 1.3.9 updater staged and applied the public 1.3.10 package in an isolated installation, acknowledged startup and preserved the data sentinel. The local 1.3.10 installation manifest was verified and the match-history hash remained unchanged.
+
+## 2026-10-31 — Animated startup visibility, build 1.3.11
+
+The 1.3.10 guard was insufficient: the Hogger match's canonical DONE and SHOW arrived at 17:11:02, while the task-side SHOW arrived at 17:11:07.8260793. Startup deck identities now wait for that task-side reveal, and task mulligan progress is recorded before canonical deduplication. A shared startup boundary rejects opponent identity observations and suppresses opponent card/effect/overdraw/hand-detail output plus Secret reads and the portal indicator until animated mulligan completion. No completion event alone flushes a hidden identity.
+
+273 Python regressions passed, including generic card IDs, both canonical DONE flags preceding task progress, unknown local player, duplicate streams, all opponent identity-bearing outputs and reset. Real-log replays showed first Hogger visibility at 17:11:07.8260793 and first Azalina visibility at 14:13:21.6602672, both task-side SHOW_ENTITY records. Private evidence remains local.
+
+Windows package run 41243503082 succeeded for source aec19b73a2aa683f56040761ce4a56c066be8e77. Published asset digests and the anonymous installer checksum were verified. The bundled 1.3.10 updater staged and applied public 1.3.11 in isolation, acknowledged startup and preserved a data sentinel. The local installed manifest was verified and the match-history hash remained unchanged. Live field validation remains ongoing; these checks do not prove every mechanic or every log variant.
