@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.10) - Updated October 31, 2026
+Phantom · Beta 1 (build 1.3.11) - Updated October 31, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -537,7 +537,7 @@ Installer integration tests use a separate application identity, shortcut names,
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.10-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.11-x64.exe
 ```
 
 The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
@@ -613,7 +613,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Phantom beta release identity and support
 
-Public display name: Phantom - Beta 1. Numeric version: 1.3.10, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
+Public display name: Phantom - Beta 1. Numeric version: 1.3.11, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
 
 The explicit updater requests the repository's latest 100 releases, rejects drafts and non-numeric tags, and selects the highest numeric eligible version. Beta installations accept GitHub prereleases and stable builds; stable installations exclude prereleases. Tags stay vMAJOR.MINOR.PATCH, including betas; use the GitHub prerelease flag and release title for the beta identity. Existing URL, digest, inventory and startup rollback verification remains in force. Older stable installations retain their existing stable-only behavior.
 
@@ -662,3 +662,7 @@ The sensor marks a deck read as game_context only after a stable GAMEPLAY scene/
 `tracking/effect_counters.py` publishes local-player `player_counters` rows. Aessina uses NUM_FRIENDLY_MINIONS_THAT_DIED_THIS_GAME with a threshold of 20; Starsurge shares that death count. Herald uses HERALD_COLOSSAL_AMOUNT as an absolute value, never the number of matching cards played. Relevant selected-deck cards or friendly entities enable the rows. Private choice entities do not enable them. Missing counts on partial logs are unknown; complete-start logs allow zero Herald and observed-death fallback. State is derived afresh, so reset and rewind do not accumulate stale values.
 
 EffectCounterWindow is an independent nonactivating, click-through Avalonia tool window beneath the player rail. It reserves at most 35% of the existing vertical overlay budget; the combined rail and counter panel preserve the hand/name safe area. Hidden, inactive and completed games follow the existing rail lifecycle. Additional mechanic counters require reviewed IDs, evidence and regression tests.
+
+## Startup presentation boundary (1.3.11)
+
+Canonical game-state mulligan completion can precede visible animations by seconds. Task-side MULLIGAN_STATE tags are retained independently before duplicate-tag filtering. Startup opponent deck identities require a subsequent task-side reveal. The tracker also rejects opponent identity observations and suppresses opponent identity-bearing output during the animated mulligan. No queued identity is promoted merely because DONE arrives. This corrects the gap in 1.3.10, which used canonical completion. Task progress lives in GameState and resets/rewinds with it.

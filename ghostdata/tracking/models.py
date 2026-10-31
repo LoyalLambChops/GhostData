@@ -289,6 +289,12 @@ class GameState:
         next_number = game_number if game_number is not None else self.game_number + 1
         self.__dict__.update(GameState(game_number=next_number, active=True).__dict__)
 
+    @property
+    def opponent_startup_pending(self) -> bool:
+        return bool(self.game_tags.get("GHOSTDATA_GAME_START")) and not (
+            self.game_tags.get("GHOSTDATA_TASK_STARTED") == "1" or all(
+                self.game_tags.get(f"GHOSTDATA_TASK_MULLIGAN_{pid}") == "DONE" for pid in (1, 2)))
+
     def entity(self, entity_id: int) -> EntityState:
         if entity_id not in self.entities:
             self.entities[entity_id] = EntityState(entity_id=entity_id)

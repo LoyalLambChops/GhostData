@@ -1,3 +1,12 @@
+# Phantom · Beta 1 — build 1.3.11
+
+- Correct the remaining early opponent reveal during mulligan, including Chainbreaker Hogger. Canonical game-state logs can run ahead of visible animations; startup deck reveals now wait for task-side reveal evidence.
+- Retain animation-side mulligan progress independently of duplicate canonical tags.
+- Guard all opponent identity-bearing rail output while animated mulligan is pending, including card rows, effect rows, overdraw and hand details. Completing mulligan does not flush queued hidden identities.
+- Preserve normal post-mulligan reveals and reset the presentation boundary with each game.
+
+Validation: 273 Python regressions and line-by-line replay of both reported Hogger and Azalina matches. This is an observation-boundary correction, not a claim that every game mechanic has been field-tested. This beta is unsigned; data stays local.
+
 # Phantom · Beta 1 — build 1.3.10
 
 - Fix premature opponent deck identities during setup and mulligan, including Azalina Soulsever. Internal setup reveals no longer appear on the opponent rail before both players finish choosing.

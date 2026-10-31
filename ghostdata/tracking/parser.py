@@ -615,7 +615,8 @@ class PowerLogParser:
             )
 
     def _on_identity_change(self, e: EntityState, ts: str) -> None:
-        if self._private_setup_identity(e):
+        if self._private_setup_identity(e) or (self.state.opponent_startup_pending and (
+                self.state.local_player_pid is None or e.controller != self.state.local_player_pid)):
             return
         if e.card_id == "TLC_841t" and e.transformed_from:
             previous = e.transformed_from[-1]
@@ -687,9 +688,14 @@ class PowerLogParser:
             return False
         if self.state.local_player_pid is not None and entity.controller == self.state.local_player_pid:
             return False
-        players = self.state.players
-        return self.state.global_turn <= 1 and not (
-            len(players) == 2 and all(p.tags.get("MULLIGAN_STATE") == "DONE" for p in players.values()))
+        if self.state.global_turn > 1:
+            return False
+        # Canonical SHOW can arrive seconds ahead of the visible animation,
+        # even after both canonical DONE flags. Only task-side identity evidence
+        # may publish a startup deck reveal; never promote it on a timer.
+        return self._parsing_source != "task" or not all(
+            self.state.game_tags.get(f"GHOSTDATA_TASK_MULLIGAN_{pid}") == "DONE"
+            for pid in (1, 2))
 
     def _hide_identity(self, entity):
         if self._private_setup_identity(entity):
@@ -1190,6 +1196,12 @@ class PowerLogParser:
         if pid is None:
             return
 
+        # Preserve presentation progress even when the canonical state already
+        # supplied this tag. Dedupe must not erase the animation boundary.
+        if source == "task" and tag == "MULLIGAN_STATE":
+            self.state.game_tags[f"GHOSTDATA_TASK_MULLIGAN_{pid}"] = value
+        if source == "task" and tag == "CURRENT_PLAYER" and value == "1" and self.state.global_turn > 1:
+            self.state.game_tags["GHOSTDATA_TASK_STARTED"] = "1"
         token = ("P", pid, tag, value)
         if source == "task" and self._consume_canonical_token(token):
             return

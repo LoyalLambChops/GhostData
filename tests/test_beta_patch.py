@@ -107,4 +107,46 @@ class MulliganVisibilityTests(unittest.TestCase):
         f.tracker.observe(f.state)
         self.assertFalse(f.tracker.state.opponent_display_rows)
         line("SHOW_ENTITY - Updating Entity=900 CardID=OPP_A")
+        self.assertFalse(f.tracker.state.opponent_display_rows)
+        f.state.game_tags["GHOSTDATA_TASK_MULLIGAN_1"]="DONE"
+        f.state.game_tags["GHOSTDATA_TASK_MULLIGAN_2"]="DONE"
+        f.tracker.observe(f.state)
+        self.assertFalse(f.tracker.state.opponent_display_rows)
+        line("SHOW_ENTITY - Updating Entity=900 CardID=OPP_A", task=True)
         self.assertEqual([row.card_id for row in f.tracker.state.opponent_display_rows],["OPP_A"])
+
+
+    def test_all_opponent_identity_outputs_stay_hidden_during_animated_mulligan(self):
+        f=fixtures.DeckTrackerTests(); f.setUp()
+        f.state.game_tags["GHOSTDATA_GAME_START"]="12:00:00"
+        for pid in (1,2): f.state.player(pid).tags["MULLIGAN_STATE"]="DONE"
+        for eid,zone in [(901,"HAND"),(902,"DECK"),(903,"GRAVEYARD"),(904,"SECRET")]:
+            f._emit_zone(eid,2,zone,"OPP_B")
+            f._reveal(eid,"OPP_B")
+        f.state.emit("12:00:01","PUBLIC_UNIQUE","",player=2,card_id="OPP_A")
+        f.tracker.observe(f.state)
+        state=f.tracker.state
+        self.assertFalse(state.opponent_display_rows)
+        self.assertFalse(state.opponent_rows)
+        self.assertFalse(state.opponent_hero_zone_effects)
+        self.assertFalse(state.opponent_overdraw_rows)
+        self.assertTrue(state.opponent_hand)
+        self.assertTrue(all(not slot.card_id and not slot.text and not slot.related_cards for slot in state.opponent_hand))
+        # No queued observation is flushed by animated DONE alone.
+        for pid in (1,2): f.state.game_tags[f"GHOSTDATA_TASK_MULLIGAN_{pid}"]="DONE"
+        f.tracker.observe(f.state)
+        self.assertFalse(f.tracker.state.opponent_rows)
+        f.state.reset()
+        self.assertNotIn("GHOSTDATA_TASK_MULLIGAN_1",f.state.game_tags)
+
+    def test_task_done_survives_canonical_tag_deduplication(self):
+        from ghostdata.tracking.parser import PowerLogParser
+        parser=PowerLogParser()
+        parser.state.game_tags["GHOSTDATA_GAME_START"]="12:00:00"
+        parser.state.local_player_pid=1
+        parser.state.bind_name("Local",1)
+        parser.state.bind_name("Opponent",2)
+        for stream in ("GameState","PowerTaskList"):
+            for name in ("Local","Opponent"):
+                parser.parse_line(f"D 12:00:00.000 {stream}.DebugPrintPower() - TAG_CHANGE Entity={name} tag=MULLIGAN_STATE value=DONE")
+            self.assertEqual(parser.state.opponent_startup_pending,stream=="GameState")

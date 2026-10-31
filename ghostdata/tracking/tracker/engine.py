@@ -277,6 +277,12 @@ class DeckTrackerEngine:
     def _consume_event(self, game: GameState, event: SemanticEvent) -> None:
         if event.event_type == "GAME_START":
             return
+        source = game.entities.get(_event_entity_id(event))
+        owner = source.controller if source else event.data.get("player")
+        if (game.opponent_startup_pending
+                and (game.local_player_pid is None or owner != game.local_player_pid)
+                and event.event_type in {"PUBLIC_POOL", "PUBLIC_UNIQUE", "TRIGGER", "REVEAL", "PLAY"}):
+            return
         if event.event_type == "PUBLIC_POOL":
             self._mixed_pools.append((event.data["player"], tuple(event.data["cards"]), frozenset(event.data["members"])))
         if event.event_type == "PUBLIC_UNIQUE":
@@ -1090,6 +1096,7 @@ class DeckTrackerEngine:
         player_display = self._with_card_text(self._display_rows(game, local_pid, rows))
         known_deck = tuple(row.card_id for row in player_display if row.zone == "DECK" and row.card_id
                            for _ in range(max(0,row.count)))
+        startup_pending = bool(game and game.opponent_startup_pending)
         return DeckTrackerState(
             revision=self._revision,
             game_number=int(game.game_number if game else self._game_number),
@@ -1111,17 +1118,17 @@ class DeckTrackerEngine:
             opponent_class=opponent_class,
             opponent_hand_count=opponent_hand_count,
             opponent_deck_count=opponent_deck_count,
-            opponent_rows=tuple(opponent_rows),
+            opponent_rows=() if startup_pending else tuple(opponent_rows),
             player_hero_zone_effects=self._with_card_text(self._hero_zone_effect_rows(game, local_pid, "PLAYER")),
-            opponent_hero_zone_effects=self._with_card_text(self._hero_zone_effect_rows(game, opponent_pid, "OPPONENT")),
+            opponent_hero_zone_effects=() if startup_pending else self._with_card_text(self._hero_zone_effect_rows(game, opponent_pid, "OPPONENT")),
             player_display_rows=player_display,
-            opponent_display_rows=self._with_card_text(self._display_rows(game, opponent_pid)),
+            opponent_display_rows=() if startup_pending else self._with_card_text(self._display_rows(game, opponent_pid)),
             player_sideboard_rows=self._with_card_text(self._sideboard_rows(game)),
             player_counters=counters(game, local_pid, (meta[0] for meta in self._baseline_meta.values())),
             player_overdraw_rows=overdraw_rows(game, local_pid, self.card_db),
-            opponent_overdraw_rows=overdraw_rows(game, opponent_pid, self.card_db),
+            opponent_overdraw_rows=() if startup_pending else overdraw_rows(game, opponent_pid, self.card_db),
             player_hand=self._with_card_text(self._hand_slots(game, local_pid, known_deck)),
-            opponent_hand=self._with_card_text(self._hand_slots(game, opponent_pid)),
+            opponent_hand=tuple(replace(slot, card_id="", name="Unknown card", text="", related_cards=(), related_label="", related_kind="") for slot in self._hand_slots(game, opponent_pid)) if startup_pending else self._with_card_text(self._hand_slots(game, opponent_pid)),
             player_fatigue=self._fatigue(game, local_pid),
             opponent_fatigue=self._fatigue(game, opponent_pid),
             player_portal=portal,
