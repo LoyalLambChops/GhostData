@@ -1,3 +1,11 @@
+# Phantom · Beta 1 — build 1.3.10
+
+- Fix premature opponent deck identities during setup and mulligan, including Azalina Soulsever. Internal setup reveals no longer appear on the opponent rail before both players finish choosing.
+- Completing the mulligan does not automatically expose a suppressed identity. A fresh reveal is required; the legitimate post-mulligan start-of-game reveal remains visible.
+- Apply the observation boundary to both log streams and add a regression for the period when the local player has not yet been identified.
+
+Validation: 271 Python tests and line-by-line replay of the reported match passed. This remains an unsigned beta; match history and game definitions remain local.
+
 # Phantom · Beta 1 — build 1.3.9
 
 - Add a separate Avalonia effect-counter panel beneath the player rail: Aessina progress and remaining friendly deaths, Starsurge death count, and the authoritative Herald amount.

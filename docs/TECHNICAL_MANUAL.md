@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.9) - Updated October 30, 2026
+Phantom · Beta 1 (build 1.3.10) - Updated October 31, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -537,7 +537,7 @@ Installer integration tests use a separate application identity, shortcut names,
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.9-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.10-x64.exe
 ```
 
 The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
@@ -613,7 +613,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Phantom beta release identity and support
 
-Public display name: Phantom - Beta 1. Numeric version: 1.3.9, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
+Public display name: Phantom - Beta 1. Numeric version: 1.3.10, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
 
 The explicit updater requests the repository's latest 100 releases, rejects drafts and non-numeric tags, and selects the highest numeric eligible version. Beta installations accept GitHub prereleases and stable builds; stable installations exclude prereleases. Tags stay vMAJOR.MINOR.PATCH, including betas; use the GitHub prerelease flag and release title for the beta identity. Existing URL, digest, inventory and startup rollback verification remains in force. Older stable installations retain their existing stable-only behavior.
 
