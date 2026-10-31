@@ -615,6 +615,8 @@ class PowerLogParser:
             )
 
     def _on_identity_change(self, e: EntityState, ts: str) -> None:
+        if self._private_setup_identity(e):
+            return
         if e.card_id == "TLC_841t" and e.transformed_from:
             previous = e.transformed_from[-1]
             if previous != "TLC_841t":
@@ -677,7 +679,21 @@ class PowerLogParser:
             self._deck_order += 100
             entity.tags["GHOSTDATA_DECK_INDEX"] = str(self._deck_order)
 
+    def _private_setup_identity(self, entity):
+        # Setup can SHOW a start-of-game card before either mulligan has even
+        # entered INPUT. That is engine metadata, not a visible reveal. Do not
+        # queue it for publication: a later SHOW/public action must reveal it.
+        if not self.state.game_tags.get("GHOSTDATA_GAME_START") or entity.zone != "DECK":
+            return False
+        if self.state.local_player_pid is not None and entity.controller == self.state.local_player_pid:
+            return False
+        players = self.state.players
+        return self.state.global_turn <= 1 and not (
+            len(players) == 2 and all(p.tags.get("MULLIGAN_STATE") == "DONE" for p in players.values()))
+
     def _hide_identity(self, entity):
+        if self._private_setup_identity(entity):
+            return True
         frames = self._effects if self._parsing_source == "canonical" else self._task_effects
         return (self.state.local_player_pid is None or entity.controller != self.state.local_player_pid) and any(
             f.hide_reveals for f in frames)

@@ -77,3 +77,34 @@ class PatchTests(unittest.TestCase):
                 self.assertFalse(match_decks.bind(log,game,deck,data))
                 deck.game_context=True;game.complete=True
                 self.assertFalse(match_decks.bind(log,game,deck,data))
+
+
+class MulliganVisibilityTests(unittest.TestCase):
+    def test_setup_identity_waits_for_fresh_post_mulligan_reveal(self):
+        from ghostdata.tracking.parser import PowerLogParser
+        from ghostdata.tracker_bridge import ingest_tracker_chunk
+        f=fixtures.DeckTrackerTests(); f.setUp()
+        f.state.game_tags["GHOSTDATA_GAME_START"]="12:00:00"
+        f.state.local_player_pid=None
+        parser=PowerLogParser(card_db=f.db); parser.state=f.state
+        def line(payload, task=False):
+            stream="PowerTaskList" if task else "GameState"
+            ingest_tracker_chunk(parser,f.tracker,b"",f"D 12:00:00.000 {stream}.DebugPrintPower() - {payload}\n".encode())
+        line("FULL_ENTITY - Creating ID=900 CardID=")
+        line("tag=ZONE value=DECK")
+        line("tag=CONTROLLER value=2")
+        for task in (False,True):
+            line("SHOW_ENTITY - Updating Entity=900 CardID=OPP_A",task)
+        f.state.local_player_pid=1
+        f.tracker.observe(f.state)
+        self.assertFalse(f.tracker.state.opponent_rows)
+        self.assertFalse(f.tracker.state.opponent_display_rows)
+        f.state.players[1].tags["MULLIGAN_STATE"]="DONE"
+        f.state.players[2].tags["MULLIGAN_STATE"]="INPUT"
+        line("SHOW_ENTITY - Updating Entity=900 CardID=OPP_A")
+        self.assertFalse(f.tracker.state.opponent_display_rows)
+        f.state.players[2].tags["MULLIGAN_STATE"]="DONE"
+        f.tracker.observe(f.state)
+        self.assertFalse(f.tracker.state.opponent_display_rows)
+        line("SHOW_ENTITY - Updating Entity=900 CardID=OPP_A")
+        self.assertEqual([row.card_id for row in f.tracker.state.opponent_display_rows],["OPP_A"])

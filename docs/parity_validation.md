@@ -147,3 +147,9 @@ Installer CI and publication status are recorded with the release artifacts; the
 - The published portable asset staged through the bundled 1.3.8 updater. An isolated apply using the same absolute plan path as the app succeeded, acknowledged startup and preserved the data sentinel. A relative-path test invocation initially exercised rollback; production creates an absolute plan path.
 - Anonymous public installer checksum matched the tested artifact. The local installed 1.3.9 manifest was verified and the existing match-history hash remained unchanged.
 - Live field testing of Aessina/Herald panel behavior remains to be performed. This is bounded support for Aessina, Starsurge and Herald, not all card-effect counters.
+
+## 2026-10-31 — Unreleased mulligan observation fix
+
+The reported Azalina setup SHOW_ENTITY occurred at 14:12:27 before mulligan INPUT. A second SHOW_ENTITY occurred at 14:13:18 after both players reached DONE. Setup deck identities for nonlocal or not-yet-identified owners are now suppressed until both mulligans finish; finishing alone does not publish a deferred identity. A fresh reveal is required. The guard applies to both log streams and identity-change publication.
+
+271 Python tests passed. Line-by-line replay of the reported private log confirmed no opponent Azalina row before the second SHOW_ENTITY and normal visibility afterward. No private logs or screenshots are included in source. This source fix is not included in the already published 1.3.9 package.
