@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.12) - Updated November 2, 2026
+Phantom · Beta 1 (build 1.3.13) - Updated November 2, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -33,7 +33,7 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.12-x64.exe` from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.13-x64.exe` from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
@@ -430,7 +430,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Community, feedback and license
 
-The dashboard footer identifies **Phantom · Beta 1**, build **1.3.12**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.13**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
 
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 
@@ -449,7 +449,7 @@ UPDATE reports the installed version when no newer compatible release exists. A 
 
 ## Saved decklists
 
-Open **Decks** in the dashboard to browse saved Standard deck compositions. Each row shows the deck name, class, version and card count. Select a list to see card names, mana costs and quantities; hover a row for its locally imported rules text. Sideboard cards appear separately beneath their owning card's name. **Copy List** copies a plain-text list to the clipboard.
+Open **Decks** in the dashboard to browse saved Standard deck compositions. Each row shows the deck name, class, version and card count. Select a list to see card names, mana costs and quantities; hover a row for its locally imported rules text. Sideboard cards appear separately beneath their owning card's name. **Copy List** copies the readable list plus a Hearthstone import code. Paste the full clipboard into a message to share it, or open Hearthstone collection and create a deck to import from the clipboard. If local card or hero identifiers are missing, the app explicitly copies text only instead of producing an incomplete code.
 
 GhostData reads complete Standard decks from your local Hearthstone collection at dashboard startup and approximately every five minutes. **Refresh Decks** requests a fresh read. Keep Hearthstone open at its main menu for the initial capture. Saved versions remain available with the game closed; browsing them does not change your selected in-game deck. Deck, version and class filters apply to this tab.
 

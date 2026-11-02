@@ -1,3 +1,9 @@
+# Phantom · Beta 1 — build 1.3.13
+
+- Copy List now includes a Hearthstone import code with the readable decklist, including sideboards.
+- Export resolves card and hero identifiers locally. Missing identifiers produce an explicit text-only message, never a shortened deck code.
+- Correct corrupted characters in the saved-composition status line.
+
 # Phantom · Beta 1 — build 1.3.12
 
 - Add a Decks dashboard tab with saved Standard decklists, mana costs, quantities, card-text hover, sideboards and Copy List.

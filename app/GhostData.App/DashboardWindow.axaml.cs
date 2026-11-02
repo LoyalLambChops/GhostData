@@ -245,7 +245,7 @@ public sealed partial class DashboardWindow : Window
     {
         var deck=_viewModel.SelectedLibraryDeck;
         if(deck is not {Available:true})return;
-        try { if(Clipboard is not null) { await Clipboard.SetTextAsync(deck.CopyText); _viewModel.Status="Decklist copied to clipboard."; } }
+        try { if(Clipboard is not null) { await Clipboard.SetTextAsync(deck.CopyText); _viewModel.Status=deck.HasDeckCode?"Decklist and Hearthstone import code copied.":"List copied without an import code: local card or hero identifiers are incomplete."; } }
         catch(Exception ex){_viewModel.Status="Could not copy decklist: "+ex.Message;}
     }
     private void OnViewMatchDeckClicked(object? sender,RoutedEventArgs e)

@@ -113,8 +113,14 @@ public sealed class DashboardDeckListDto
     public string Detail => $"{PlayerClass} · Version {(Version.Length>8?Version[..8]:Version)}";
     public string CountLabel => Available?$"{Total} cards · {Cards.Count} distinct · {Sideboard.Sum(c=>c.Count)} sideboard":"List unavailable";
     public bool HasSideboard => Sideboard.Count>0;
-    public string CopyText => Name+"\n"+Detail+"\n\n"+string.Join("\n",Cards.Select(c=>$"{c.Count}x {c.Name} ({c.CostLabel})"))
-        +(HasSideboard?"\n\nSideboard\n"+string.Join("\n",Sideboard.Select(c=>$"{c.Owner}: {c.Count}x {c.Name}")):"");
+    [JsonPropertyName("deck_code")] public string DeckCode {get;set;}="";
+    public bool HasDeckCode => !string.IsNullOrWhiteSpace(DeckCode);
+    private static string SingleLine(string value) => string.Join(" ",value.Split(new[]{'\r','\n'},StringSplitOptions.RemoveEmptyEntries));
+    public string CopyText => "### "+SingleLine(Name)+"\n# "+SingleLine(Detail)+"\n# Format: Standard\n#\n"
+        +string.Join("\n",Cards.Select(c=>$"# {c.Count}x {SingleLine(c.Name)} ({c.CostLabel})"))
+        +(HasSideboard?"\n#\n# Sideboard\n"+string.Join("\n",Sideboard.Select(c=>$"# {SingleLine(c.Owner)}: {c.Count}x {SingleLine(c.Name)}")):"")
+        +(HasDeckCode?"\n#\n"+DeckCode+"\n":"\n# Deck code unavailable: local card or hero identifiers are incomplete.\n");
+
 }
 public sealed class DashboardDeckCardDto
 {

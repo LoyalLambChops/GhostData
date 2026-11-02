@@ -149,3 +149,10 @@ libraryModel.SelectedVersionFilter="version1";
 Check(libraryModel.LibraryDecks.Count==1 && libraryModel.SelectedLibraryDeck!.Version=="version1","Version filter selects the saved composition");
 libraryModel.SelectedDeckFilter="Missing deck";
 Check(libraryModel.LibraryDecks.Count==0 && libraryModel.SelectedLibraryDeck is null,"Empty library filter clears stale card rows");
+
+var exportDeck=librarySnapshot.DeckLibrary[0];exportDeck.DeckCode="AAECAQcBAQECAawCAwA=";
+exportDeck.Name="Share\nname";
+Check(exportDeck.CopyText.StartsWith("### Share name\n# "),"Deck name is a single import comment");
+Check(exportDeck.CopyText.Split('\n').Where(line=>line.Length>0 && !line.StartsWith('#')).SequenceEqual(new[]{exportDeck.DeckCode}),"Only the import code is an uncommented clipboard line");
+exportDeck.DeckCode="";
+Check(exportDeck.CopyText.Contains("Deck code unavailable"),"Missing identifiers are explicit in clipboard export");

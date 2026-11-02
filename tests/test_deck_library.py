@@ -55,3 +55,9 @@ class DeckLibraryTests(unittest.TestCase):
         path=self.root/'selected_deck.json';before=path.stat().st_mtime_ns
         save_cached_deck(deck,data_dir=self.root)
         self.assertEqual(before,path.stat().st_mtime_ns)
+
+    def test_status_text_has_no_encoding_artifacts(self):
+        save_deck(self.deck(),data_dir=self.root)
+        row=dashboard_decks([],data_dir=self.root)[0]
+        self.assertEqual(row['status'],'Exact saved composition - card wording from installed game definitions')
+        self.assertEqual(row['deck_code'],'')

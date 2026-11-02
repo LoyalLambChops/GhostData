@@ -55,6 +55,7 @@ def sync_collection(project_root, *, data_dir=None):
 def dashboard_decks(records, *, data_dir=None):
     from .deck_sensor import load_cached_deck, _stable_composition_hash
     from .tracking.card_db import CardDatabase
+    from .deck_codes import deck_code
     root=data_paths(data_dir).root
     cached=load_cached_deck(data_dir=data_dir)
     if cached:save_deck(cached,data_dir=data_dir)
@@ -78,7 +79,7 @@ def dashboard_decks(records, *, data_dir=None):
             output[(deck_id,version)]=dict(key=deck_id+':'+version,deck_id=deck_id,version=version,
                 name=raw.get('deck_name') or 'Unnamed deck',player_class=raw.get('player_class',''),
                 available=True,cards=main,sideboard=sorted((card_row(c) for c in side),key=lambda c:(c['owner'],c['name'])),
-                total=sum(c['count'] for c in main),status='Exact saved composition Â· card wording from installed game definitions')
+                total=sum(c['count'] for c in main),deck_code=deck_code(raw,db),status='Exact saved composition - card wording from installed game definitions')
         except (OSError,ValueError,KeyError,TypeError):continue
     from .tracking.scope import is_standard_constructed
     for match in records:
