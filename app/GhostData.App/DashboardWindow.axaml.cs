@@ -6,6 +6,7 @@ using Avalonia.Layout;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using GhostData.App.Services;
 using GhostData.App.ViewModels;
 
@@ -67,6 +68,7 @@ public sealed partial class DashboardWindow : Window
             SavePreview(this, "dashboard-summary.png");
             var tabs=this.FindControl<TabControl>("StatisticsTabs")!;
             for(var index=1;index<3;index++) { tabs.SelectedIndex=index; await Task.Delay(150); SavePreview(this, $"dashboard-{index}.png"); }
+            tabs.SelectedIndex=3; await Task.Delay(150); SavePreview(this,"dashboard-decks.png");
             tabs.SelectedIndex=0;
             await SavePreviewChecks(player,state);
             if(File.Exists(Path.Combine(_previewDirectory,"setup.json")))
@@ -232,6 +234,24 @@ public sealed partial class DashboardWindow : Window
         catch(OperationCanceledException){}
         catch(Exception ex){_viewModel.Status="Update could not complete: "+ex.Message;}
         finally{_viewModel.IsBusy=false;}
+    }
+    private async void OnRefreshDecksClicked(object? sender,RoutedEventArgs e)
+    {
+        if(_viewModel.IsBusy)return;
+        _dataService.RefreshDecks();
+        await RefreshAsync();
+    }
+    private async void OnCopyDeckListClicked(object? sender,RoutedEventArgs e)
+    {
+        var deck=_viewModel.SelectedLibraryDeck;
+        if(deck is not {Available:true})return;
+        try { if(Clipboard is not null) { await Clipboard.SetTextAsync(deck.CopyText); _viewModel.Status="Decklist copied to clipboard."; } }
+        catch(Exception ex){_viewModel.Status="Could not copy decklist: "+ex.Message;}
+    }
+    private void OnViewMatchDeckClicked(object? sender,RoutedEventArgs e)
+    {
+        if(_viewModel.SelectMatchDeck())this.FindControl<TabControl>("StatisticsTabs")!.SelectedIndex=3;
+        else _viewModel.Status="No saved deck version is linked to this match.";
     }
     private async void OnRefreshClicked(object? sender,RoutedEventArgs e)=>await RefreshAsync();
     private async void OnClearHistoryClicked(object? sender,RoutedEventArgs e)

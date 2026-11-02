@@ -193,4 +193,8 @@ def build_dashboard(records: list[MatchRecord]) -> dict[str, Any]:
 
 def load_dashboard(*, data_dir: Path | None = None) -> dict[str, Any]:
     ensure_history_epoch(data_dir=data_dir)
-    return build_dashboard(MatchStore(data_dir).load())
+    from .deck_library import dashboard_decks
+    records=MatchStore(data_dir).load()
+    result=build_dashboard(records)
+    result["deck_library"]=dashboard_decks(records,data_dir=data_dir)
+    return result

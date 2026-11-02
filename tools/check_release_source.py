@@ -16,7 +16,7 @@ assert f'SensorVersion = "{version}"' in (root/'sensor/GhostData.Sensor/Program.
 tracked=subprocess.check_output(['git','ls-files','-z'],cwd=root).decode().split('\0')
 for name in filter(None,tracked):
     path=Path(name);parts={part.casefold() for part in path.parts}
-    assert not parts.intersection({'media','ghostdatadata','card_art','card_renders','backups','.aws'}), 'Private path tracked: '+name
+    assert not parts.intersection({'media','ghostdatadata','deck_library','card_art','card_renders','backups','.aws'}), 'Private path tracked: '+name
     assert path.name.casefold() not in {'matches.json','selected_deck.json','match_decks.json','settings.json','log.config','.env'}, 'Local data tracked: '+name
     assert path.suffix.casefold() not in {'.log','.bak','.zip','.pfx','.pem','.key'}, 'Unexpected sensitive/archive file: '+name
 assert (root/'LICENSE').read_text().startswith('MIT License')

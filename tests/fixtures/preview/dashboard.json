@@ -20,7 +20,7 @@
       "archetype_name": "Spell Mage",
       "player_class": "MAGE",
       "version": "a1234567",
-      "detail": "Spell Mage \u00b7 Version a1234567",
+      "detail": "Spell Mage · Version a1234567",
       "games": 20,
       "wins": 13,
       "losses": 7,
@@ -36,7 +36,7 @@
       "archetype_name": "Quest Priest",
       "player_class": "PRIEST",
       "version": "b1234567",
-      "detail": "Quest Priest \u00b7 Version b1234567",
+      "detail": "Quest Priest · Version b1234567",
       "games": 20,
       "wins": 13,
       "losses": 7,
@@ -1282,5 +1282,137 @@
   "data_quality": {
     "complete_matches": 0,
     "limited_matches": 40
-  }
+  },
+  "deck_library": [
+    {
+      "key": "sample:version-a",
+      "deck_id": "sample",
+      "version": "sample-version-a",
+      "name": "Usher · Sample list",
+      "player_class": "MAGE",
+      "available": true,
+      "total": 30,
+      "status": "Synthetic preview data · not a real deck recommendation",
+      "cards": [
+        {
+          "card_id": "SAMPLE_0",
+          "name": "First Flame",
+          "cost": 1,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_1",
+          "name": "Sleet Storm",
+          "cost": 1,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_2",
+          "name": "Time-Twisted Seer",
+          "cost": 1,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_3",
+          "name": "Violet Spellwing",
+          "cost": 1,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_4",
+          "name": "Bloodmage Thalnos",
+          "cost": 2,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_5",
+          "name": "Frostbolt",
+          "cost": 2,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_6",
+          "name": "Living Flame",
+          "cost": 2,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_7",
+          "name": "Raincaller",
+          "cost": 2,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_8",
+          "name": "Runed Orb",
+          "cost": 2,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_9",
+          "name": "Arcane Barrage",
+          "cost": 3,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_10",
+          "name": "Arcane Flow",
+          "cost": 4,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_11",
+          "name": "Archmage Kalec",
+          "cost": 4,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_12",
+          "name": "Fireball",
+          "cost": 4,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_13",
+          "name": "Unstable Spellcaster",
+          "cost": 4,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        },
+        {
+          "card_id": "SAMPLE_14",
+          "name": "Spellweaver’s Brilliance",
+          "cost": 10,
+          "count": 2,
+          "text": "Sample card description for layout validation."
+        }
+      ],
+      "sideboard": []
+    },
+    {
+      "key": "sample:version-b",
+      "deck_id": "sample",
+      "version": "sample-version-b",
+      "name": "Usher · Earlier version",
+      "player_class": "MAGE",
+      "available": false,
+      "total": 0,
+      "status": "This historical version was not captured. Its card list cannot be recovered from match observations.",
+      "cards": [],
+      "sideboard": []
+    }
+  ]
 }

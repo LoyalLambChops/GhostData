@@ -129,3 +129,23 @@ Check(RailHoverPreview.HandEffectDetail(effectSlot).Contains("First minion"),"Su
 var separateHand = new TrackerStateDto {Active=true,PlayerHand=new(){effectSlot,new(){EntityId=42,CardId="CAP_805t",RelatedKind="STORED",RelatedCards=new(){new(){CardId="C",Name="Other cast minion"}}}}};
 Check(!RailHoverPreview.HandEffectDetail(RailHoverPreview.ResolveHand(separateHand,41,"CAP_805t")).Contains("Other cast minion") && RailHoverPreview.HandEffectDetail(RailHoverPreview.ResolveHand(separateHand,42,"CAP_805t")).Contains("Other cast minion"),"Same-card hand copies use separate stored effects");
 Console.WriteLine("Passed 18 effect-only hand-preview checks.");
+
+var libraryModel = new DashboardViewModel();
+var librarySnapshot = new DashboardSnapshotDto {
+    DeckLibrary = new() {
+        new() { Key="a:version1", DeckId="a", Version="version1", Name="Deck A", Available=true, Total=30, Cards=new(){new(){Name="Card",Count=2,Cost=1,Text="<b>Battlecry:</b> Deal $2 damage."}} },
+        new() { Key="a:version2", DeckId="a", Version="version2", Name="Deck A", Available=false } },
+    RecentMatches = new(){new(){MatchId="library-match",DeckId="a",DeckVersion="version2",DeckName="Deck A",Result="WIN"}} };
+libraryModel.Apply(librarySnapshot);
+Check(libraryModel.LibraryDecks.Count==2,"Full versions are retained independently");
+Check(libraryModel.SelectMatchDeck() && libraryModel.SelectedLibraryDeck!.Key=="a:version2","Match opens its exact version even when unavailable");
+libraryModel.Apply(librarySnapshot);
+Check(libraryModel.SelectedLibraryDeck!.Key=="a:version2","Decklist selection survives dashboard refresh");
+Check(librarySnapshot.DeckLibrary[0].Cards[0].RulesText=="Battlecry: Deal 2 damage.","Decklist text uses shared formatter");
+Check(librarySnapshot.DeckLibrary[0].CopyText.Contains("2x Card (1)"),"Copied list includes copies and mana");
+Console.WriteLine("Passed deck library selection, version, text and copy checks.");
+
+libraryModel.SelectedVersionFilter="version1";
+Check(libraryModel.LibraryDecks.Count==1 && libraryModel.SelectedLibraryDeck!.Version=="version1","Version filter selects the saved composition");
+libraryModel.SelectedDeckFilter="Missing deck";
+Check(libraryModel.LibraryDecks.Count==0 && libraryModel.SelectedLibraryDeck is null,"Empty library filter clears stale card rows");

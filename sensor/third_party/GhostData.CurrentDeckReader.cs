@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using HackF5.UnitySpy;
 using HackF5.UnitySpy.HearthstoneLib.Detail;
 using HackF5.UnitySpy.HearthstoneLib.Detail.Deck;
@@ -42,6 +44,34 @@ namespace HackF5.UnitySpy.HearthstoneLib
             if (deck == null || (id.Value > 0 && deck.DeckId != id.Value)) return null;
             GameContext = scene == SceneModeEnum.GAMEPLAY;
             return deck;
+        }
+
+        public IReadOnlyList<IDeck> ReadCollection()
+        {
+            var scene = SceneModeReader.ReadSceneMode(image);
+            dynamic memory = image["CollectionManager"]?["s_instance"]?["m_decks"];
+            if (memory == null) return null;
+            var values = (object[])memory["valueSlots"];
+            if (values == null || values.Length > 512) return null;
+            var decks = new List<IDeck>();
+            foreach (var value in values)
+            {
+                if (value == null) continue;
+                try
+                {
+                    var first = ActiveDeckReader.GetDynamicDeck(value);
+                    var second = ActiveDeckReader.GetDynamicDeck(value);
+                    if (first == null || second == null || first.DeckId <= 0 || first.DeckId != second.DeckId
+                        || first.Name != second.Name || first.FormatType != second.FormatType
+                        || first.HeroCardId != second.HeroCardId
+                        || !first.DeckList.OrderBy(x=>x).SequenceEqual(second.DeckList.OrderBy(x=>x))) continue;
+                    string Side(Deck deck) => string.Join("|", deck.Sideboards.SelectMany(b => b.Cards.Select(c=>b.KeyCardId+":"+c)).OrderBy(x=>x));
+                    if (Side(first) != Side(second)) continue;
+                    decks.Add(second);
+                }
+                catch { /* A deck being edited may not be a coherent snapshot. */ }
+            }
+            return SceneModeReader.ReadSceneMode(image) == scene ? decks : null;
         }
 
         public void Dispose() => image.Dispose();

@@ -344,6 +344,7 @@
                     <StackPanel Spacing="4">
                       <TextBlock Text="SELECTED MATCH" FontSize="8.5" FontWeight="Bold" LetterSpacing="1.15" Foreground="{DynamicResource GdSage}"/>
                       <TextBlock Text="{Binding SelectedMatch.DisplayDeckName}" FontSize="15" FontWeight="SemiBold"/>
+                      <Button Content="VIEW DECKLIST" Click="OnViewMatchDeckClicked" HorizontalAlignment="Left" Margin="0,6,0,6"/>
                       <TextBlock Text="{Binding SelectedMatch.DisplayArchetype}" FontSize="10" Foreground="{DynamicResource GdMuted}"/>
                       <TextBlock Text="{Binding SelectedMatch.VersionLabel, StringFormat='Deck version: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
                       <TextBlock Text="{Binding SelectedMatch.Build, StringFormat='Build: {0}'}" FontSize="9.5" Foreground="{DynamicResource GdMuted}"/>
@@ -439,6 +440,35 @@
                 </ItemsControl>
               </StackPanel>
             </ScrollViewer>
+          </TabItem>
+          <TabItem Header="DECKS">
+            <Grid Margin="12" RowDefinitions="Auto,*" RowSpacing="12">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <StackPanel><TextBlock Text="YOUR DECK LIBRARY" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource GdHalo}"/><TextBlock Text="{Binding LibraryStatus}" TextWrapping="Wrap" Foreground="{DynamicResource GdMuted}"/></StackPanel>
+                <Button Grid.Column="1" Content="REFRESH DECKS" Click="OnRefreshDecksClicked"/>
+              </Grid>
+              <Grid Grid.Row="1" ColumnDefinitions="280,*" ColumnSpacing="20">
+                <ListBox ItemsSource="{Binding LibraryDecks}" SelectedItem="{Binding SelectedLibraryDeck}" Background="Transparent" BorderThickness="0">
+                  <ListBox.ItemTemplate><DataTemplate><StackPanel Margin="5,7" Spacing="4"><TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock Text="{Binding Detail}" FontSize="12" Foreground="{DynamicResource GdMuted}"/><TextBlock Text="{Binding CountLabel}" FontSize="12" Foreground="{DynamicResource GdSage}"/></StackPanel></DataTemplate></ListBox.ItemTemplate>
+                </ListBox>
+                <Grid Grid.Column="1" RowDefinitions="Auto,Auto,*" RowSpacing="10" DataContext="{Binding SelectedLibraryDeck}">
+                  <Grid ColumnDefinitions="*,Auto"><StackPanel><TextBlock Text="{Binding Name}" FontSize="24" FontWeight="SemiBold" TextWrapping="Wrap"/><TextBlock Text="{Binding Detail}" Foreground="{DynamicResource GdMuted}"/><TextBlock Text="{Binding CountLabel}" Foreground="{DynamicResource GdHalo}"/></StackPanel><Button Grid.Column="1" Content="COPY LIST" IsEnabled="{Binding Available}" Click="OnCopyDeckListClicked" VerticalAlignment="Top"/></Grid>
+                  <TextBlock Grid.Row="1" Text="{Binding Status}" TextWrapping="Wrap" Foreground="{DynamicResource GdMuted}" FontSize="12"/>
+                  <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="5">
+                      <ItemsControl ItemsSource="{Binding Cards}"><ItemsControl.ItemTemplate><DataTemplate>
+                        <Border Background="{DynamicResource GdWindow}" CornerRadius="5" Padding="10,8" Margin="0,0,0,4">
+                          <ToolTip.Tip><StackPanel MaxWidth="340" Spacing="8"><TextBlock Text="{Binding Name}" FontSize="16" FontWeight="SemiBold"/><TextBlock Text="{Binding RulesText}" TextWrapping="Wrap" FontSize="14"/></StackPanel></ToolTip.Tip>
+                          <Grid ColumnDefinitions="35,*,40"><TextBlock Text="{Binding CostLabel}" Foreground="{DynamicResource GdHalo}" FontSize="16" FontWeight="Bold"/><TextBlock Grid.Column="1" Text="{Binding Name}" FontSize="15" TextWrapping="Wrap"/><TextBlock Grid.Column="2" Text="{Binding Copies}" FontSize="15" HorizontalAlignment="Right"/></Grid>
+                        </Border>
+                      </DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                      <TextBlock Text="SIDEBOARD" IsVisible="{Binding HasSideboard}" Foreground="{DynamicResource GdHalo}" FontWeight="Bold" Margin="0,12,0,5"/>
+                      <ItemsControl ItemsSource="{Binding Sideboard}"><ItemsControl.ItemTemplate><DataTemplate><Border Background="{DynamicResource GdWindow}" CornerRadius="5" Padding="10" Margin="0,0,0,5"><ToolTip.Tip><TextBlock Text="{Binding RulesText}" TextWrapping="Wrap" MaxWidth="340"/></ToolTip.Tip><StackPanel Spacing="4"><TextBlock Text="{Binding Owner}" Foreground="{DynamicResource GdMuted}" FontSize="12"/><Grid ColumnDefinitions="35,*,40"><TextBlock Text="{Binding CostLabel}" Foreground="{DynamicResource GdHalo}"/><TextBlock Grid.Column="1" Text="{Binding Name}" TextWrapping="Wrap"/><TextBlock Grid.Column="2" Text="{Binding Copies}"/></Grid></StackPanel></Border></DataTemplate></ItemsControl.ItemTemplate></ItemsControl>
+                    </StackPanel>
+                  </ScrollViewer>
+                </Grid>
+              </Grid>
+            </Grid>
           </TabItem>
         </TabControl>
       </Border>

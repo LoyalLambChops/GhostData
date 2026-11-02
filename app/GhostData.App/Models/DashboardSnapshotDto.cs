@@ -4,6 +4,7 @@ namespace GhostData.App.Models;
 
 public sealed class DashboardSnapshotDto
 {
+    [JsonPropertyName("deck_library")] public List<DashboardDeckListDto> DeckLibrary { get; set; } = new();
     [JsonPropertyName("schema_version")] public int SchemaVersion { get; set; }
     [JsonPropertyName("generated_at")] public string GeneratedAt { get; set; } = "";
     [JsonPropertyName("active_hearthstone_build")] public string ActiveHearthstoneBuild { get; set; } = "";
@@ -95,4 +96,35 @@ public sealed class DashboardDataQualityDto
 {
     [JsonPropertyName("limited_matches")] public int LimitedMatches { get; set; }
     [JsonPropertyName("complete_matches")] public int CompleteMatches { get; set; }
+}
+
+public sealed class DashboardDeckListDto
+{
+    [JsonPropertyName("key")] public string Key {get;set;}="";
+    [JsonPropertyName("deck_id")] public string DeckId {get;set;}="";
+    [JsonPropertyName("version")] public string Version {get;set;}="";
+    [JsonPropertyName("name")] public string Name {get;set;}="";
+    [JsonPropertyName("player_class")] public string PlayerClass {get;set;}="";
+    [JsonPropertyName("available")] public bool Available {get;set;}
+    [JsonPropertyName("total")] public int Total {get;set;}
+    [JsonPropertyName("status")] public string Status {get;set;}="";
+    [JsonPropertyName("cards")] public List<DashboardDeckCardDto> Cards {get;set;}=new();
+    [JsonPropertyName("sideboard")] public List<DashboardDeckCardDto> Sideboard {get;set;}=new();
+    public string Detail => $"{PlayerClass} · Version {(Version.Length>8?Version[..8]:Version)}";
+    public string CountLabel => Available?$"{Total} cards · {Cards.Count} distinct · {Sideboard.Sum(c=>c.Count)} sideboard":"List unavailable";
+    public bool HasSideboard => Sideboard.Count>0;
+    public string CopyText => Name+"\n"+Detail+"\n\n"+string.Join("\n",Cards.Select(c=>$"{c.Count}x {c.Name} ({c.CostLabel})"))
+        +(HasSideboard?"\n\nSideboard\n"+string.Join("\n",Sideboard.Select(c=>$"{c.Owner}: {c.Count}x {c.Name}")):"");
+}
+public sealed class DashboardDeckCardDto
+{
+    [JsonPropertyName("card_id")] public string CardId {get;set;}="";
+    [JsonPropertyName("name")] public string Name {get;set;}="";
+    [JsonPropertyName("cost")] public int? Cost {get;set;}
+    [JsonPropertyName("count")] public int Count {get;set;}
+    [JsonPropertyName("text")] public string Text {get;set;}="";
+    [JsonPropertyName("owner")] public string Owner {get;set;}="";
+    public string CostLabel => Cost?.ToString() ?? "?";
+    public string Copies => $"×{Count}";
+    public string RulesText => string.IsNullOrWhiteSpace(Text)?"Local card text unavailable.":GhostData.App.Services.CardTextFormatter.Format(Text);
 }

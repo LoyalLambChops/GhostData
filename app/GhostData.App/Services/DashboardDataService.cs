@@ -9,15 +9,27 @@ public sealed class DashboardDataService
     private readonly StartupOptions _options;
     private readonly JsonSerializerOptions _json = new(){PropertyNameCaseInsensitive=true};
     private DashboardSnapshotDto? _cached;
-    private (DateTime Written, long Length, DateTime Day) _cacheKey;
+    private string _cacheKey="";
+    private DateTime _nextDeckSync=DateTime.MinValue;
+    public void RefreshDecks() { _nextDeckSync=DateTime.MinValue; _cached=null; }
     public DashboardDataService(StartupOptions options)=>_options=options;
 
     public async Task<DashboardSnapshotDto> LoadAsync(CancellationToken cancellationToken=default)
     {
         var dataRoot=Environment.GetEnvironmentVariable("GHOSTDATA_DATA_DIR");
         if(string.IsNullOrWhiteSpace(dataRoot))dataRoot=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),"GhostDataData");
+        if(DateTime.UtcNow>=_nextDeckSync)
+        {
+            _nextDeckSync=DateTime.UtcNow.AddMinutes(5);
+            await RunPythonAsync(new[]{"--sync-decks"},cancellationToken,throwOnError:false);
+        }
         var history=new FileInfo(Path.Combine(dataRoot,"matches.json"));
-        var key=(history.LastWriteTimeUtc, history.Exists?history.Length:0, DateTime.Today);
+        var library=Path.Combine(dataRoot,"deck_library");
+        var files=Directory.Exists(library)?Directory.GetFiles(library,"*.json").OrderBy(p=>p).Select(p=>new FileInfo(p)):Enumerable.Empty<FileInfo>();
+        var selected=new FileInfo(Path.Combine(dataRoot,"selected_deck.json"));
+        var definitions=Path.Combine(dataRoot,"local_cards");
+        var definitionTime=Directory.Exists(definitions)?Directory.GetFiles(definitions,"cards_*_local.json").Select(File.GetLastWriteTimeUtc).DefaultIfEmpty().Max():DateTime.MinValue;
+        var key=$"{history.LastWriteTimeUtc.Ticks}:{(history.Exists?history.Length:0)}:{DateTime.Today.Ticks}:{selected.LastWriteTimeUtc.Ticks}:{definitionTime.Ticks}:"+string.Join("|",files.Select(f=>$"{f.Name}:{f.LastWriteTimeUtc.Ticks}:{f.Length}"));
         if(_cached is not null && key==_cacheKey)return _cached;
         var result=await RunPythonAsync(new[]{"--dashboard-json"},cancellationToken,throwOnError:true);
         _cached=JsonSerializer.Deserialize<DashboardSnapshotDto>(result.Output.Trim(),_json) ?? throw new InvalidOperationException("GhostData returned an empty dashboard snapshot.");

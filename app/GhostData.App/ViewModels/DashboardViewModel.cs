@@ -109,6 +109,20 @@ public sealed class DashboardMatchItemViewModel
 
 public sealed class DashboardViewModel : INotifyPropertyChanged
 {
+    private readonly List<DashboardDeckListDto> _allLibraryDecks = new();
+    public ObservableCollection<DashboardDeckListDto> LibraryDecks {get;} = new();
+    private DashboardDeckListDto? _selectedLibraryDeck;
+    public DashboardDeckListDto? SelectedLibraryDeck {get=>_selectedLibraryDeck;set=>Set(ref _selectedLibraryDeck,value);}
+    public string LibraryStatus => _allLibraryDecks.Count>0 && LibraryDecks.Count==0 ? "No saved lists match the deck, version and class filters." : LibraryDecks.Count==0 ? "Open Hearthstone at its main menu to capture your Standard decklists. Saved lists remain available offline." : $"{LibraryDecks.Count} saved deck versions · stored locally";
+    public bool SelectMatchDeck()
+    {
+        if(SelectedMatch is null)return false;
+        var match=SelectedMatch.Source;
+        var deck=_allLibraryDecks.FirstOrDefault(d=>d.DeckId==match.DeckId && d.Version==match.DeckVersion);
+        if(deck is null)return false;
+        SelectedClass="All classes"; SelectedDeckFilter=deck.Name; SelectedVersionFilter=deck.Version;
+        SelectedLibraryDeck=deck;return true;
+    }
     private const string AllDecks="All decks", AllVersions="All versions", AllOpponents="All opponents", AllModes="All modes", AllResults="All results", AllOrders="All orders";
     private readonly List<DashboardMatchItemViewModel> _allMatches = new();
     private string _games="0", _record="0-0", _winRate="—", _averageDuration="—", _build="—", _status="Loading local match history…", _dataQuality="";
@@ -169,6 +183,11 @@ public sealed class DashboardViewModel : INotifyPropertyChanged
 
     public void Apply(DashboardSnapshotDto snapshot)
     {
+        var selectedLibraryKey=SelectedLibraryDeck?.Key;
+        _allLibraryDecks.Clear();_allLibraryDecks.AddRange(snapshot.DeckLibrary);
+        LibraryDecks.Clear();foreach(var deck in _allLibraryDecks)LibraryDecks.Add(deck);
+        SelectedLibraryDeck=LibraryDecks.FirstOrDefault(d=>d.Key==selectedLibraryKey)??LibraryDecks.FirstOrDefault(d=>d.Available)??LibraryDecks.FirstOrDefault();
+        OnPropertyChanged(nameof(LibraryStatus));
         Games=snapshot.Overall.Games.ToString(CultureInfo.InvariantCulture); Record=snapshot.Overall.Record;
         WinRate=snapshot.Overall.Games>0?$"{snapshot.Overall.WinRate:0.0}%":"—"; AverageDuration=snapshot.Overall.AverageDuration;
         BuildLabel=string.IsNullOrWhiteSpace(snapshot.ActiveHearthstoneBuild)?"Build unavailable":"Build "+snapshot.ActiveHearthstoneBuild;
@@ -184,8 +203,8 @@ public sealed class DashboardViewModel : INotifyPropertyChanged
     private void RebuildFilterOptions()
     {
         static void Reset(ObservableCollection<string> target,string all,IEnumerable<string> values){var desired=new[]{all}.Concat(values.Where(x=>!string.IsNullOrWhiteSpace(x)).Distinct(StringComparer.OrdinalIgnoreCase).OrderBy(x=>x,StringComparer.OrdinalIgnoreCase)).ToList(); if(target.SequenceEqual(desired))return; for(var i=target.Count-1;i>=0;i--)if(!desired.Contains(target[i]))target.RemoveAt(i); foreach(var v in desired)if(!target.Contains(v))target.Add(v);}
-        Reset(DeckFilterOptions,AllDecks,_allMatches.Select(x=>x.DisplayDeckName)); Reset(VersionFilterOptions,AllVersions,_allMatches.Select(x=>x.VersionLabel)); Reset(OpponentFilterOptions,AllOpponents,_allMatches.Select(x=>x.OpponentLabel)); Reset(ModeFilterOptions,AllModes,_allMatches.Select(x=>x.Mode));
-        Reset(ClassFilterOptions,"All classes",_allMatches.Select(x=>x.PlayerClass));
+        Reset(DeckFilterOptions,AllDecks,_allMatches.Select(x=>x.DisplayDeckName).Concat(_allLibraryDecks.Select(d=>d.Name))); Reset(VersionFilterOptions,AllVersions,_allMatches.Select(x=>x.VersionLabel).Concat(_allLibraryDecks.Select(d=>d.Version))); Reset(OpponentFilterOptions,AllOpponents,_allMatches.Select(x=>x.OpponentLabel)); Reset(ModeFilterOptions,AllModes,_allMatches.Select(x=>x.Mode));
+        Reset(ClassFilterOptions,"All classes",_allMatches.Select(x=>x.PlayerClass).Concat(_allLibraryDecks.Select(d=>d.PlayerClass)));
         Reset(TypeFilterOptions,"All deck types",_allMatches.Select(x=>x.ArchetypeName).Where(x=>!string.IsNullOrWhiteSpace(x)));
         if(!ClassFilterOptions.Contains(SelectedClass)) SelectedClass="All classes";
         if(!TypeFilterOptions.Contains(SelectedType)) SelectedType="All deck types";
@@ -205,6 +224,13 @@ public sealed class DashboardViewModel : INotifyPropertyChanged
         if(SelectedType != "All deck types") rows=rows.Where(x=>x.ArchetypeName==SelectedType);
         DateTimeOffset? since=SelectedPeriod switch { "Today"=>new DateTimeOffset(DateTime.Today), "Last 7 days"=>DateTimeOffset.Now.AddDays(-7), "Last 30 days"=>DateTimeOffset.Now.AddDays(-30), _=>null };
         if(since is not null) rows=rows.Where(x=>x.Timestamp >= since);
+        var libraryKey=SelectedLibraryDeck?.Key;
+        var lists=_allLibraryDecks.Where(d=>(SelectedDeckFilter==AllDecks || d.Name.Equals(SelectedDeckFilter,StringComparison.OrdinalIgnoreCase))
+            && (SelectedVersionFilter==AllVersions || d.Version==SelectedVersionFilter)
+            && (SelectedClass=="All classes" || d.PlayerClass==SelectedClass)).ToList();
+        LibraryDecks.Clear();foreach(var deck in lists)LibraryDecks.Add(deck);
+        SelectedLibraryDeck=LibraryDecks.FirstOrDefault(d=>d.Key==libraryKey)??LibraryDecks.FirstOrDefault(d=>d.Available)??LibraryDecks.FirstOrDefault();
+        OnPropertyChanged(nameof(LibraryStatus));
         var filtered=rows.ToList();
         Recalculate(filtered); preferredMatchId??=SelectedMatch?.MatchId; Matches.Clear(); foreach(var row in filtered)Matches.Add(row); SelectedMatch=Matches.FirstOrDefault(x=>x.MatchId==preferredMatchId)??Matches.FirstOrDefault();
         Status=_allMatches.Count==0?"No completed local games recorded yet. Play normally; GhostData will build this history automatically.":$"Showing {Matches.Count} of {_allMatches.Count} recorded matches · local only";

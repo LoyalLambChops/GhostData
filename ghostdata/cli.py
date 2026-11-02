@@ -17,6 +17,7 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--version", action="store_true")
     mode = p.add_mutually_exclusive_group()
     mode.add_argument("--dashboard-json", action="store_true")
+    mode.add_argument("--sync-decks", action="store_true")
     mode.add_argument("--record-once", action="store_true")
     mode.add_argument("--record-continuously", action="store_true")
     mode.add_argument("--tracker-stream", action="store_true")
@@ -67,6 +68,11 @@ def main(argv: list[str] | None = None) -> int:
         except Exception as exc:
             print(str(exc), file=sys.stderr)
             return 1
+    if args.sync_decks:
+        from .deck_library import sync_collection
+        sync_collection(root,data_dir=args.data_dir)
+        print(json.dumps({"status":"DONE"}))
+        return 0
     if args.dashboard_json:
         print(json.dumps(load_dashboard(data_dir=args.data_dir), ensure_ascii=False))
         return 0

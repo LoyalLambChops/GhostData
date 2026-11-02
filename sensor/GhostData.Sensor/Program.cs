@@ -11,7 +11,7 @@ namespace GhostData.Sensor
 {
     internal static class Program
     {
-        private const string SensorVersion = "1.3.11";
+        private const string SensorVersion = "1.3.12";
         private const string Provider = "ghostdata_sensor_unityspy";
 
         private static int Main(string[] args)
@@ -27,6 +27,9 @@ namespace GhostData.Sensor
                         return 0;
                     case "health":
                         Emit(HealthPayload());
+                        return 0;
+                    case "deck-library":
+                        Emit(ReadDeckLibrary());
                         return 0;
                     case "selected-deck":
                         Emit(ReadSelectedDeck(args));
@@ -230,6 +233,27 @@ namespace GhostData.Sensor
                     TryFileVersion(process)
                 );
             }
+        }
+
+        private static object ReadDeckLibrary()
+        {
+            var process = HearthstoneProcess();
+            if (process == null) return new { status="UNAVAILABLE", decks=new object[0] };
+            try
+            {
+                using (var reader = new CurrentDeckReader(process.Id))
+                {
+                    var decks=reader.ReadCollection();
+                    if (decks==null) return new { status="UNAVAILABLE", decks=new object[0] };
+                    return new {status="OK", decks=decks.Where(d=>d.FormatType==2 && !string.IsNullOrWhiteSpace(d.HeroCardId)
+                        && (d.DeckList.Count==20 || d.DeckList.Count==30)).Select(d=>new {
+                        status="EXACT", selected_deck_id=d.DeckId.ToString(), deck_name=d.Name ?? "", format="STANDARD",
+                        hero_card_ids=new[]{d.HeroCardId}, cards=GroupCardIds(d.DeckList),
+                        sideboards=GroupSideboards((d as HackF5.UnitySpy.HearthstoneLib.Detail.Deck.Deck)?.Sideboards),
+                        hearthstone_build=TryFileVersion(process)}).ToArray()};
+                }
+            }
+            catch { return new {status="UNAVAILABLE", decks=new object[0]}; }
         }
 
         private sealed class CardRow

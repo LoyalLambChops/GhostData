@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.11) - Updated October 31, 2026
+Phantom · Beta 1 (build 1.3.12) - Updated November 2, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -537,7 +537,7 @@ Installer integration tests use a separate application identity, shortcut names,
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.11-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.12-x64.exe
 ```
 
 The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
@@ -613,7 +613,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Phantom beta release identity and support
 
-Public display name: Phantom - Beta 1. Numeric version: 1.3.11, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
+Public display name: Phantom - Beta 1. Numeric version: 1.3.12, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
 
 The explicit updater requests the repository's latest 100 releases, rejects drafts and non-numeric tags, and selects the highest numeric eligible version. Beta installations accept GitHub prereleases and stable builds; stable installations exclude prereleases. Tags stay vMAJOR.MINOR.PATCH, including betas; use the GitHub prerelease flag and release title for the beta identity. Existing URL, digest, inventory and startup rollback verification remains in force. Older stable installations retain their existing stable-only behavior.
 
@@ -663,6 +663,14 @@ The sensor marks a deck read as game_context only after a stable GAMEPLAY scene/
 
 EffectCounterWindow is an independent nonactivating, click-through Avalonia tool window beneath the player rail. It reserves at most 35% of the existing vertical overlay budget; the combined rail and counter panel preserve the hand/name safe area. Hidden, inactive and completed games follow the existing rail lifecycle. Additional mechanic counters require reviewed IDs, evidence and regression tests.
 
-## Startup presentation boundary (1.3.11)
+## Startup presentation boundary (1.3.12)
 
 Canonical game-state mulligan completion can precede visible animations by seconds. Task-side MULLIGAN_STATE tags are retained independently before duplicate-tag filtering. Startup opponent deck identities require a subsequent task-side reveal. The tracker also rejects opponent identity observations and suppresses opponent identity-bearing output during the animated mulligan. No queued identity is promoted merely because DONE arrives. This corrects the gap in 1.3.10, which used canonical completion. Task progress lives in GameState and resets/rewinds with it.
+
+## Dashboard deck library (1.3.12)
+
+The read-only sensor `deck-library --json` reads the local CollectionManager deck collection. It compares two reads of each deck's identity, name, hero, format, main composition and sideboards and rejects unstable entries or scene changes. It shares the selected-deck sensor's complete Standard qualification (20 or 30 main cards). It does not read opponent deck entities.
+
+`ghostdata/deck_library.py` stores exact compositions as separate atomic JSON files under the data root's `deck_library` directory. Filenames hash deck ID plus full composition hash; sideboards participate in that hash. Selected-deck capture also saves versions. Identical snapshots do not rewrite files. Historical match rows join on full deck ID and version; missing compositions produce explicit unavailable entries. Local CardDatabase definitions supply display names, costs and rules text without network requests.
+
+DashboardDataService invokes `--sync-decks` on startup, every five minutes and manual refresh. Snapshot caching keys include match history, selected deck, local definitions and library file timestamps. The collection subprocess has an eight-second timeout; failed/offline reads retain saved versions. The Decks view supports class/deck/version filters, exact-version navigation from Matches, separate sideboards and plain-text clipboard export. Clear-history leaves the independent library intact. Private library files are excluded from Git and rejected by release hygiene checks.

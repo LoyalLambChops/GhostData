@@ -110,6 +110,8 @@ def save_cached_deck(snapshot: DeckSnapshot, *, data_dir: Path | None = None) ->
     paths = data_paths(data_dir)
     payload = asdict(snapshot)
     _atomic_write_json(paths.selected_deck, payload)
+    from .deck_library import save_deck
+    save_deck(snapshot, data_dir=data_dir)
 
 
 def load_cached_deck(*, data_dir: Path | None = None) -> DeckSnapshot | None:
@@ -125,6 +127,13 @@ def load_cached_deck(*, data_dir: Path | None = None) -> DeckSnapshot | None:
 
 def _atomic_write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    tmp.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-    os.replace(tmp, path)
+    text=json.dumps(payload, indent=2, ensure_ascii=False)
+    if path.exists() and path.read_text(encoding="utf-8")==text:
+        return
+    import tempfile
+    fd,tmp=tempfile.mkstemp(dir=path.parent,suffix=".tmp")
+    try:
+        with os.fdopen(fd,"w",encoding="utf-8") as stream:stream.write(text)
+        os.replace(tmp,path)
+    finally:
+        if os.path.exists(tmp):os.unlink(tmp)

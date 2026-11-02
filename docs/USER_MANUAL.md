@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.11) - Updated October 31, 2026
+Phantom · Beta 1 (build 1.3.12) - Updated November 2, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -33,7 +33,7 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.11-x64.exe` from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.12-x64.exe` from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
@@ -430,7 +430,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Community, feedback and license
 
-The dashboard footer identifies **Phantom · Beta 1**, build **1.3.11**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.12**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
 
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 
@@ -446,3 +446,13 @@ GhostData retains a verified deck snapshot for each active game in local `match_
 A separate frame appears below your player rail when relevant: **Aessina** shows friendly deaths out of 20, how many remain, and Ready at the threshold. **Starsurge** shows friendly deaths when Aessina is absent. **Herald** shows the game's recorded Herald amount. These are local-player counters; they do not expose opponent hand choices. A partial log can show Waiting for game data until a reliable count arrives. Counters reset with each match and hide with the rails. The panel reserves space within the rail area instead of extending over your hand.
 
 UPDATE reports the installed version when no newer compatible release exists. A downloaded release installs when GhostData closes; the version in the footer changes on the next launch. Current manuals ship with each build; older sections of release notes are intentionally historical.
+
+## Saved decklists
+
+Open **Decks** in the dashboard to browse saved Standard deck compositions. Each row shows the deck name, class, version and card count. Select a list to see card names, mana costs and quantities; hover a row for its locally imported rules text. Sideboard cards appear separately beneath their owning card's name. **Copy List** copies a plain-text list to the clipboard.
+
+GhostData reads complete Standard decks from your local Hearthstone collection at dashboard startup and approximately every five minutes. **Refresh Decks** requests a fresh read. Keep Hearthstone open at its main menu for the initial capture. Saved versions remain available with the game closed; browsing them does not change your selected in-game deck. Deck, version and class filters apply to this tab.
+
+In **Matches**, select a match and click **View Decklist** to open its exact saved composition. Editing a deck creates a separate saved version. Versions from matches recorded before decklist capture may say **List unavailable**: GhostData does not invent their contents from observed cards or substitute a newer list.
+
+The local `deck_library` directory belongs with your other GhostData data when backing up. Clearing match history does not erase saved decklists. Card wording uses installed game definitions, so wording may reflect a newer game patch than the saved composition. No decklists are uploaded.

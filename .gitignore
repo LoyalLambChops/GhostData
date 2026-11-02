@@ -57,3 +57,6 @@ recorder.lock
 
 # Promotional media is maintained privately outside this source repository
 /media/
+
+# Local user deck compositions
+/deck_library/

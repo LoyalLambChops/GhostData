@@ -1,3 +1,12 @@
+# Phantom · Beta 1 — build 1.3.12
+
+- Add a Decks dashboard tab with saved Standard decklists, mana costs, quantities, card-text hover, sideboards and Copy List.
+- Import complete decks from the local game collection automatically and retain captured versions offline.
+- Add View Decklist to match details, opening the exact recorded version. Uncaptured historical lists are explicitly unavailable.
+- Keep browsing, storage and card definitions local. No deck uploads or additional artwork downloads.
+
+Validation includes Python regressions, Avalonia contracts, a rendered dashboard preview and a read-only capture of 12 complete Standard decks. This beta is unsigned.
+
 # Phantom · Beta 1 — build 1.3.11
 
 - Correct the remaining early opponent reveal during mulligan, including Chainbreaker Hogger. Canonical game-state logs can run ahead of visible animations; startup deck reveals now wait for task-side reveal evidence.
