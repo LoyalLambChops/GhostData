@@ -163,3 +163,11 @@ The 1.3.10 guard was insufficient: the Hogger match's canonical DONE and SHOW ar
 273 Python regressions passed, including generic card IDs, both canonical DONE flags preceding task progress, unknown local player, duplicate streams, all opponent identity-bearing outputs and reset. Real-log replays showed first Hogger visibility at 17:11:07.8260793 and first Azalina visibility at 14:13:21.6602672, both task-side SHOW_ENTITY records. Private evidence remains local.
 
 Windows package run 41243503082 succeeded for source aec19b73a2aa683f56040761ce4a56c066be8e77. Published asset digests and the anonymous installer checksum were verified. The bundled 1.3.10 updater staged and applied public 1.3.11 in isolation, acknowledged startup and preserved a data sentinel. The local installed manifest was verified and the match-history hash remained unchanged. Live field validation remains ongoing; these checks do not prove every mechanic or every log variant.
+
+## 2026-11-02 — Local deck library, build 1.3.12
+
+Source cac9fe7186d6e477e3e14a8f6c354d3659311339 passed Windows package run 41504836372, including installer lifecycle checks. All 280 Python regressions and the Avalonia harness passed. New checks cover independent versions and same-named decks, unchanged-file caching, sideboards, missing historical compositions, corrupt-entry tolerance, match navigation, filters and shared hover formatting. The actual Avalonia Decks tab was rendered and inspected with synthetic data.
+
+A read-only local collection capture returned 12 complete Standard lists; all 215 card rows resolved names from local definitions. The match-history hash remained unchanged. No private decklists or logs were published. Previously uncaptured historical versions remain unavailable, and current collection capture shares the existing sensor's 20/30-card complete Standard qualification.
+
+Published release assets and the anonymous installer checksum were verified. The bundled 1.3.11 updater staged and applied public 1.3.12 in an isolated installation, acknowledged startup and preserved the data sentinel. The local installed 1.3.12 manifest was verified and the existing match-history hash remained unchanged. End-user field testing of the new library remains welcome.
