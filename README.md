@@ -5,17 +5,17 @@
 GhostData is a local Windows dashboard and deterministic deck tracker for Hearthstone Standard.
 
 Developed by **LoyalLambChops** · **LoyalLambChops@gmail.com**.
-**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.13) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links.
+**Free software under the [MIT License](LICENSE).** Phantom · Beta 1 (build 1.3.14) includes a Windows installer, branded shortcuts, bundled runtimes, and in-app community/contact links.
 
-**[Download GhostData for Windows — installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.13/GhostData-Setup-1.3.13-x64.exe)**
+**[Download GhostData for Windows — installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.14/GhostData-Setup-1.3.14-x64.exe)**
 
-Windows 11 x64 · Unsigned beta · [Release notes, checksums and alternative portable ZIP](https://github.com/LoyalLambChops/GhostData/releases/tag/v1.3.13)
+Windows 11 x64 · Unsigned beta · [Release notes, checksums and alternative portable ZIP](https://github.com/LoyalLambChops/GhostData/releases/tag/v1.3.14)
 
 Download and run the installer. That single file includes everything GhostData needs; no build commands or separate runtime installation. Normal tracking keeps match history and analytics on your machine. The repository contains the application, sensor, build tooling, manuals and synthetic tests; personal data, captured logs and private promotional material are excluded.
 
 It records completed matches across Hearthstone log sessions and presents results, deck identity, deck composition versions, opponent classes, initiative, match duration, mulligan choices, and factual card history. The live rails provide deterministic deck accounting, observed opponent history, hero-zone effects, and separately labeled Secret possibilities. It does not provide turn-by-turn advice or make causal claims about why a game was won or lost.
 
-**1.3.13 update:** Copy List now includes an importable Hearthstone deck code, with sideboards and a readable list. Code generation uses local card definitions and fails closed if any ID is missing. Also fixes stray characters in deck status text.
+**1.3.14 update:** Identified cards keep showing draw probabilities when cards copied from an opponent are added to your deck. Probabilities use the live deck count, including cards with unknown origins. Unbounded deck effects still suppress odds.
 
 **Beta scope:** compact text rails, quests, separate Secret possibilities, recoverable overdraw, automatic logging setup and local card-definition import. Hand hover shows supported summon/replay/stored-card results without duplicating ordinary card descriptions. Rail hover retains full text and broader tracked context. Some specialized mechanic previews remain incomplete; see [coverage and limits](docs/HAND_PREVIEWS.md). Turn timers and additional counters are planned after beta.
 
@@ -70,7 +70,7 @@ Select a saved deck version, inspect its cards or copy the list. Previously unca
 
 ## Start
 
-Use the **[Windows installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.13/GhostData-Setup-1.3.13-x64.exe)**. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. This beta is unsigned; Windows may warn or block it under its security policy.
+Use the **[Windows installer](https://github.com/LoyalLambChops/GhostData/releases/download/v1.3.14/GhostData-Setup-1.3.14-x64.exe)**. It installs for the current user, creates a Start Menu shortcut, offers a Desktop shortcut, and can launch GhostData when setup finishes. No build step or command prompt is needed. Windows uninstall preserves your local match history. This beta is unsigned; Windows may warn or block it under its security policy.
 
 For the portable package, extract the entire ZIP to a writable folder and open
 `GhostData.App.exe`. Keep the folder together. Start Hearthstone and reach its
