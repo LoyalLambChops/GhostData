@@ -171,3 +171,7 @@ Source cac9fe7186d6e477e3e14a8f6c354d3659311339 passed Windows package run 41504
 A read-only local collection capture returned 12 complete Standard lists; all 215 card rows resolved names from local definitions. The match-history hash remained unchanged. No private decklists or logs were published. Previously uncaptured historical versions remain unavailable, and current collection capture shares the existing sensor's 20/30-card complete Standard qualification.
 
 Published release assets and the anonymous installer checksum were verified. The bundled 1.3.11 updater staged and applied public 1.3.12 in an isolated installation, acknowledged startup and preserved the data sentinel. The local installed 1.3.12 manifest was verified and the existing match-history hash remained unchanged. End-user field testing of the new library remains welcome.
+
+## 2026-11-03 — Hearthstone deck-code export (1.3.13)
+
+286 Python tests and the Avalonia clipboard contract passed. Independent reference decoding verified codes from 12 saved lists, including hero, every card quantity and sideboard owner. The 1.3.12 updater installed 1.3.13 in isolation and preserved a local-data sentinel. Public release asset checksums matched. Local 1.3.13 manifest verified; 13 offline deck versions produced import codes from locally resolved definitions. No in-game import field test has been performed.
