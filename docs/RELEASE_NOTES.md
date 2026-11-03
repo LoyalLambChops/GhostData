@@ -1,3 +1,8 @@
+# Phantom · Beta 1 — build 1.3.14
+
+- Keep draw odds visible for identified cards when cards from another deck are shuffled into your deck. Probabilities use the live deck size, including cards whose origin is unknown.
+- Keep odds hidden for unbounded Demon Portal decks.
+
 # Phantom · Beta 1 — build 1.3.13
 
 - Copy List now includes a Hearthstone import code with the readable decklist, including sideboards.

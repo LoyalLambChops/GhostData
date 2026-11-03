@@ -856,7 +856,10 @@ class DeckTrackerEngine:
                              if any(m.card_id == row.card_id for m in entries)]
                     if marks:
                         result[index] = replace(row, state=" Â· ".join(filter(None, [row.state, *marks])))
-        if local and (portal or sum(r.count for r in result if r.zone == "DECK") != deck_count):
+        # Partial origin tracking (for example cards shuffled from an opponent)
+        # does not invalidate odds for identified cards. Use the live deck count,
+        # which includes the unknown-origin cards, as the denominator.
+        if local and portal:
             result = [replace(r, draw_chance=None) for r in result]
         return sorted(result, key=lambda r: (r.cost if r.cost is not None else 99, r.name.casefold(), r.provenance, r.zone))
 
