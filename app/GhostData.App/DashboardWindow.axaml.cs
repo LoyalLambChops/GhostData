@@ -230,7 +230,16 @@ public sealed partial class DashboardWindow : Window
         if(_previewDirectory is not null || _viewModel.IsBusy)return;
         _viewModel.IsBusy=true;
         _viewModel.Status="Refreshing local game definitions and checking GhostData releases…";
-        try{_viewModel.Status=await _updates.CheckAsync(_dataService,_lifetime.Token);}
+        try
+        {
+            _viewModel.Status=await _updates.CheckAsync(_dataService,_lifetime.Token);
+            if(_updates.HasStagedUpdate)
+            {
+                _viewModel.Status="Verified update ready. Restarting GhostData to install it…";
+                await Task.Delay(900,_lifetime.Token);
+                Close();
+            }
+        }
         catch(OperationCanceledException){}
         catch(Exception ex){_viewModel.Status="Update could not complete: "+ex.Message;}
         finally{_viewModel.IsBusy=false;}

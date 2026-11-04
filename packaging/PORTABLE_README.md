@@ -1,4 +1,4 @@
-# GhostData — Phantom · Beta 1 (build 1.3.2)
+# GhostData — Phantom · Beta 1 (build 1.3.15)
 
 Developed by LoyalLambChops · LoyalLambChops@gmail.com
 
@@ -14,7 +14,7 @@ Start Hearthstone and reach the main menu for local card definitions. Power.log 
 
 Match history stays in %USERPROFILE%\GhostDataData (unless you explicitly configured GHOSTDATA_DATA_DIR). Updating or uninstalling the app does not erase that folder. Normal tracking does not upload match history.
 
-UPDATE refreshes locally available card definitions and checks the GhostData GitHub release endpoint. A verified engine update installs when you close the dashboard. Installation mode keeps uninstall support separate from the verified app payload. Private/no published releases may report unavailable.
+UPDATE refreshes locally available card definitions and checks the GhostData GitHub release endpoint. A verified engine update installs automatically and restarts the dashboard. Installation mode keeps uninstall support separate from the verified app payload. No compatible published release may report unavailable.
 
 ## Help
 

@@ -23,12 +23,23 @@ class UpdateTests(unittest.TestCase):
     def test_channels_choose_highest_numeric_published_version(self):
         releases = [dict(tag_name="v1.9.0"), dict(tag_name="v1.10.0",prerelease=True),
                     dict(tag_name="v99.0.0",draft=True), dict(tag_name="main"),
-                    dict(tag_name="v1.11.0-beta",prerelease=True)]
+                    dict(tag_name="v1.11.0-beta",prerelease=True),
+                    dict(tag_name="v1.3.14",prerelease=True)]
         self.assertEqual(select_release(releases,"beta")["tag_name"],"v1.10.0")
         self.assertEqual(select_release(releases,"stable")["tag_name"],"v1.9.0")
         self.assertIsNone(select_release([releases[1]],"stable"))
         releases.append(dict(tag_name="v2.0.0"))
         self.assertEqual(select_release(releases,"beta")["tag_name"],"v2.0.0")
+
+    def test_verified_update_click_restarts_into_the_installer(self):
+        root=Path(__file__).resolve().parents[1]
+        service=(root/"app/GhostData.App/Services/ReleaseUpdateService.cs").read_text(encoding="utf-8")
+        window=(root/"app/GhostData.App/DashboardWindow.axaml.cs").read_text(encoding="utf-8")
+        self.assertIn("HasStagedUpdate => _staged is not null",service)
+        callback=window.split("private async void OnUpdateClicked",1)[1].split("private async void OnRefreshDecksClicked",1)[0]
+        self.assertIn("if(_updates.HasStagedUpdate)",callback)
+        self.assertIn("Close();",callback)
+        self.assertIn("_updates.InstallOnExit()",window)
 
     def test_empty_listing_is_unavailable(self):
         def fetch(url,target,limit): target.write_text("[]")

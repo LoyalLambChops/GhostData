@@ -1,3 +1,11 @@
+# Phantom · Beta 1 — build 1.3.15
+
+- UPDATE now installs a verified newer release automatically, then relaunches GhostData after staging. Failed downloads or verification do not close the app.
+- Bind a fresh exact Standard deck read across the brief lobby-to-match log transition. The selected deck must have been read within 10 seconds before match start, be in scope, match the local class, and bind to an active game with a start clock.
+- Preserve the sensor's original lobby/game-context fact and record the separate evidence used for the match link. Stale, mismatched, incomplete, and already-finished matches remain unattributed. Older unbound matches are not guessed.
+
+Regression coverage: exact pregame handoff, stale/wrong-game/wrong-class rejection, historical match lookup, beta release selection and verified-update restart wiring. Full suite and packaged lifecycle validation are recorded in the validation ledger.
+
 # Phantom · Beta 1 — build 1.3.14
 
 - Keep draw odds visible for identified cards when cards from another deck are shuffled into your deck. Probabilities use the live deck size, including cards whose origin is unknown.

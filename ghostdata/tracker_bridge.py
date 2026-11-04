@@ -173,8 +173,12 @@ def run_tracker_stream(
     sensor_worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="selected-deck")
     sensor_result = None
     sensor_context = None
+    sensor_requested_at = 0.0
     source_epoch = 0
     last_sensor_snapshot = None
+    last_sensor_capture_at = 0.0
+    last_sensor_request_game = 0
+    pending_pregame_handoff = None
     metadata_result = None
     metadata_refresh = False
     metadata_attempt = (None, 0.0)
@@ -189,6 +193,16 @@ def run_tracker_stream(
         logs = discover_power_logs(power_log if power_log is not None else configured_log_path(data_dir))
         source = logs[-1] if logs else None
         if source != current_source:
+            # Power.log may appear only once a match begins. Carry a narrowly
+            # fresh exact lobby read across that transition.
+            if (last_sensor_snapshot is not None and last_sensor_request_game == 0
+                    and not last_sensor_snapshot.game_context
+                    and last_sensor_snapshot.sensor_status == "EXACT"
+                    and str(last_sensor_snapshot.format).upper() == "STANDARD"
+                    and 0 <= now - last_sensor_capture_at <= 10.0):
+                pending_pregame_handoff = (last_sensor_snapshot, last_sensor_capture_at)
+            else:
+                pending_pregame_handoff = None
             current_source = source
             tail = LogTail()
             pending_line = b""
@@ -196,6 +210,8 @@ def run_tracker_stream(
             tracker.reset_runtime(preserve_selected_deck=False)
             source_epoch += 1
             last_sensor_snapshot = None
+            last_sensor_capture_at = 0.0
+            last_sensor_request_game = 0
             last_revision = -1
             last_secret_signature = ()
 
@@ -203,19 +219,37 @@ def run_tracker_stream(
             try:
                 chunk, reset = tail.read(current_source)
                 if reset:
+                    if (last_sensor_snapshot is not None and last_sensor_request_game == 0
+                            and not last_sensor_snapshot.game_context
+                            and last_sensor_snapshot.sensor_status == "EXACT"
+                            and str(last_sensor_snapshot.format).upper() == "STANDARD"
+                            and 0 <= now - last_sensor_capture_at <= 10.0):
+                        pending_pregame_handoff = (last_sensor_snapshot, last_sensor_capture_at)
+                    else:
+                        pending_pregame_handoff = None
                     pending_line = b""
                     parser.reset_for_new_source()
                     tracker.reset_runtime(preserve_selected_deck=False)
                     source_epoch += 1
                     last_sensor_snapshot = None
+                    last_sensor_capture_at = 0.0
+                    last_sensor_request_game = 0
                     last_revision = -1
                     last_secret_signature = ()
                 if chunk:
                     previous_game = parser.state.game_number
                     pending_line = ingest_tracker_chunk(parser, tracker, pending_line, chunk)
                     if parser.state.game_number != previous_game:
+                        if (last_sensor_snapshot is not None and last_sensor_request_game == 0
+                                and not last_sensor_snapshot.game_context
+                                and last_sensor_snapshot.sensor_status == "EXACT"
+                                and str(last_sensor_snapshot.format).upper() == "STANDARD"
+                                and 0 <= now - last_sensor_capture_at <= 10.0):
+                            pending_pregame_handoff = (last_sensor_snapshot, last_sensor_capture_at)
                         tracker.clear_selected_deck(parser.state)
                         last_sensor_snapshot = None
+                        last_sensor_capture_at = 0.0
+                        last_sensor_request_game = 0
                         last_sensor_poll = 0.0
             except (OSError, ValueError) as exc:
                 print(f"tracker source warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
@@ -223,17 +257,55 @@ def run_tracker_stream(
         if sensor_result is not None and sensor_result.done():
             try:
                 snapshot = sensor_result.result()
-                if snapshot is not None and sensor_context == (source_epoch, parser.state.game_number):
-                    last_sensor_snapshot = snapshot
-                    converted = _tracker_snapshot(snapshot, card_db)
-                    if converted is not None and tracker.seed_selected_deck(converted, parser.state):
-                        bind_match_deck(current_source, parser.state, snapshot, data_dir)
+                if snapshot is not None and sensor_context is not None:
+                    request_epoch, request_game_number = sensor_context
+                    request_age = max(0.0, now - sensor_requested_at)
+                    same_game = request_epoch == source_epoch and request_game_number == parser.state.game_number
+                    handoff = (
+                        not same_game and request_game_number == 0 and request_age <= 10.0
+                        and not snapshot.game_context and snapshot.sensor_status == "EXACT"
+                        and str(snapshot.format).upper() == "STANDARD"
+                        and parser.state.active and not parser.state.complete
+                        and parser.state.game_number >= 1
+                    )
+                    if same_game or handoff:
+                        last_sensor_snapshot = snapshot
+                        last_sensor_capture_at = now
+                        last_sensor_request_game = request_game_number
+                        converted = _tracker_snapshot(snapshot, card_db)
+                        if converted is not None and tracker.seed_selected_deck(converted, parser.state):
+                            if current_source is not None and parser.state.active:
+                                if handoff:
+                                    bound = bind_match_deck(
+                                        current_source, parser.state, snapshot, data_dir,
+                                        request_game_number=0, request_age_seconds=request_age,
+                                    )
+                                else:
+                                    bound = bind_match_deck(current_source, parser.state, snapshot, data_dir)
+                                if bound:
+                                    pending_pregame_handoff = None
             except Exception as exc:
                 print(f"selected deck warning: {type(exc).__name__}: {exc}", file=sys.stderr, flush=True)
             sensor_result = None
+
+        if pending_pregame_handoff is not None:
+            snapshot, captured_at = pending_pregame_handoff
+            handoff_age = max(0.0, now - captured_at)
+            if handoff_age > 10.0:
+                pending_pregame_handoff = None
+            elif current_source is not None and parser.state.active and not parser.state.complete:
+                converted = _tracker_snapshot(snapshot, card_db)
+                if converted is not None and tracker.seed_selected_deck(converted, parser.state):
+                    if bind_match_deck(
+                        current_source, parser.state, snapshot, data_dir,
+                        request_game_number=0, request_age_seconds=handoff_age,
+                    ):
+                        pending_pregame_handoff = None
+
         if sensor_result is None and now - last_sensor_poll >= 3.0:
             last_sensor_poll = now
             sensor_context = (source_epoch, parser.state.game_number)
+            sensor_requested_at = now
             sensor_result = sensor_worker.submit(read_selected_deck, project_root, data_dir=data_dir)
 
         # Share the one I/O worker with sensor polling; neither operation may

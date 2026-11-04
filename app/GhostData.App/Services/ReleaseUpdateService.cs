@@ -6,9 +6,10 @@ namespace GhostData.App.Services;
 public sealed class ReleaseUpdateService(StartupOptions options)
 {
     private string? _staged;
+    public bool HasStagedUpdate => _staged is not null;
     public async Task<string> CheckAsync(DashboardDataService data, CancellationToken cancellationToken)
     {
-        if(_staged is not null)return "A verified update is ready. Close GhostData to install it.";
+        if(_staged is not null)return "A verified update is ready to install.";
         var result=await data.RunPythonAsync(new[]{"--update"},cancellationToken,true);
         using var document=JsonDocument.Parse(result.Output);
         var release=document.RootElement.GetProperty("release");

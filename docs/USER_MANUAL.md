@@ -1,6 +1,6 @@
 # GhostData user manual
 
-Phantom · Beta 1 (build 1.3.14) - Updated November 2, 2026
+Phantom · Beta 1 (build 1.3.15) - Updated November 4, 2026
 
 GhostData is a local Windows application for Hearthstone Standard match history,
 deck tracking, quests and public Secret deductions. The dashboard and overlays
@@ -33,7 +33,7 @@ separates verified behavior from remaining live acceptance work. The
 
 ### Windows installer (recommended)
 
-1. Run `GhostData-Setup-1.3.14-x64.exe` from this project's GitHub Releases.
+1. Run `GhostData-Setup-1.3.15-x64.exe` from this project's GitHub Releases.
 2. The default destination is `%LOCALAPPDATA%\Programs\GhostData`, for the current Windows user. Setup does not require administrator privileges.
 3. Choose whether to create a Desktop shortcut. A branded Start Menu shortcut is created automatically.
 4. Leave **Launch GhostData** selected to open the dashboard after setup. Subsequent launches use either shortcut. Launching again brings the existing dashboard forward.
@@ -99,7 +99,7 @@ closes its rails. Recording is not installed as an always-running Windows servic
 | Control | Action |
 | --- | --- |
 | **DECK RAILS** | Show or suppress player, opponent and Secret overlays for this application session. Does not erase history. |
-| **UPDATE** | Refresh public definitions from the installed client and check stable GhostData GitHub releases. A verified package installs when GhostData closes. |
+| **UPDATE** | Refresh local definitions and check for a newer beta or stable GhostData release. A verified package installs automatically and restarts GhostData. |
 | **REFRESH** | Reload the dashboard when local history changes. It is not a force-reparse command for every old log. |
 | **CLEAR HISTORY** | Show a confirmation dialog, then erase local recorded matches and start a new recording period. |
 | **SUMMARY / MATCHES / CHARTS** | Switch dashboard views while retaining the selected filters. |
@@ -285,9 +285,9 @@ event boundary or 24 hours, whichever is sooner. Failures preserve the previous
 valid file; stale legality is not used to invent Secret candidates.
 
 **UPDATE** also contacts this project's GitHub release endpoint. It downloads
-only a newer stable Windows GhostData package, checks its SHA-256 digest and file
-inventory, and stages it beside the installation. Close GhostData normally to
-apply it and restart. Your match history stays in its separate data folder. If
+only a newer compatible Windows GhostData package, checks its SHA-256 digest and file
+inventory, and stages it beside the installation. GhostData then closes and
+restarts to apply it. Your match history stays in its separate data folder. If
 the new UI fails to start, the update helper attempts to restore the previous
 installation. Temporary rollback files are removed after successful startup.
 Source checkouts only report release availability and are never replaced.
@@ -430,22 +430,22 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Community, feedback and license
 
-The dashboard footer identifies **Phantom · Beta 1**, build **1.3.14**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
+The dashboard footer identifies **Phantom · Beta 1**, build **1.3.15**. TWITCH opens https://www.twitch.tv/loyallambchops; DISCORD opens https://discord.gg/H3Et7NHavZ in your default browser. CONTACT / BUG REPORT opens your email application with a draft addressed to LoyalLambChops@gmail.com. It includes the app version and a blank report template. Nothing is sent automatically and no files or match data are attached. Review any details you choose to share. If Windows cannot open the link, GhostData shows an address you can select and copy.
 
 MIT LICENSE opens the original-software license offline. Dependency notices are included separately. The beta is free and unsigned; Windows may warn or block it according to security policy. A signing certificate is not required by GhostData.
 
-UPDATE is explicit: this beta can offer a newer published beta or stable GhostData build. Numeric versions determine upgrade order; the release nickname is for display. It never downgrades to an older build. While the repository is private or has no compatible published release, the updater reports unavailable.
+UPDATE is explicit: this beta can offer a newer published beta or stable GhostData build. Numeric versions determine upgrade order; the release nickname is for display. It never downgrades to an older build. When no compatible published release is available, the updater reports unavailable.
 
 
 ### Deck identity recovery
 
-GhostData retains a verified deck snapshot for each active game in local `match_decks.json`. This lets match history recover a missing deck name after a temporary sensor interruption. A match without such evidence stays unidentified; selecting a different deck later does not relabel it. Recoverable overdraw is a separate list, ordered by capture, and is not counted as cards in hand.
+GhostData retains a verified deck snapshot for each active game in local `match_decks.json`. A fresh exact Standard snapshot from the lobby can be linked to a match that starts within 10 seconds, after checking the active game and local class. This lets match history recover a missing deck name after a temporary sensor interruption. A match without such evidence stays unidentified; selecting a different deck later does not relabel it. Recoverable overdraw is a separate list, ordered by capture, and is not counted as cards in hand.
 
 ## Effect counters below your rail
 
 A separate frame appears below your player rail when relevant: **Aessina** shows friendly deaths out of 20, how many remain, and Ready at the threshold. **Starsurge** shows friendly deaths when Aessina is absent. **Herald** shows the game's recorded Herald amount. These are local-player counters; they do not expose opponent hand choices. A partial log can show Waiting for game data until a reliable count arrives. Counters reset with each match and hide with the rails. The panel reserves space within the rail area instead of extending over your hand.
 
-UPDATE reports the installed version when no newer compatible release exists. A downloaded release installs when GhostData closes; the version in the footer changes on the next launch. Current manuals ship with each build; older sections of release notes are intentionally historical.
+UPDATE reports the installed version when no newer compatible release exists. A verified download installs automatically; GhostData closes and relaunches with the new version. Current manuals ship with each build; older sections of release notes are intentionally historical.
 
 ## Saved decklists
 

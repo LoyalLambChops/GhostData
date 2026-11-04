@@ -175,3 +175,23 @@ Published release assets and the anonymous installer checksum were verified. The
 ## 2026-11-03 — Hearthstone deck-code export (1.3.13)
 
 286 Python tests and the Avalonia clipboard contract passed. Independent reference decoding verified codes from 12 saved lists, including hero, every card quantity and sideboard owner. The 1.3.12 updater installed 1.3.13 in isolation and preserved a local-data sentinel. Public release asset checksums matched. Local 1.3.13 manifest verified; 13 offline deck versions produced import codes from locally resolved definitions. No in-game import field test has been performed.
+
+
+## 2026-11-04 — Update handoff and deck identity recovery (1.3.15 candidate)
+
+The fresh lobby-to-match handoff has an integration regression that starts with
+an exact menu snapshot, advances Power.log to an active game while the sensor
+request is pending, and verifies a per-game binding. Stale requests,
+wrong-class selections, nonzero request-game IDs and completed games are
+rejected. Binding provenance remains distinct from the sensor's game-context
+flag. The historical-match fixture verifies that a proven binding can repair a
+completed row without rereading a changed source log.
+
+All 290 Python tests pass. The .NET 10 Avalonia app and .NET Framework sensor
+build with zero warnings/errors; the UI/lifecycle parity harness passes. The
+portable package verifies 381 files at 129.9 MiB unpacked. The isolated
+installer lifecycle passed install, UI/rail render, obsolete-file replacement,
+failed-update rollback, successful-update restart acknowledgement, uninstall
+and external-data preservation. The target Windows 11 clean-machine test and a
+live Hearthstone match for this specific candidate have not yet been repeated;
+the pregame handoff itself is validated with a deterministic synthetic stream.

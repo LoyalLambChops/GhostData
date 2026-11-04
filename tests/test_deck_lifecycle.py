@@ -85,12 +85,73 @@ class DeckLifecycleTests(unittest.TestCase):
 
 
 class StreamDeckBoundaryTests(unittest.TestCase):
+    def test_fresh_lobby_snapshot_crosses_into_its_active_match(self):
+        from concurrent.futures import Future
+        from ghostdata import match_decks
+        from ghostdata.models import DeckSnapshot
+        from ghostdata.tracker_bridge import run_tracker_stream
+        from ghostdata.tracking.parser import PowerLogParser
+        from ghostdata.tracking.snapshot import TrackerDeckSnapshot
+        snapshot = DeckSnapshot(
+            deck_name="The Wall",selected_deck_id="wall-1",player_class="MAGE",
+            format="STANDARD",composition_hash="WALL",sensor_status="EXACT",
+            game_context=False,cards=[{"card_id":"CARD_1","count":30}],
+        )
+        tracker_snapshot = TrackerDeckSnapshot("EXACT","The Wall","MAGE",((1,30),),())
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);data=root/"data";data.mkdir()
+            round_number=[-1];parser=PowerLogParser()
+            class Worker:
+                def __init__(self, **kwargs): pass
+                def submit(self, function, *args, **kwargs):
+                    future=Future()
+                    future.set_result(snapshot if function.__name__=="read_selected_deck" else None)
+                    return future
+            def logs(_):
+                round_number[0]+=1
+                if round_number[0]>=6: raise StopIteration
+                return [root/"Power.log"]
+            def ingest(p, tracker, pending, chunk):
+                if round_number[0]<3:
+                    p.state.active=False;p.state.local_player_pid=1
+                    p.state.player(1).player_class="MAGE"
+                elif round_number[0]==3:
+                    p.state.reset(game_number=1);p.state.local_player_pid=1
+                    p.state.player(1).player_class="MAGE"
+                    p.state.game_tags["GHOSTDATA_GAME_START"]="12:34:56"
+                tracker.observe(p.state)
+                return b""
+            with (
+                patch("ghostdata.tracker_bridge.discover_power_logs",side_effect=logs),
+                patch("ghostdata.tracker_bridge.PowerLogParser",return_value=parser),
+                patch("ghostdata.tracker_bridge.ThreadPoolExecutor",Worker),
+                patch("ghostdata.tracker_bridge.LogTail") as tail,
+                patch("ghostdata.tracker_bridge.ingest_tracker_chunk",side_effect=ingest),
+                patch("ghostdata.tracker_bridge._tracker_snapshot",return_value=tracker_snapshot),
+                patch("ghostdata.tracker_bridge.time.monotonic",side_effect=lambda:(round_number[0]+2)*10),
+                patch("ghostdata.tracker_bridge.time.sleep"),
+                patch("ghostdata.tracker_bridge._emit"),
+            ):
+                tail.return_value.read.return_value=(b"frame",False)
+                with self.assertRaises(StopIteration):
+                    run_tracker_stream(root,data_dir=data)
+            bindings=match_decks.load(data)
+            self.assertEqual(len(bindings),1)
+            self.assertEqual(next(iter(bindings.values()))["_match_binding_source"],"FRESH_PREGAME")
+            self.assertEqual(next(iter(bindings.values()))["deck_name"],"The Wall")
+
     def test_old_same_class_result_cannot_cross_session_or_game_boundary(self):
         from concurrent.futures import Future
         from ghostdata.tracker_bridge import run_tracker_stream
         from ghostdata.tracking.parser import PowerLogParser
+        from ghostdata.models import DeckSnapshot
         from ghostdata.tracking.snapshot import TrackerDeckSnapshot
-        snapshot = TrackerDeckSnapshot("EXACT", "Previous Mage", "MAGE", ((1, 30),), ())
+        snapshot = DeckSnapshot(
+            deck_name="Previous Mage",selected_deck_id="deck-1",player_class="MAGE",
+            format="STANDARD",composition_hash="OLD",sensor_status="EXACT",
+            game_context=False,cards=[{"card_id":"CARD_1","count":30}],
+        )
+        tracker_snapshot = TrackerDeckSnapshot("EXACT", "Previous Mage", "MAGE", ((1, 30),), ())
         for new_source in (False, True):
             with self.subTest(new_source=new_source), tempfile.TemporaryDirectory() as temp:
                 root = Path(temp); round_number = [-1]; published = []
@@ -118,7 +179,7 @@ class StreamDeckBoundaryTests(unittest.TestCase):
                      patch("ghostdata.tracker_bridge.ThreadPoolExecutor", Worker), \
                      patch("ghostdata.tracker_bridge.LogTail") as tail, \
                      patch("ghostdata.tracker_bridge.ingest_tracker_chunk", side_effect=ingest), \
-                     patch("ghostdata.tracker_bridge._tracker_snapshot", side_effect=lambda value, db: value), \
+                     patch("ghostdata.tracker_bridge._tracker_snapshot", return_value=tracker_snapshot), \
                      patch("ghostdata.tracker_bridge.time.monotonic", side_effect=lambda: (round_number[0]+2)*10), \
                      patch("ghostdata.tracker_bridge.time.sleep"), \
                      patch("ghostdata.tracker_bridge._emit", side_effect=lambda seq, tracker, p: published.append((round_number[0], tracker.state.player_deck_name))):

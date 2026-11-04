@@ -1,6 +1,6 @@
 # GhostData technical manual
 
-Phantom · Beta 1 (build 1.3.14) - Updated November 2, 2026
+Phantom · Beta 1 (build 1.3.15) - Updated November 4, 2026
 
 This manual describes the application in this repository: a Windows Avalonia
 dashboard and deterministic Standard tracker, backed by Python and an open-source
@@ -537,7 +537,7 @@ Installer integration tests use a separate application identity, shortcut names,
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/Build-Installer.ps1 -OutputDirectory dist/installer-test -AppId E10FD240-677C-4875-8744-711F6B2A2136 -DisplayName "GhostData Packaging Test"
-powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.14-x64.exe
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/Test-Installer.ps1 -Installer dist/installer-test/GhostData-Setup-1.3.15-x64.exe
 ```
 
 The integration test installs, renders the UI, verifies shortcuts, replaces an obsolete-file fixture, exercises successful and failed-start updates, uninstalls, and checks that the isolated history sentinel remains unchanged. It changes only its separate test identity, but should run on a test machine or clean VM before release. Local passing results do not replace clean-machine acceptance.
@@ -613,7 +613,7 @@ The original icon is embedded in the application for the window, taskbar and Win
 
 ## Phantom beta release identity and support
 
-Public display name: Phantom - Beta 1. Numeric version: 1.3.14, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
+Public display name: Phantom - Beta 1. Numeric version: 1.3.15, retained above the earlier internal builds for monotonic upgrades. Keep VERSION, Python __version__, C# project versions and sensor protocol version aligned. ProductInfo defines the friendly name and fixed contact destinations; Python __release_channel__ is beta. A future stable build sets the channel to stable.
 
 The explicit updater requests the repository's latest 100 releases, rejects drafts and non-numeric tags, and selects the highest numeric eligible version. Beta installations accept GitHub prereleases and stable builds; stable installations exclude prereleases. Tags stay vMAJOR.MINOR.PATCH, including betas; use the GitHub prerelease flag and release title for the beta identity. Existing URL, digest, inventory and startup rollback verification remains in force. Older stable installations retain their existing stable-only behavior.
 
@@ -680,3 +680,28 @@ Deck-code export uses the public version-1 deckstring protocol (Standard format 
 ## Partial deck odds (1.3.14)
 
 The engine computes identified card probability from current in-deck copies divided by the game-reported deck entity count. Cards with unknown origins remain in that denominator, so a partial provenance census no longer clears odds for other identified cards. Portal decks remain excluded because their size is unbounded.
+
+
+## Build 1.3.15: safe match binding and update restart
+
+The selected-deck sensor can finish a read after Power.log has already created a
+new active game. Tracker requests record their game number and monotonic start
+time. A sensor result from the current game is handled as before. A result
+requested in the lobby can cross a source-file or game-number transition only
+when it is an exact Standard snapshot, the request began at game number zero,
+the handoff is at most 10 seconds old, the parser reports an active unfinished
+match, and the selected deck class matches the local player's starting class.
+The game's source session, game number and start clock still key the binding.
+match_decks.json records FRESH_PREGAME separately from the sensor's
+game_context field; no sensor observation is rewritten. Binding lookup accepts
+only these proven links. Old matches without a captured per-game binding are
+not inferred from played cards.
+
+The Update click stages and verifies the package through the Python updater.
+Only when a staged path exists does the Avalonia window show the restart status
+and close. The existing close lifecycle shuts down the recorder and rails,
+starts the update helper, applies the verified package, relaunches GhostData and
+waits for startup acknowledgement; helper rollback remains active. A failed or
+unavailable check leaves the window open. A regression contract checks this
+UI-to-helper wiring, and the isolated installer lifecycle exercises replacement,
+restart acknowledgement and rollback.

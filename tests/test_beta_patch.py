@@ -79,6 +79,52 @@ class PatchTests(unittest.TestCase):
                 self.assertFalse(match_decks.bind(log,game,deck,data))
 
 
+    def test_fresh_pregame_selected_deck_binds_once_to_its_active_match(self):
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); log=root/"Power.log"; log.write_text("fixture")
+            data=root/"data"; data.mkdir()
+            game=GameState(active=True,game_number=1,local_player_pid=1)
+            game.player(1).player_class="DEATHKNIGHT"
+            game.game_tags["GHOSTDATA_GAME_START"]="18:56:22"
+            deck=DeckSnapshot(
+                deck_name="The Wall",selected_deck_id="3384682036",
+                player_class="DEATHKNIGHT",format="STANDARD",
+                composition_hash="WALL-HASH",sensor_status="EXACT",
+                game_context=False,
+            )
+            self.assertFalse(match_decks.bind(log,game,deck,data))
+            self.assertTrue(match_decks.is_fresh_pregame_handoff(deck,game,0,3.0))
+            self.assertTrue(match_decks.bind(
+                log,game,deck,data,request_game_number=0,request_age_seconds=3.0,
+            ))
+            record=MatchRecord(
+                "wall-1","2026-11-03T18:56:22-05:00","LOSS",
+                "DEATHKNIGHT","MAGE","FIRST",source_session=root.name,game_index=1,
+            )
+            bound=match_decks.lookup(match_decks.load(data),log,record)
+            self.assertIsNotNone(bound)
+            self.assertEqual(bound.deck_name,"The Wall")
+            self.assertEqual(match_decks.load(data)[match_decks.key(log,1,"18:56:22")]["_match_binding_source"],"FRESH_PREGAME")
+
+    def test_pregame_handoff_rejects_stale_wrong_game_wrong_class_and_finished_matches(self):
+        game=GameState(active=True,game_number=1,local_player_pid=1)
+        game.player(1).player_class="DEATHKNIGHT"
+        deck=DeckSnapshot(deck_name="The Wall",player_class="DEATHKNIGHT",format="STANDARD",
+                          sensor_status="EXACT",game_context=False)
+        self.assertFalse(match_decks.is_fresh_pregame_handoff(deck,game,0,10.01))
+        self.assertFalse(match_decks.is_fresh_pregame_handoff(deck,game,1,1.0))
+        self.assertFalse(match_decks.is_fresh_pregame_handoff(deck,game,0,-0.1))
+        game.complete=True
+        self.assertFalse(match_decks.is_fresh_pregame_handoff(deck,game,0,1.0))
+        game.complete=False
+        game.player(1).player_class="MAGE"
+        with tempfile.TemporaryDirectory() as td:
+            root=Path(td); log=root/"Power.log"; log.write_text("fixture")
+            self.assertFalse(match_decks.bind(
+                log,game,deck,root/"data",request_game_number=0,request_age_seconds=1.0,
+            ))
+
+
 class MulliganVisibilityTests(unittest.TestCase):
     def test_setup_identity_waits_for_fresh_post_mulligan_reveal(self):
         from ghostdata.tracking.parser import PowerLogParser
